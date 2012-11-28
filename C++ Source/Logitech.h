@@ -13,13 +13,13 @@ public:
 	~Logitech();
 	BOOL OnInitDialog();
 
-	void changeArtistTitle(string artist, string title);
-	void changeState(int state, string artist, string title);
+	void changeArtistTitle(string artist, string title, string time);
+	void changeState(int state);
 
 private:
     HICON m_hIcon;
 
-    CEzLcd * m_lcd;
+    CEzLcd m_lcd;
 	HANDLE logo;
 	HANDLE artist;
 	HANDLE title;
