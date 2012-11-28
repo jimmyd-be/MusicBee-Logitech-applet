@@ -1,6 +1,0 @@
-D:\Downloads\C# Source\bin\Debug\mb_TestCSharpDll.dll.config
-D:\Downloads\C# Source\bin\Debug\mb_TestCSharpDll.dll
-D:\Downloads\C# Source\bin\Debug\mb_TestCSharpDll.pdb
-D:\Downloads\C# Source\obj\Debug\CSharpDll.csprojResolveAssemblyReference.cache
-D:\Downloads\C# Source\obj\Debug\mb_TestCSharpDll.dll
-D:\Downloads\C# Source\obj\Debug\mb_TestCSharpDll.pdb
