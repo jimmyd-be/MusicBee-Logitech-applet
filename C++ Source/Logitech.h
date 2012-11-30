@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 #include "Src\EZ_LCD.h"
-
+ #include <sstream> 
 using namespace std;
 
 class Logitech
@@ -13,7 +13,7 @@ public:
 	~Logitech();
 	BOOL OnInitDialog();
 
-	void changeArtistTitle(string artist, string title, string time);
+	void changeArtistTitle(wstring artist, wstring title, wstring time);
 	void changeState(int state);
 
 private:
@@ -32,6 +32,7 @@ private:
     // Monochrome
     HANDLE screen;
 
+	int test;
 	// Bitmaps
 //	cBitmap m_background;
 
