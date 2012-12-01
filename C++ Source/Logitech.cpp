@@ -9,7 +9,7 @@
 
 Logitech::Logitech()
 {
-	test = 0;
+
 }
 
 Logitech::~Logitech()
@@ -41,8 +41,6 @@ BOOL Logitech::OnInitDialog()
 		InitLCDObjectsColor();
 	}
 
-	//	SetTimer(0xabab, 30, NULL); // for scrolling to work smoothly, timer should be pretty fast
-
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -66,14 +64,21 @@ VOID Logitech::InitLCDObjectsColor()
 
 }
 
-void Logitech::changeArtistTitle(wstring artistStr, wstring titleStr, wstring duration)
+void Logitech::changeArtistTitle(wstring artistStr, wstring titleStr, wstring duration, int position)
 {
 	m_lcd.RemovePage(0);
 	m_lcd.AddNewPage();
 	m_lcd.ShowPage(0);
 
+	if (logo != 0)
+	{
+		delete logo;
+		logo = 0;
+	}
+
 	if(m_lcd.IsDeviceAvailable(LG_MONOCHROME))
 	{
+
 		artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_BW_BMP_WIDTH);
 		m_lcd.SetOrigin(artist, 0, 0);
 		m_lcd.SetText(artist, artistStr.c_str());
@@ -86,15 +91,45 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring titleStr, wstring du
 		m_lcd.SetProgressBarSize(progressbar, 136, 5);
 		m_lcd.SetOrigin(progressbar, 12, 38);
 
+		int minutes = position/60;
+		int seconds = position%60;
+		string minuteStr = to_string(minutes);
+		string secondStr = to_string(seconds);
+
+		if(minutes < 10)
+		{
+			minuteStr += "0";
+		}
+
+		if(seconds < 10)
+		{
+			secondStr += "0";
+		}
+
+		string positionString = minuteStr + ":" + secondStr;
+
+		wstring ws( positionString.begin(), positionString.end() );
+
 		time = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
 		m_lcd.SetOrigin(time, 12, 29);
-		m_lcd.SetText(time, _T("00:05"));
+		m_lcd.SetText(time, ws.c_str());
 
+		string s( duration.begin(), duration.end() );
+		
+		if(s.size() < 5)
+		{
+			s = "0" + s;
+		}
+
+		ws.clear();
+
+		ws = wstring( s.begin(), s.end() );
 		time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
 		m_lcd.SetOrigin(time1, 125, 29);
-		m_lcd.SetText(time1, duration.c_str());
-
-		/*   playIcon = static_cast<HICON>(LoadImage(
+		m_lcd.SetText(time1, ws.c_str());
+		ws.clear();
+		
+		/*playIcon = static_cast<HICON>(LoadImage(
 		AfxGetInstanceHandle(), 
 		MAKEINTRESOURCE(IDB_PNG1),
 		IMAGE_ICON, 
@@ -113,6 +148,7 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring titleStr, wstring du
 
 	}
 
+	
 	artistStr.clear();
 	titleStr.clear();
 	duration.clear();
@@ -128,8 +164,6 @@ void Logitech::changeState(int state)
 {
 	if(m_lcd.IsDeviceAvailable(LG_COLOR))
 	{
-
-
 	}
 
 	else if(m_lcd.IsDeviceAvailable(LG_MONOCHROME))
