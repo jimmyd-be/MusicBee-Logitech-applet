@@ -3,25 +3,29 @@
 #include "stdafx.h"
 #include "Src\EZ_LCD.h"
 #include "resource.h"
-
+#include "windows.h"
+#include <thread>
 
 using namespace std;
 
 class Logitech
 {
-    // Construction
+	// Construction
 public:
-    Logitech();
+	Logitech();
 	~Logitech();
 	BOOL OnInitDialog();
 
 	void changeArtistTitle(wstring artist, wstring title, wstring time, int position);
 	void changeState(int state);
-
+	void setPosition(int);
+	static Logitech * object;
+	static void startThread();
 private:
-    HICON m_hIcon;
+	thread timerThread;
+	HICON m_hIcon;
 
-    CEzLcd m_lcd;
+	CEzLcd m_lcd;
 	HANDLE logo;
 	HANDLE artist;
 	HANDLE title;
@@ -31,18 +35,20 @@ private:
 	HANDLE playIconHandle;
 	HICON playIcon;
 
-    // Monochrome
-    HANDLE screen;
+	wstring artistString;
+	wstring titleString;
+	wstring durationString;
+	int position;
+	int duration;
+	int state;
 
-	// Bitmaps
-//	cBitmap m_background;
+	int getDuration(wstring);
+	wstring getPositionString();
+	VOID InitLCDObjectsMonochrome();
+	VOID InitLCDObjectsColor();
 
-
-    VOID InitLCDObjectsMonochrome();
-    VOID InitLCDObjectsColor();
-
-    VOID CheckButtonPresses();
-    bool CheckbuttonPressesMonochrome();
-    bool CheckbuttonPressesColor();
+	/*  VOID CheckButtonPresses();
+	bool CheckbuttonPressesMonochrome();
+	bool CheckbuttonPressesColor();*/
 
 };

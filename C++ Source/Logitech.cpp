@@ -5,15 +5,17 @@
 #include "stdafx.h"
 #include "Logitech.h"
 
-
+Logitech * Logitech::object;
 
 Logitech::Logitech()
 {
-
+	object = this;
 }
 
 Logitech::~Logitech()
 {
+	this->state = -1;
+	timerThread.detach();
 
 }
 
@@ -44,9 +46,35 @@ BOOL Logitech::OnInitDialog()
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
+void Logitech::startThread()
+{
+	while(object->state == 3)
+	{
+		this_thread::sleep_for( chrono::milliseconds(1000) );
+		object->position++;
+
+		object->m_lcd.SetProgressBarPosition(object->progressbar, static_cast<FLOAT>(((float)object->position / object->duration)*100));
+		object->m_lcd.SetText(object->time, object->getPositionString().c_str());
+		object->m_lcd.Update();	
+	}
+
+	if(object->state == 7)
+	{
+		object->position = 0;
+		object->m_lcd.SetProgressBarPosition(object->progressbar, static_cast<FLOAT>(((float)object->position / object->duration)*100));
+		object->m_lcd.SetText(object->time, object->getPositionString().c_str());
+		object->m_lcd.Update();	
+	}
+
+}
+
 VOID Logitech::InitLCDObjectsMonochrome()
 {
 	m_lcd.ModifyDisplay(LG_MONOCHROME);
+
+	m_lcd.RemovePage(0);
+	m_lcd.AddNewPage();
+	m_lcd.ShowPage(0);
 
 	logo = m_lcd.AddText(LG_STATIC_TEXT, LG_BIG, DT_CENTER, LGLCD_BW_BMP_WIDTH);
 	m_lcd.SetOrigin(logo, 0, 5);
@@ -57,6 +85,11 @@ VOID Logitech::InitLCDObjectsMonochrome()
 VOID Logitech::InitLCDObjectsColor()
 {
 	m_lcd.ModifyDisplay(LG_COLOR);
+
+	m_lcd.RemovePage(0);
+	m_lcd.AddNewPage();
+	m_lcd.ShowPage(0);
+
 	logo = m_lcd.AddText(LG_STATIC_TEXT, LG_BIG, DT_CENTER, LGLCD_BW_BMP_WIDTH);
 	m_lcd.SetOrigin(logo, 0, 5);
 	m_lcd.SetText(logo, _T("MusicBee"));
@@ -66,6 +99,12 @@ VOID Logitech::InitLCDObjectsColor()
 
 void Logitech::changeArtistTitle(wstring artistStr, wstring titleStr, wstring duration, int position)
 {
+	this->artistString = artistStr;
+	this->titleString = titleStr;
+	this->durationString = duration;
+	this->position = position;
+	this->duration = getDuration(duration);
+
 	m_lcd.RemovePage(0);
 	m_lcd.AddNewPage();
 	m_lcd.ShowPage(0);
@@ -90,46 +129,26 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring titleStr, wstring du
 		progressbar = m_lcd.AddProgressBar(LG_DOT_CURSOR);
 		m_lcd.SetProgressBarSize(progressbar, 136, 5);
 		m_lcd.SetOrigin(progressbar, 12, 38);
-
-		int minutes = position/60;
-		int seconds = position%60;
-		string minuteStr = to_string(minutes);
-		string secondStr = to_string(seconds);
-
-		if(minutes < 10)
-		{
-			minuteStr += "0";
-		}
-
-		if(seconds < 10)
-		{
-			secondStr += "0";
-		}
-
-		string positionString = minuteStr + ":" + secondStr;
-
-		wstring ws( positionString.begin(), positionString.end() );
+		m_lcd.SetProgressBarPosition(progressbar, static_cast<FLOAT>(((float)this->position / this->duration)*100));
 
 		time = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
 		m_lcd.SetOrigin(time, 12, 29);
-		m_lcd.SetText(time, ws.c_str());
+		m_lcd.SetText(time, getPositionString().c_str());
 
 		string s( duration.begin(), duration.end() );
-		
+
 		if(s.size() < 5)
 		{
 			s = "0" + s;
 		}
 
-		ws.clear();
-
-		ws = wstring( s.begin(), s.end() );
+		wstring ws( s.begin(), s.end() );
 		time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
 		m_lcd.SetOrigin(time1, 125, 29);
 		m_lcd.SetText(time1, ws.c_str());
 		ws.clear();
-		
-		/*playIcon = static_cast<HICON>(LoadImage(
+
+		/*	playIcon = static_cast<HICON>(LoadImage(
 		AfxGetInstanceHandle(), 
 		MAKEINTRESOURCE(IDB_PNG1),
 		IMAGE_ICON, 
@@ -148,13 +167,20 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring titleStr, wstring du
 
 	}
 
-	
+
 	artistStr.clear();
 	titleStr.clear();
 	duration.clear();
 
 }
 
+void Logitech::setPosition(int pos)
+{
+	if(pos <= this->duration)
+	{
+		this->position = pos;
+	}
+}
 /*Undefined = 0,
 Loading = 1,
 Playing = 3,
@@ -162,85 +188,132 @@ Paused = 6,
 Stopped = 7*/
 void Logitech::changeState(int state)
 {
-	if(m_lcd.IsDeviceAvailable(LG_COLOR))
+	this->state = state;
+
+	if(m_lcd.IsDeviceAvailable(LG_MONOCHROME))
 	{
+
+		switch (state)
+		{
+		case 3:
+			timerThread = thread(&Logitech::startThread);
+			break;
+		case 7:
+		case 0:
+		case 1:
+		case 6:
+		
+			timerThread.detach();
+			break;
+		};
 	}
 
-	else if(m_lcd.IsDeviceAvailable(LG_MONOCHROME))
+	else if(m_lcd.IsDeviceAvailable(LG_COLOR))
 	{
 	}
 }
 
-
-
-VOID Logitech::CheckButtonPresses()
+int Logitech::getDuration(wstring duration)
 {
-	if(m_lcd.IsDeviceAvailable(LG_MONOCHROME) && CheckbuttonPressesMonochrome())
+	string s( duration.begin(), duration.end() );
+
+	int position = s.find(":");
+	string minutes = s.substr(0, s.size() -position);
+	string seconds = s.substr(position);
+	int minutesInt = atoi(minutes.c_str());
+	int secondsInt = atoi(seconds.c_str());
+
+	return (minutesInt *60) + secondsInt;
+}
+
+wstring Logitech::getPositionString()
+{
+	string minutes = to_string((int)position /60);
+	string seconds = to_string((int)position%60);
+
+	if(minutes.size() < 2)
 	{
-		InitLCDObjectsMonochrome();
+		minutes = "0" + minutes;
 	}
 
-	else if(m_lcd.IsDeviceAvailable(LG_COLOR) && CheckbuttonPressesColor())
+	if(seconds.size() < 2)
 	{
-		InitLCDObjectsColor();
+		seconds = "0" + seconds;
 	}
+
+	string time = minutes + ":" + seconds;
+
+	return wstring( time.begin(), time.end() );
+}
+
+/*VOID Logitech::CheckButtonPresses()
+{
+if(m_lcd.IsDeviceAvailable(LG_MONOCHROME) && CheckbuttonPressesMonochrome())
+{
+InitLCDObjectsMonochrome();
+}
+
+else if(m_lcd.IsDeviceAvailable(LG_COLOR) && CheckbuttonPressesColor())
+{
+InitLCDObjectsColor();
+}
 }
 
 bool Logitech::CheckbuttonPressesMonochrome()
 {
-	bool buttonPressed = false;
+bool buttonPressed = false;
 
-	m_lcd.ModifyDisplay(LG_MONOCHROME);
+m_lcd.ModifyDisplay(LG_MONOCHROME);
 
-	if (m_lcd.ButtonTriggered(LG_BUTTON_4))
-	{
+if (m_lcd.ButtonTriggered(LG_BUTTON_4))
+{
 
-	}
+}
 
-	else if(m_lcd.ButtonTriggered(LG_BUTTON_1))
-	{
+else if(m_lcd.ButtonTriggered(LG_BUTTON_1))
+{
 
-	}
+}
 
-	else if(m_lcd.ButtonTriggered(LG_BUTTON_2))
-	{
+else if(m_lcd.ButtonTriggered(LG_BUTTON_2))
+{
 
-	}
+}
 
-	else if(m_lcd.ButtonTriggered(LG_BUTTON_3))
-	{
+else if(m_lcd.ButtonTriggered(LG_BUTTON_3))
+{
 
-	}
+}
 
-	return buttonPressed;
+return buttonPressed;
 }
 
 bool Logitech::CheckbuttonPressesColor()
 {
-	m_lcd.ModifyDisplay(LG_COLOR);
+m_lcd.ModifyDisplay(LG_COLOR);
 
-	bool buttonPressed = false;
+bool buttonPressed = false;
 
-	if (m_lcd.ButtonReleased(LG_BUTTON_RIGHT))
-	{
+if (m_lcd.ButtonReleased(LG_BUTTON_RIGHT))
+{
 
-	}
-
-	if (m_lcd.ButtonReleased(LG_BUTTON_LEFT))
-	{
-
-	}
-
-	if (m_lcd.ButtonReleased(LG_BUTTON_DOWN))
-	{
-
-	}
-
-	if (m_lcd.ButtonReleased(LG_BUTTON_UP))
-	{
-
-		buttonPressed = true;
-	}
-
-	return buttonPressed;
 }
+
+if (m_lcd.ButtonReleased(LG_BUTTON_LEFT))
+{
+
+}
+
+if (m_lcd.ButtonReleased(LG_BUTTON_DOWN))
+{
+
+}
+
+if (m_lcd.ButtonReleased(LG_BUTTON_UP))
+{
+
+buttonPressed = true;
+}
+
+return buttonPressed;
+}*/
