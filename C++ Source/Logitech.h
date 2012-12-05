@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "stdafx.h"
 #include "Src\EZ_LCD.h"
 #include "resource.h"
@@ -35,6 +36,7 @@ private:
 	HANDLE playIconHandle;
 	HICON playIcon;
 
+	bool stopthread;
 	wstring artistString;
 	wstring titleString;
 	wstring durationString;
