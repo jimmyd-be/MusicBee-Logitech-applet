@@ -1,0 +1,49 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  TestDll.cpp
+  LCDText.cpp
+  LCDStreamingText.cpp
+  LCDSkinnedProgressBar.cpp
+  LCDScrollingText.cpp
+  LCDProgressBar.cpp
+  LCDPopup.cpp
+  LCDPaginateText.cpp
+  LCDPage.cpp
+  LCDOutput.cpp
+Src\LCDUI\LCDOutput.cpp(80): warning C4995: 'lgLcdOpen': name was marked as #pragma deprecated
+  LCDIcon.cpp
+  LCDGfxMono.cpp
+  LCDGfxColor.cpp
+  LCDGfxBase.cpp
+  LCDConnection.cpp
+  LCDColorText.cpp
+  LCDColorProgressBar.cpp
+  LCDCollection.cpp
+  LCDBase.cpp
+  LCDAnimatedBitmap.cpp
+  Generating Code...
+  Compiling...
+  EZ_LCD_Page.cpp
+  EZ_LCD.cpp
+  Logitech.cpp
+  Generating Code...
+  LCDBitmap.cpp
+     Creating library D:\Downloads\C++ Source\Debug\mb_Test.lib and object D:\Downloads\C++ Source\Debug\mb_Test.exp
+mb_Test.exp : warning LNK4070: /OUT:TestDll.dll directive in .EXP differs from output filename 'D:\Downloads\C++ Source\Debug\mb_Test.dll'; ignoring directive
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipAlloc@4 referenced in function "public: static void * __cdecl Gdiplus::GdiplusBase::operator new(unsigned int)" (??2GdiplusBase@Gdiplus@@SAPAXI@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipFree@4 referenced in function "public: static void __cdecl Gdiplus::GdiplusBase::operator delete(void *)" (??3GdiplusBase@Gdiplus@@SAXPAX@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipCreatePath@8 referenced in function "public: __thiscall Gdiplus::GraphicsPath::GraphicsPath(enum Gdiplus::FillMode)" (??0GraphicsPath@Gdiplus@@QAE@W4FillMode@1@@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipDeletePath@4 referenced in function "public: __thiscall Gdiplus::GraphicsPath::~GraphicsPath(void)" (??1GraphicsPath@Gdiplus@@QAE@XZ)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipClosePathFigure@4 referenced in function "public: enum Gdiplus::Status __thiscall Gdiplus::GraphicsPath::CloseFigure(void)" (?CloseFigure@GraphicsPath@Gdiplus@@QAE?AW4Status@2@XZ)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipAddPathLineI@20 referenced in function "public: enum Gdiplus::Status __thiscall Gdiplus::GraphicsPath::AddLine(int,int,int,int)" (?AddLine@GraphicsPath@Gdiplus@@QAE?AW4Status@2@HHHH@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipAddPathArcI@28 referenced in function "public: enum Gdiplus::Status __thiscall Gdiplus::GraphicsPath::AddArc(int,int,int,int,float,float)" (?AddArc@GraphicsPath@Gdiplus@@QAE?AW4Status@2@HHHHMM@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipCloneBrush@8 referenced in function "public: virtual class Gdiplus::Brush * __thiscall Gdiplus::Brush::Clone(void)const " (?Clone@Brush@Gdiplus@@UBEPAV12@XZ)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipDeleteBrush@4 referenced in function "public: virtual __thiscall Gdiplus::Brush::~Brush(void)" (??1Brush@Gdiplus@@UAE@XZ)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipCreateSolidFill@8 referenced in function "public: __thiscall Gdiplus::SolidBrush::SolidBrush(class Gdiplus::Color const &)" (??0SolidBrush@Gdiplus@@QAE@ABVColor@1@@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipCreateLineBrushFromRectI@24 referenced in function "public: __thiscall Gdiplus::LinearGradientBrush::LinearGradientBrush(class Gdiplus::Rect const &,class Gdiplus::Color const &,class Gdiplus::Color const &,enum Gdiplus::LinearGradientMode)" (??0LinearGradientBrush@Gdiplus@@QAE@ABVRect@1@ABVColor@1@1W4LinearGradientMode@1@@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipCreateFromHDC@8 referenced in function "public: __thiscall Gdiplus::Graphics::Graphics(struct HDC__ *)" (??0Graphics@Gdiplus@@QAE@PAUHDC__@@@Z)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipDeleteGraphics@4 referenced in function "public: __thiscall Gdiplus::Graphics::~Graphics(void)" (??1Graphics@Gdiplus@@QAE@XZ)
+LCDPopup.obj : error LNK2019: unresolved external symbol _GdipFillPath@12 referenced in function "public: enum Gdiplus::Status __thiscall Gdiplus::Graphics::FillPath(class Gdiplus::Brush const *,class Gdiplus::GraphicsPath const *)" (?FillPath@Graphics@Gdiplus@@QAE?AW4Status@2@PBVBrush@2@PBVGraphicsPath@2@@Z)
+LCDSkinnedProgressBar.obj : error LNK2019: unresolved external symbol __imp__AlphaBlend@44 referenced in function "public: virtual void __thiscall CLCDSkinnedProgressBar::OnDraw(class CLCDGfxBase &)" (?OnDraw@CLCDSkinnedProgressBar@@UAEXAAVCLCDGfxBase@@@Z)
+LCDBitmap.obj : error LNK2001: unresolved external symbol __imp__AlphaBlend@44
+D:\Downloads\C++ Source\Debug\mb_Test.dll : fatal error LNK1120: 15 unresolved externals
