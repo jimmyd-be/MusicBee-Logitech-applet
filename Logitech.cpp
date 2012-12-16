@@ -27,6 +27,11 @@ Logitech::~Logitech()
 	timerThread.detach();
 }
 
+bool Logitech::getFirstTime()
+{
+	return firstTime;
+}
+
 BOOL Logitech::OnInitDialog()
 {
 	HRESULT hRes = m_lcd.Initialize(_T("MusicBee"), LG_DUAL_MODE, FALSE, TRUE);
@@ -77,14 +82,17 @@ VOID Logitech::createMonochrome()
 	title = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_BW_BMP_WIDTH);
 	m_lcd.SetOrigin(title, 0, 13);
 
-	progressbar = m_lcd.AddProgressBar(LG_DOT_CURSOR);
+	progressbar = m_lcd.AddProgressBar(LG_FILLED);
 	m_lcd.SetProgressBarSize(progressbar, 136, 5);
 	m_lcd.SetOrigin(progressbar, 12, 38);
 
 	time = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
 	m_lcd.SetOrigin(time, 12, 29);
 
-	/*	playIcon = static_cast<HICON>(LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_PNG1), IMAGE_ICON, 16, 16, LR_MONOCHROME));
+	time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
+	m_lcd.SetOrigin(time1, 125, 29);
+
+	/*	playIcon = static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG2), IMAGE_BITMAP, 16, 16, LR_MONOCHROME));
 	playIconHandle = m_lcd.AddIcon(playIcon, 16, 16);
 	m_lcd.SetOrigin(playIconHandle, 2, 29);*/
 
@@ -104,13 +112,13 @@ VOID Logitech::createColor()
 		logo = 0;
 	}
 
-	artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_LEFT, 310);
+	artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, 320);
 	m_lcd.SetOrigin(artist, 5, 5);
 
-	album = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_LEFT, 310);
+	album = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, 320);
 	m_lcd.SetOrigin(album, 5, 30);
 
-	title = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_LEFT, 310);
+	title = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, 320);
 	m_lcd.SetOrigin(title, 5, 55);
 
 	time = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
@@ -122,6 +130,9 @@ VOID Logitech::createColor()
 	progressbar = m_lcd.AddProgressBar(LG_DOT_CURSOR);//320×240 pixel color screen
 	m_lcd.SetProgressBarSize(progressbar, 310, 15);
 	m_lcd.SetOrigin(progressbar, 5, 100);
+
+	time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
+	m_lcd.SetOrigin(time1, 275, 80);
 
 	/*playIcon = static_cast<HICON>(LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_PNG1), IMAGE_ICON, 16, 16, LR_COLOR));
 	playIconHandle = m_lcd.AddIcon(playIcon, 16, 16);
@@ -171,22 +182,14 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring ti
 
 	if(!firstTime)
 	{
-	if(m_lcd.IsDeviceAvailable(LG_COLOR))
-	{
-		//artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_LEFT, 310);
-		//m_lcd.SetOrigin(artist, 5, 5);
+		if(m_lcd.IsDeviceAvailable(LG_COLOR))
+		{
+			m_lcd.SetText(album, albumStr.c_str());
+		}
+
+
 		m_lcd.SetText(artist, artistStr.c_str());
-
-		//album = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_LEFT, 310);
-		//m_lcd.SetOrigin(album, 5, 30);
-		m_lcd.SetText(album, albumStr.c_str());
-
-		//title = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_LEFT, 310);
-		//m_lcd.SetOrigin(title, 5, 55);
 		m_lcd.SetText(title, titleStr.c_str());
-
-		//time = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
-		//m_lcd.SetOrigin(time, 5, 80);
 		m_lcd.SetText(time, getPositionString().c_str());
 
 		string s( duration.begin(), duration.end() );
@@ -197,76 +200,27 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring ti
 		}
 
 		wstring ws( s.begin(), s.end() );
-		time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
-		m_lcd.SetOrigin(time1, 275, 80);
+
 		m_lcd.SetText(time1, ws.c_str());
 		ws.clear();
-
-		//progressbar = m_lcd.AddProgressBar(LG_DOT_CURSOR);//320×240 pixel color screen
-		//m_lcd.SetProgressBarSize(progressbar, 310, 15);
-		//m_lcd.SetOrigin(progressbar, 5, 100);
-		////	m_lcd.SetProgressBarPosition(progressbar, static_cast<FLOAT>(((float)position / (float)this->duration)*100));
 
 		///*playIcon = static_cast<HICON>(LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_PNG1), IMAGE_ICON, 16, 16, LR_COLOR));
 		//playIconHandle = m_lcd.AddIcon(playIcon, 16, 16);
 		//m_lcd.SetOrigin(playIconHandle, 5, 29);*/
 
 		m_lcd.Update();
-	}
-
-	else if(m_lcd.IsDeviceAvailable(LG_MONOCHROME))
-	{
-		//artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_BW_BMP_WIDTH);
-		//m_lcd.SetOrigin(artist, 0, 0);
-		m_lcd.SetText(artist, artistStr.c_str());
-
-		//title = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_BW_BMP_WIDTH);
-		//m_lcd.SetOrigin(title, 0, 13);
-		m_lcd.SetText(title, titleStr.c_str());
-
-		//progressbar = m_lcd.AddProgressBar(LG_DOT_CURSOR);
-		//m_lcd.SetProgressBarSize(progressbar, 136, 5);
-		//m_lcd.SetOrigin(progressbar, 12, 38);
-		////	m_lcd.SetProgressBarPosition(progressbar, static_cast<FLOAT>(((float)this->position / this->duration)*100));
-
-		//time = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
-		//m_lcd.SetOrigin(time, 12, 29);
-		m_lcd.SetText(time, getPositionString().c_str());
-
-		string s( duration.begin(), duration.end() );
-
-		if(s.size() < 5)
-		{
-			s = "0" + s;
-		}
-
-		wstring ws( s.begin(), s.end() );
-		time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
-		m_lcd.SetOrigin(time1, 125, 29);
-		m_lcd.SetText(time1, ws.c_str());
-		ws.clear();
-
-		///*	playIcon = static_cast<HICON>(LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_PNG1), IMAGE_ICON, 16, 16, LR_MONOCHROME));
-		//playIconHandle = m_lcd.AddIcon(playIcon, 16, 16);
-		//m_lcd.SetOrigin(playIconHandle, 2, 29);*/
-
-		m_lcd.Update();
-	}
-
-	artistStr.clear();
-	albumStr.clear();
-	titleStr.clear();
-	duration.clear();
+		artistStr.clear();
+		albumStr.clear();
+		titleStr.clear();
+		duration.clear();
 	}
 }
 
 void Logitech::setPosition(int pos)
 {
-	if(pos <= this->duration)
-	{
-		this->position = pos;
-		m_lcd.SetText(time1, getPositionString().c_str());
-	}
+	this->position = pos/1000;
+	m_lcd.SetText(time, getPositionString().c_str());
+	m_lcd.Update();
 }
 
 /*Undefined = 0,

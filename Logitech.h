@@ -48,6 +48,7 @@ public:
 	static Logitech * object;
 	static void startThread();
 
+	bool getFirstTime();
 private:
 
 	int getDuration(wstring);
@@ -72,8 +73,9 @@ private:
 	HANDLE playIconHandle;
 	HICON playIcon;
 
-	bool stopthread;
 	bool firstTime;
+	bool stopthread;
+	
 	wstring artistString;
 	wstring albumString;
 	wstring titleString;
