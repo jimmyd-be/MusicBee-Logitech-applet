@@ -13,6 +13,7 @@
 // Logitech methods
 //-----------------------------------------------------------------
 
+//This object is a instance of the Logitech class for using in the thread
 Logitech * Logitech::object;
 
 Logitech::Logitech():	stopthread(false), firstTime(true), position(0), duration(0)
@@ -150,7 +151,8 @@ void Logitech::startThread()
 
 		if(!object->stopthread && object->progressbar != NULL)
 		{
-			if(object->state == 3)
+			//Update progressbar and position time on the screen after 1 second of music.
+			if(object->state == playState::Playing)
 			{
 				this_thread::sleep_for( chrono::milliseconds(500) );
 				object->position++;
@@ -159,7 +161,8 @@ void Logitech::startThread()
 				object->m_lcd.SetText(object->time, object->getPositionString().c_str());
 			}
 
-			else if(object->state == 7)
+			//If music stopped then the progressbar and time must stop immediately
+			else if(object->state == playState::Stopped)
 			{
 				object->position = 0;
 				object->m_lcd.SetProgressBarPosition(object->progressbar, 0);
@@ -223,16 +226,11 @@ void Logitech::setPosition(int pos)
 	m_lcd.Update();
 }
 
-/*Undefined = 0,
-Loading = 1,
-Playing = 3,
-Paused = 6,
-Stopped = 7*/
 void Logitech::changeState(int state)
 {
 	this->state = state;
 
-	if(state == 3 && firstTime)
+	if(state == playState::Playing && firstTime)
 	{
 		if(m_lcd.IsDeviceAvailable(LG_COLOR))
 		{

@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Logitech.h" />
     <ClInclude Include="MusicBeeInterface_1_0.h" />
+    <ClInclude Include="playState.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Src\EZ_LCD.h" />
     <ClInclude Include="Src\EZ_LCD_Defines.h" />
