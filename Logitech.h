@@ -16,8 +16,7 @@
 #include <thread>
 #include <iostream>
 #include <fstream>
-#include "playState.h"
-
+#include "State.h"
 using namespace std;
 
 //-----------------------------------------------------------------
@@ -26,6 +25,7 @@ using namespace std;
 
 class Logitech
 {
+
 	// Construction
 public:
 	//---------------------------
@@ -44,9 +44,9 @@ public:
 	BOOL OnInitDialog();
 
 	void changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, wstring duration, int position);
-	void changeState(int state);
+	void changeState(StatePlay);
 	void setPosition(int);
-	static Logitech * object;
+	static Logitech * LogitechObject;
 	static void startThread();
 
 	bool getFirstTime();
@@ -83,7 +83,7 @@ private:
 	wstring durationString;
 	int position;
 	int duration;
-	int state;
+	StatePlay state;
 
 	// -------------------------
 	// Disabling default copy constructor and default assignment operator.

@@ -148,7 +148,6 @@
   <ItemGroup>
     <ClInclude Include="Logitech.h" />
     <ClInclude Include="MusicBeeInterface_1_0.h" />
-    <ClInclude Include="playState.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Src\EZ_LCD.h" />
     <ClInclude Include="Src\EZ_LCD_Defines.h" />
@@ -182,6 +181,7 @@
     <ClInclude Include="Src\LCDUI\LCDText.h" />
     <ClInclude Include="Src\LCDUI\LCDUI.h" />
     <ClInclude Include="Src\lglcd.h" />
+    <ClInclude Include="State.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>

@@ -13,18 +13,18 @@
 // Logitech methods
 //-----------------------------------------------------------------
 
-//This object is a instance of the Logitech class for using in the thread
-Logitech * Logitech::object;
+//This LogitechObject is a instance of the Logitech class for using in the thread
+Logitech * Logitech::LogitechObject;
 
 Logitech::Logitech():	stopthread(false), firstTime(true), position(0), duration(0)
 {
-	object = this;
+	LogitechObject = this;
 }
 
 Logitech::~Logitech()
 {
 	stopthread = true;
-	this->state = -1;
+	this->state = StatePlay::Undefined;
 	timerThread.detach();
 }
 
@@ -33,6 +33,7 @@ bool Logitech::getFirstTime()
 	return firstTime;
 }
 
+//Initialise Logitech LCD
 BOOL Logitech::OnInitDialog()
 {
 	HRESULT hRes = m_lcd.Initialize(_T("MusicBee"), LG_DUAL_MODE, FALSE, TRUE);
@@ -42,6 +43,7 @@ BOOL Logitech::OnInitDialog()
 		return FALSE;
 	}
 
+	//Create home screen Logitech Color LCD
 	if(m_lcd.IsDeviceAvailable(LG_COLOR))
 	{
 		m_lcd.ModifyDisplay(LG_COLOR);
@@ -51,6 +53,7 @@ BOOL Logitech::OnInitDialog()
 		m_lcd.Update();
 	}
 
+	//Create home screen Logitech Monochrome LCD
 	else if(m_lcd.IsDeviceAvailable(LG_MONOCHROME))
 	{
 		m_lcd.ModifyDisplay(LG_MONOCHROME);
@@ -60,11 +63,13 @@ BOOL Logitech::OnInitDialog()
 		m_lcd.Update();
 	}
 
+	//Start thread
 	timerThread = thread(&Logitech::startThread);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
+//Create playing screen for Logitech Monochrome LCD
 VOID Logitech::createMonochrome()
 {
 	m_lcd.RemovePage(0);
@@ -101,6 +106,7 @@ VOID Logitech::createMonochrome()
 	changeArtistTitle(this->artistString, this->albumString, this->titleString, this->durationString, this->position);
 }
 
+//Create playing screen for Logitech Color LCD
 VOID Logitech::createColor()
 {
 	m_lcd.RemovePage(0);
@@ -145,31 +151,31 @@ VOID Logitech::createColor()
 
 void Logitech::startThread()
 {
-	while(!object->stopthread)
+	while(!LogitechObject->stopthread)
 	{
 		this_thread::sleep_for( chrono::milliseconds(500) );
 
-		if(!object->stopthread && object->progressbar != NULL)
+		if(!LogitechObject->stopthread && LogitechObject->progressbar != NULL)
 		{
 			//Update progressbar and position time on the screen after 1 second of music.
-			if(object->state == playState::Playing)
+			if(LogitechObject->state == StatePlay::Playing)
 			{
 				this_thread::sleep_for( chrono::milliseconds(500) );
-				object->position++;
+				LogitechObject->position++;
 
-				object->m_lcd.SetProgressBarPosition(object->progressbar, static_cast<FLOAT>(((float)object->position / object->duration)*100));
-				object->m_lcd.SetText(object->time, object->getPositionString().c_str());
+				LogitechObject->m_lcd.SetProgressBarPosition(LogitechObject->progressbar, static_cast<FLOAT>(((float)LogitechObject->position / LogitechObject->duration)*100));
+				LogitechObject->m_lcd.SetText(LogitechObject->time, LogitechObject->getPositionString().c_str());
 			}
 
 			//If music stopped then the progressbar and time must stop immediately
-			else if(object->state == playState::Stopped)
+			else if(LogitechObject->state == StatePlay::Stopped)
 			{
-				object->position = 0;
-				object->m_lcd.SetProgressBarPosition(object->progressbar, 0);
-				object->m_lcd.SetText(object->time, object->getPositionString().c_str());
+				LogitechObject->position = 0;
+				LogitechObject->m_lcd.SetProgressBarPosition(LogitechObject->progressbar, 0);
+				LogitechObject->m_lcd.SetText(LogitechObject->time, LogitechObject->getPositionString().c_str());
 			}
 
-			object->m_lcd.Update();
+			LogitechObject->m_lcd.Update();
 		}
 	}
 }
@@ -219,6 +225,7 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring ti
 	}
 }
 
+//Set current playing position
 void Logitech::setPosition(int pos)
 {
 	this->position = pos/1000;
@@ -226,11 +233,12 @@ void Logitech::setPosition(int pos)
 	m_lcd.Update();
 }
 
-void Logitech::changeState(int state)
+//Change play state of the current playing song
+void Logitech::changeState(StatePlay state)
 {
 	this->state = state;
 
-	if(state == playState::Playing && firstTime)
+	if(state == StatePlay::Playing && firstTime)
 	{
 		if(m_lcd.IsDeviceAvailable(LG_COLOR))
 		{
@@ -244,6 +252,7 @@ void Logitech::changeState(int state)
 	}
 }
 
+//Gets the music duration
 int Logitech::getDuration(wstring duration)
 {
 	string s( duration.begin(), duration.end() );
@@ -257,6 +266,7 @@ int Logitech::getDuration(wstring duration)
 	return (minutesInt *60) + secondsInt;
 }
 
+//Change current position in string
 wstring Logitech::getPositionString()
 {
 	string minutes = to_string((int)position /60);
