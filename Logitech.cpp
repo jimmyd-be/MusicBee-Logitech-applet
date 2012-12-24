@@ -231,6 +231,7 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring ti
 		//m_lcd.SetOrigin(playIconHandle, 5, 29);*/
 
 		m_lcd.Update();
+
 		artistStr.clear();
 		albumStr.clear();
 		titleStr.clear();
@@ -243,6 +244,13 @@ void Logitech::setPosition(int pos)
 {
 	this->position = pos/1000;
 	m_lcd.SetText(time, getTimeString(this->position).c_str());
+	m_lcd.Update();
+}
+
+void Logitech::setDuration(int duration)
+{
+	this->duration = duration/1000;
+	m_lcd.SetText(time1, getTimeString(this->duration).c_str());
 	m_lcd.Update();
 }
 
@@ -265,21 +273,8 @@ void Logitech::changeState(StatePlay state)
 	}
 }
 
-//Gets the music duration
-//int Logitech::getDuration(wstring duration)
-//{
-//	string s( duration.begin(), duration.end() );
-//
-//	int position = s.find(":");
-//	string minutes = s.substr(0, s.size() -position);
-//	string seconds = s.substr(position);
-//	int minutesInt = atoi(minutes.c_str());
-//	int secondsInt = atoi(seconds.c_str());
-//
-//	return (minutesInt *60) + secondsInt;
-//}
 
-//Change current position in string
+//Change int of time to string
 wstring Logitech::getTimeString(int time)
 {
 	string minutes = to_string((int)time /60);

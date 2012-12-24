@@ -47,13 +47,13 @@ public:
 	void changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, int duration, int position);
 	void changeState(StatePlay);
 	void setPosition(int);
+	void setDuration(int);
 	static Logitech * LogitechObject;
 	static void startThread();
 
 	bool getFirstTime();
 private:
 
-	//int getDuration(wstring);
 	wstring getTimeString(int);
 	VOID createMonochrome();
 	VOID createColor();
