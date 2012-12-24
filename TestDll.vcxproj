@@ -186,6 +186,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\G19Background.png" />
     <Image Include="res\G19Logo.png" />
     <Image Include="res\pause.png" />
     <Image Include="res\play.png" />

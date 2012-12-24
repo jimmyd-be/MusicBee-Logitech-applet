@@ -37,19 +37,23 @@ bool Logitech::getFirstTime()
 BOOL Logitech::OnInitDialog()
 {
 	HRESULT hRes = m_lcd.Initialize(_T("MusicBee"), LG_DUAL_MODE, FALSE, TRUE);
-
+	
 	if (hRes != S_OK)
 	{
 		return FALSE;
 	}
 
+	m_lcd.SetAsForeground(true);
+
 	//Create home screen Logitech Color LCD
 	if(m_lcd.IsDeviceAvailable(LG_COLOR))
 	{
 		m_lcd.ModifyDisplay(LG_COLOR);
-		logo = m_lcd.AddText(LG_STATIC_TEXT, LG_BIG, DT_CENTER, LGLCD_BW_BMP_WIDTH);
+		m_lcd.SetBackground(RGB(245,245,245));
+		logo = m_lcd.AddText(LG_STATIC_TEXT, LG_BIG, DT_CENTER, LGLCD_QVGA_BMP_WIDTH);
 		m_lcd.SetOrigin(logo, 0, 50);
 		m_lcd.SetText(logo, _T("MusicBee"));
+		m_lcd.SetTextFontColor(logo, RGB(0,0,0));
 		m_lcd.Update();
 	}
 
@@ -103,7 +107,7 @@ VOID Logitech::createMonochrome()
 	m_lcd.SetOrigin(playIconHandle, 2, 29);*/
 
 	firstTime = false;
-	changeArtistTitle(this->artistString, this->albumString, this->titleString, this->durationString, this->position);
+	changeArtistTitle(this->artistString, this->albumString, this->titleString, this->duration, this->position);
 }
 
 //Create playing screen for Logitech Color LCD
@@ -119,34 +123,43 @@ VOID Logitech::createColor()
 		logo = 0;
 	}
 
-	artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, 320);
+	//background.LoadFromResource(NULL, AfxGetInstanceHandle(), IDB_G19BACKGROUND, _T("PNG"));
+    //HBITMAP bmpBkg_ = background.GetHBITMAP();
+    //m_lcd.SetBackground(bmpBkg_);
+		
+	m_lcd.SetBackground(RGB(184,220,240));
+
+	artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_QVGA_BMP_WIDTH);
 	m_lcd.SetOrigin(artist, 5, 5);
+	m_lcd.SetTextFontColor(artist, RGB(0,0,0));
 
-	album = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, 320);
+	album = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_QVGA_BMP_WIDTH);
 	m_lcd.SetOrigin(album, 5, 30);
+	m_lcd.SetTextFontColor(album, RGB(0,0,0));
 
-	title = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, 320);
+	title = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_QVGA_BMP_WIDTH);
 	m_lcd.SetOrigin(title, 5, 55);
+	m_lcd.SetTextFontColor(title, RGB(0,0,0));
 
 	time = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
 	m_lcd.SetOrigin(time, 5, 80);
+	m_lcd.SetTextFontColor(time, RGB(0,0,0));
 
-	time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
+	time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 40);
 	m_lcd.SetOrigin(time1, 275, 80);
+	m_lcd.SetTextFontColor(time1, RGB(0,0,0));
 
-	progressbar = m_lcd.AddProgressBar(LG_DOT_CURSOR);//320×240 pixel color screen
-	m_lcd.SetProgressBarSize(progressbar, 310, 15);
+	progressbar = m_lcd.AddProgressBar(LG_FILLED);//320×240 pixel color screen
+	m_lcd.SetProgressBarSize(progressbar, 310, 20);
+	m_lcd.SetProgressBarColors(progressbar, RGB(25,71,94),NULL);
 	m_lcd.SetOrigin(progressbar, 5, 100);
-
-	time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
-	m_lcd.SetOrigin(time1, 275, 80);
 
 	/*playIcon = static_cast<HICON>(LoadImage(AfxGetInstanceHandle(), MAKEINTRESOURCE(IDB_PNG1), IMAGE_ICON, 16, 16, LR_COLOR));
 	playIconHandle = m_lcd.AddIcon(playIcon, 16, 16);
 	m_lcd.SetOrigin(playIconHandle, 5, 29);*/
 
 	firstTime = false;
-	changeArtistTitle(this->artistString, this->albumString, this->titleString, this->durationString, this->position);
+	changeArtistTitle(this->artistString, this->albumString, this->titleString, this->duration, this->position);
 }
 
 void Logitech::startThread()
@@ -162,9 +175,9 @@ void Logitech::startThread()
 			{
 				this_thread::sleep_for( chrono::milliseconds(500) );
 				LogitechObject->position++;
-
-				LogitechObject->m_lcd.SetProgressBarPosition(LogitechObject->progressbar, static_cast<FLOAT>(((float)LogitechObject->position / LogitechObject->duration)*100));
-				LogitechObject->m_lcd.SetText(LogitechObject->time, LogitechObject->getPositionString().c_str());
+				float progresstime = ((float)LogitechObject->position / (float)LogitechObject->duration)*100;
+				LogitechObject->m_lcd.SetProgressBarPosition(LogitechObject->progressbar, static_cast<FLOAT>(progresstime));
+				LogitechObject->m_lcd.SetText(LogitechObject->time, LogitechObject->getTimeString(LogitechObject->position).c_str());
 			}
 
 			//If music stopped then the progressbar and time must stop immediately
@@ -172,7 +185,7 @@ void Logitech::startThread()
 			{
 				LogitechObject->position = 0;
 				LogitechObject->m_lcd.SetProgressBarPosition(LogitechObject->progressbar, 0);
-				LogitechObject->m_lcd.SetText(LogitechObject->time, LogitechObject->getPositionString().c_str());
+				LogitechObject->m_lcd.SetText(LogitechObject->time, LogitechObject->getTimeString(LogitechObject->position).c_str());
 			}
 
 			LogitechObject->m_lcd.Update();
@@ -180,14 +193,14 @@ void Logitech::startThread()
 	}
 }
 
-void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, wstring duration, int position)
+void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, int duration, int position)
 {
 	this->artistString = artistStr;
 	this->albumString = albumStr;
 	this->titleString = titleStr;
-	this->durationString = duration;
+	this->durationString = getTimeString(duration/1000);
 	this->position = position;
-	this->duration = getDuration(duration);
+	this->duration = duration/1000;
 
 	if(!firstTime)
 	{
@@ -199,9 +212,9 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring ti
 
 		m_lcd.SetText(artist, artistStr.c_str());
 		m_lcd.SetText(title, titleStr.c_str());
-		m_lcd.SetText(time, getPositionString().c_str());
+		m_lcd.SetText(time, getTimeString(position).c_str());
 
-		string s( duration.begin(), duration.end() );
+		string s( durationString.begin(), durationString.end() );
 
 		if(s.size() < 5)
 		{
@@ -221,7 +234,7 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring ti
 		artistStr.clear();
 		albumStr.clear();
 		titleStr.clear();
-		duration.clear();
+
 	}
 }
 
@@ -229,7 +242,7 @@ void Logitech::changeArtistTitle(wstring artistStr, wstring albumStr, wstring ti
 void Logitech::setPosition(int pos)
 {
 	this->position = pos/1000;
-	m_lcd.SetText(time, getPositionString().c_str());
+	m_lcd.SetText(time, getTimeString(this->position).c_str());
 	m_lcd.Update();
 }
 
@@ -253,24 +266,24 @@ void Logitech::changeState(StatePlay state)
 }
 
 //Gets the music duration
-int Logitech::getDuration(wstring duration)
-{
-	string s( duration.begin(), duration.end() );
-
-	int position = s.find(":");
-	string minutes = s.substr(0, s.size() -position);
-	string seconds = s.substr(position);
-	int minutesInt = atoi(minutes.c_str());
-	int secondsInt = atoi(seconds.c_str());
-
-	return (minutesInt *60) + secondsInt;
-}
+//int Logitech::getDuration(wstring duration)
+//{
+//	string s( duration.begin(), duration.end() );
+//
+//	int position = s.find(":");
+//	string minutes = s.substr(0, s.size() -position);
+//	string seconds = s.substr(position);
+//	int minutesInt = atoi(minutes.c_str());
+//	int secondsInt = atoi(seconds.c_str());
+//
+//	return (minutesInt *60) + secondsInt;
+//}
 
 //Change current position in string
-wstring Logitech::getPositionString()
+wstring Logitech::getTimeString(int time)
 {
-	string minutes = to_string((int)position /60);
-	string seconds = to_string((int)position%60);
+	string minutes = to_string((int)time /60);
+	string seconds = to_string((int)time%60);
 
 	if(minutes.size() < 2)
 	{
@@ -282,7 +295,7 @@ wstring Logitech::getPositionString()
 		seconds = "0" + seconds;
 	}
 
-	string time = minutes + ":" + seconds;
+	string timeString = minutes + ":" + seconds;
 
-	return wstring( time.begin(), time.end() );
+	return wstring( timeString.begin(), timeString.end() );
 }

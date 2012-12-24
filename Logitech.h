@@ -10,13 +10,14 @@
 //-----------------------------------------------------------------
 
 #include "stdafx.h"
-#include "Src\EZ_LCD.h"
-#include "resource.h"
 #include "windows.h"
 #include <thread>
 #include <iostream>
 #include <fstream>
 #include "State.h"
+#include "Src\EZ_LCD.h"
+#include "resource.h"
+//#include <afxwin.h>
 using namespace std;
 
 //-----------------------------------------------------------------
@@ -43,7 +44,7 @@ public:
 	//---------------------------
 	BOOL OnInitDialog();
 
-	void changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, wstring duration, int position);
+	void changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, int duration, int position);
 	void changeState(StatePlay);
 	void setPosition(int);
 	static Logitech * LogitechObject;
@@ -52,8 +53,8 @@ public:
 	bool getFirstTime();
 private:
 
-	int getDuration(wstring);
-	wstring getPositionString();
+	//int getDuration(wstring);
+	wstring getTimeString(int);
 	VOID createMonochrome();
 	VOID createColor();
 
@@ -73,6 +74,8 @@ private:
 	HANDLE time1;
 	HANDLE playIconHandle;
 	HICON playIcon;
+
+	//cBitmap background;
 
 	bool firstTime;
 	bool stopthread;

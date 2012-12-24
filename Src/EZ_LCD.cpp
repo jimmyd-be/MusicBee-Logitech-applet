@@ -832,15 +832,15 @@ HRESULT CEzLcd::SetProgressBarPosition(HANDLE handle, FLOAT percentage)
 
     if (NULL != myObject_)
     {
-//        LCDUIASSERT(LG_PROGRESS_BAR == myObject_->GetObjectType());
-//// only allow this function for progress bars
-//        if (LG_PROGRESS_BAR == myObject_->GetObjectType())
-//        {
-//            CLCDProgressBar *progressBar_ = static_cast<CLCDProgressBar*>(myObject_);
-//            LCDUIASSERT(NULL != progressBar_);
-//            progressBar_->SetPos(percentage);
-//            return S_OK;
-//        }
+        LCDUIASSERT(LG_PROGRESS_BAR == myObject_->GetObjectType());
+// only allow this function for progress bars
+        if (LG_PROGRESS_BAR == myObject_->GetObjectType())
+        {
+            CLCDProgressBar *progressBar_ = static_cast<CLCDProgressBar*>(myObject_);
+            LCDUIASSERT(NULL != progressBar_);
+            progressBar_->SetPos(percentage);
+            return S_OK;
+        }
     }
 
     return E_FAIL;

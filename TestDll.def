@@ -1,4 +1,4 @@
-LIBRARY "TestDll" 
+LIBRARY "mb_LogitechPlugin" 
 EXPORTS   
     Initialise @1 
     Configure @2
