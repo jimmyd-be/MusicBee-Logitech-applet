@@ -1,4 +1,4 @@
-//-----------------------------------------------------------------
+ï»¿//-----------------------------------------------------------------
 // Logitech File
 // C++ Source - Logitech.cpp - version 2012 v1.0
 //-----------------------------------------------------------------
@@ -16,7 +16,7 @@
 //This LogitechObject is a instance of the Logitech class for using in the thread
 Logitech * Logitech::LogitechObject;
 
-Logitech::Logitech():	stopthread(false), firstTime(true), position(0), duration(0)
+Logitech::Logitech():   stopthread(false), firstTime(true), position(0), duration(0)
 {
 	LogitechObject = this;
 }
@@ -37,7 +37,7 @@ bool Logitech::getFirstTime()
 BOOL Logitech::OnInitDialog()
 {
 	HRESULT hRes = m_lcd.Initialize(_T("MusicBee"), LG_DUAL_MODE, FALSE, TRUE);
-	
+
 	if (hRes != S_OK)
 	{
 		return FALSE;
@@ -102,7 +102,7 @@ VOID Logitech::createMonochrome()
 	time1 = m_lcd.AddText(LG_STATIC_TEXT, LG_SMALL, DT_LEFT, 80);
 	m_lcd.SetOrigin(time1, 125, 29);
 
-	/*	playIcon = static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG2), IMAGE_BITMAP, 16, 16, LR_MONOCHROME));
+	/*      playIcon = static_cast<HICON>(LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDB_PNG2), IMAGE_BITMAP, 16, 16, LR_MONOCHROME));
 	playIconHandle = m_lcd.AddIcon(playIcon, 16, 16);
 	m_lcd.SetOrigin(playIconHandle, 2, 29);*/
 
@@ -124,9 +124,9 @@ VOID Logitech::createColor()
 	}
 
 	//background.LoadFromResource(NULL, AfxGetInstanceHandle(), IDB_G19BACKGROUND, _T("PNG"));
-    //HBITMAP bmpBkg_ = background.GetHBITMAP();
-    //m_lcd.SetBackground(bmpBkg_);
-		
+	//HBITMAP bmpBkg_ = background.GetHBITMAP();
+	//m_lcd.SetBackground(bmpBkg_);
+
 	m_lcd.SetBackground(RGB(184,220,240));
 
 	artist = m_lcd.AddText(LG_SCROLLING_TEXT, LG_MEDIUM, DT_CENTER, LGLCD_QVGA_BMP_WIDTH);
@@ -149,7 +149,7 @@ VOID Logitech::createColor()
 	m_lcd.SetOrigin(time1, 275, 80);
 	m_lcd.SetTextFontColor(time1, RGB(0,0,0));
 
-	progressbar = m_lcd.AddProgressBar(LG_FILLED);//320×240 pixel color screen
+	progressbar = m_lcd.AddProgressBar(LG_FILLED);//320ï¿½240 pixel color screen
 	m_lcd.SetProgressBarSize(progressbar, 310, 20);
 	m_lcd.SetProgressBarColors(progressbar, RGB(25,71,94),NULL);
 	m_lcd.SetOrigin(progressbar, 5, 100);

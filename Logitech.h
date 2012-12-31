@@ -20,6 +20,9 @@
 //#include <afxwin.h>
 using namespace std;
 
+EXTERN_C IMAGE_DOS_HEADER __ImageBase;
+#define HINST_THISCOMPONENT ((HINSTANCE)&__ImageBase)
+
 //-----------------------------------------------------------------
 // Logitech Class
 //-----------------------------------------------------------------
@@ -27,72 +30,72 @@ using namespace std;
 class Logitech
 {
 
-	// Construction
+        // Construction
 public:
-	//---------------------------
-	// Constructor(s)
-	//---------------------------
-	Logitech();
+        //---------------------------
+        // Constructor(s)
+        //---------------------------
+        Logitech();
 
-	//---------------------------
-	// Destructor
-	//---------------------------
-	~Logitech();
+        //---------------------------
+        // Destructor
+        //---------------------------
+        ~Logitech();
 
-	//---------------------------
-	// General Methods
-	//---------------------------
-	BOOL OnInitDialog();
+        //---------------------------
+        // General Methods
+        //---------------------------
+        BOOL OnInitDialog();
 
-	void changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, int duration, int position);
-	void changeState(StatePlay);
-	void setPosition(int);
-	void setDuration(int);
-	static Logitech * LogitechObject;
-	static void startThread();
+        void changeArtistTitle(wstring artistStr, wstring albumStr, wstring titleStr, int duration, int position);
+        void changeState(StatePlay);
+        void setPosition(int);
+        void setDuration(int);
+        static Logitech * LogitechObject;
+        static void startThread();
 
-	bool getFirstTime();
+        bool getFirstTime();
 private:
 
-	wstring getTimeString(int);
-	VOID createMonochrome();
-	VOID createColor();
+        wstring getTimeString(int);
+        VOID createMonochrome();
+        VOID createColor();
 
-	// -------------------------
-	// Datamembers
-	// -------------------------
-	thread timerThread;
-	HICON m_hIcon;
+        // -------------------------
+        // Datamembers
+        // -------------------------
+        thread timerThread;
+        HICON m_hIcon;
 
-	CEzLcd m_lcd;
-	HANDLE logo;
-	HANDLE artist;
-	HANDLE album;
-	HANDLE title;
-	HANDLE progressbar;
-	HANDLE time;
-	HANDLE time1;
-	HANDLE playIconHandle;
-	HICON playIcon;
+        CEzLcd m_lcd;
+        HANDLE logo;
+        HANDLE artist;
+        HANDLE album;
+        HANDLE title;
+        HANDLE progressbar;
+        HANDLE time;
+        HANDLE time1;
+        HANDLE playIconHandle;
+        HICON playIcon;
 
-	//cBitmap background;
+        //cBitmap background;
 
-	bool firstTime;
-	bool stopthread;
-	
-	wstring artistString;
-	wstring albumString;
-	wstring titleString;
-	wstring durationString;
-	int position;
-	int duration;
-	StatePlay state;
+        bool firstTime;
+        bool stopthread;
+        
+        wstring artistString;
+        wstring albumString;
+        wstring titleString;
+        wstring durationString;
+        int position;
+        int duration;
+        StatePlay state;
 
-	// -------------------------
-	// Disabling default copy constructor and default assignment operator.
-	// If you get a linker error from one of these functions, your class is internally trying to use them. This is
-	// an error in your class, these declarations are deliberately made without implementation because they should never be used.
-	// -------------------------
-	Logitech(const Logitech& t);
-	Logitech& operator=(const Logitech& t);
+        // -------------------------
+        // Disabling default copy constructor and default assignment operator.
+        // If you get a linker error from one of these functions, your class is internally trying to use them. This is
+        // an error in your class, these declarations are deliberately made without implementation because they should never be used.
+        // -------------------------
+        Logitech(const Logitech& t);
+        Logitech& operator=(const Logitech& t);
 };

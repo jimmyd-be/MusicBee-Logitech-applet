@@ -186,13 +186,16 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="res\G19Background.png" />
-    <Image Include="res\G19Logo.png" />
+    <Image Include="res\G19logo.bmp" />
+    <Image Include="res\G19Background.bmp" />
+    <Image Include="res\pause.ico" />
     <Image Include="res\pause.png" />
-    <Image Include="res\play.png" />
+    <Image Include="res\play.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="LogitechPlugin.rc" />
+    <ResourceCompile Include="LogitechPlugin.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
