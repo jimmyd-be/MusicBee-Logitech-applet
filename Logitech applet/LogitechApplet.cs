@@ -36,13 +36,13 @@ namespace MusicBeePlugin
         {
             return false;
         }
-       
+
         // called by MusicBee when the user clicks Apply or Save in the MusicBee Preferences screen.
         // its up to you to figure out whether anything has changed and needs updating
         public void SaveSettings()
         {
             // save any persistent settings in a sub-folder of this path
-          //  string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
+            //  string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
         }
 
         // MusicBee is closing the plugin (plugin is being disabled by user or MusicBee is shutting down)
@@ -78,57 +78,61 @@ namespace MusicBeePlugin
                         {
                             Close(PluginCloseReason.StopNoUnload);
                         }
+
                     }
                     break;
 
                 case NotificationType.PlayStateChanged:
-                    if(logitech != null)
-            {
-                switch (mbApiInterface.Player_GetPlayState())
-                {
-                case PlayState.Playing:
-					
-                    logitech.changeState(PlayState.Playing);
+                    
+                    if (logitech != null)
+                    {
+                        switch (mbApiInterface.Player_GetPlayState())
+                        {
+                            case PlayState.Playing:
 
-                    if(!logitech.getFirstTime())
-                    {
-                        logitech.setPosition(mbApiInterface.Player_GetPosition());
-                        logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
+                                logitech.changeState(PlayState.Playing);
+
+                                if (!logitech.getFirstTime())
+                                {
+                                    logitech.setPosition(mbApiInterface.Player_GetPosition());
+                                    logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
+                                }
+                                break;
+                            case PlayState.Paused:
+                                if (!logitech.getFirstTime())
+                                {
+                                    logitech.changeState(PlayState.Paused);
+                                }
+                                break;
+                            case PlayState.Stopped:
+                                if (!logitech.getFirstTime())
+                                {
+                                    logitech.changeState(PlayState.Stopped);
+                                }
+                                break;
+                            case PlayState.Loading:
+                                if (!logitech.getFirstTime())
+                                {
+                                    logitech.changeState(PlayState.Loading);
+                                }
+                                break;
+                            case PlayState.Undefined:
+                                if (!logitech.getFirstTime())
+                                {
+                                    logitech.changeState(PlayState.Undefined);
+                                }
+                                break;
+                        }
                     }
                     break;
-                case PlayState.Paused:
-                    if(!logitech.getFirstTime())
-                    {
-                        logitech.changeState(PlayState.Paused);
-                    }
-                    break;
-                case PlayState.Stopped:
-                    if(!logitech.getFirstTime())
-                    {
-                        logitech.changeState(PlayState.Stopped);
-                    }
-                    break;
-                case PlayState.Loading:
-                    if(!logitech.getFirstTime())
-                    {
-                        logitech.changeState(PlayState.Loading);
-                    }
-                    break;
-                case PlayState.Undefined:
-                    if(!logitech.getFirstTime())
-                    {
-                        logitech.changeState(PlayState.Undefined);
-                    }
-                    break;
-                }
-            }
-            break;
-   
+
                 case NotificationType.TrackChanged:
                     string artist = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Artist);
                     string album = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Album);
                     string title = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
                     string artwork = mbApiInterface.NowPlaying_GetArtwork();
+
+                    
                     logitech.changeArtistTitle(artist, album, title, artwork, mbApiInterface.NowPlaying_GetDuration(), mbApiInterface.Player_GetPosition());
                     break;
             }
@@ -181,11 +185,11 @@ namespace MusicBeePlugin
         {
             return true;
         }
-        
+
         // return the full path of folders in a folder
         public string[] GetFolders(string path)
         {
-            return new string[]{};
+            return new string[] { };
         }
 
         // this function returns an array of files in the specified folder
@@ -208,9 +212,9 @@ namespace MusicBeePlugin
         {
             return null;
         }
-        
+
         // return an array of bytes for the raw picture data
-        public byte[] GetFileArtwork(string url )
+        public byte[] GetFileArtwork(string url)
         {
             return null;
         }
@@ -237,7 +241,7 @@ namespace MusicBeePlugin
         }
 
         // return the last error that occurred
-        public  Exception GetError()
+        public Exception GetError()
         {
             return null;
         }
