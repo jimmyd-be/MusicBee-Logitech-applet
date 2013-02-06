@@ -1,0 +1,8 @@
+D:\Downloads\Logitech applet\bin\x86\Release\mb_LogitechPlugin.dll.config
+D:\Downloads\Logitech applet\bin\x86\Release\mb_LogitechPlugin.dll
+D:\Downloads\Logitech applet\bin\x86\Release\mb_LogitechPlugin.pdb
+D:\Downloads\Logitech applet\obj\x86\Release\mb_LogitechPlugin.dll
+D:\Downloads\Logitech applet\obj\x86\Release\mb_LogitechPlugin.pdb
+D:\Downloads\Logitech applet\obj\x86\Release\Logitech_applet.csprojResolveAssemblyReference.cache
+D:\Downloads\Logitech applet\obj\x86\Release\MusicBeePlugin.Resource.resources
+D:\Downloads\Logitech applet\obj\x86\Release\Logitech_applet.csproj.GenerateResource.Cache
