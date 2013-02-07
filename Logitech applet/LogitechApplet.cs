@@ -74,10 +74,11 @@ namespace MusicBeePlugin
                         logitech = new Logitech();
                         logitech.connect();
 
-                        if (!logitech.connected)
-                        {
-                            Close(PluginCloseReason.StopNoUnload);
-                        }
+                        //if (!logitech.connected)
+                        //{
+                            
+                        //  //  Close(PluginCloseReason.StopNoUnload);
+                        //}
 
                     }
                     break;
@@ -102,18 +103,24 @@ namespace MusicBeePlugin
                                 if (!logitech.getFirstTime())
                                 {
                                     logitech.changeState(PlayState.Paused);
+                                    logitech.setPosition(mbApiInterface.Player_GetPosition());
+                                    logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
                                 }
                                 break;
                             case PlayState.Stopped:
                                 if (!logitech.getFirstTime())
                                 {
                                     logitech.changeState(PlayState.Stopped);
+                                    logitech.setPosition(mbApiInterface.Player_GetPosition());
+                                    logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
                                 }
                                 break;
                             case PlayState.Loading:
                                 if (!logitech.getFirstTime())
                                 {
                                     logitech.changeState(PlayState.Loading);
+                                    logitech.setPosition(mbApiInterface.Player_GetPosition());
+                                    logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
                                 }
                                 break;
                             case PlayState.Undefined:
@@ -132,8 +139,7 @@ namespace MusicBeePlugin
                     string title = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
                     string artwork = mbApiInterface.NowPlaying_GetArtwork();
 
-                    
-                    logitech.changeArtistTitle(artist, album, title, artwork, mbApiInterface.NowPlaying_GetDuration(), mbApiInterface.Player_GetPosition());
+                     logitech.changeArtistTitle(artist, album, title, artwork, mbApiInterface.NowPlaying_GetDuration()/1000, mbApiInterface.Player_GetPosition()/1000);
                     break;
             }
         }

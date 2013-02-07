@@ -3,15 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using GammaJul;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace MusicBeePlugin
 {
-
     class Logitech
     {
         public bool connected = false;
@@ -31,12 +30,15 @@ namespace MusicBeePlugin
         private string artwork = "";
         private MusicBeePlugin.Plugin.PlayState state = Plugin.PlayState.Undefined;
 
+        private Image backgroundImage = null;
+        LcdGdiImage backgroundGdi = null;
         private LcdGdiText titleGdi = null;
         private LcdGdiText artistGdi = null;
         private LcdGdiText positionGdi = null;
         private LcdGdiText durationGdi = null;
         private LcdGdiProgressBar progressBarGdi = null;
-        private Timer timer = new Timer(TimerCallback, null, 50, Timeout.Infinite);
+
+       private Timer timer = new Timer(TimerCallback, null, 0, 250);
 
         static Logitech logitechObject = null;
 
@@ -51,13 +53,13 @@ namespace MusicBeePlugin
             applet = new LcdApplet("MusicBee V2", appletCapabilities, false);
             applet.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
             applet.Connect();
+            
         }
 
         public void disconnect()
         {
             //applet.Disconnect();
-            //applet.Dispose();
-            //applet = null;
+           // applet = null;
         }
 
         public void changeArtistTitle(string artist, string album, string title, string artwork, int duration, int position)
@@ -69,7 +71,7 @@ namespace MusicBeePlugin
             this.duration = duration;
             this.position = position;
 
-            if (getFirstTime())
+            if (device != null && progressBarGdi == null)
             {
                 if (device.DeviceType == LcdDeviceType.Monochrome)
                 {
@@ -82,7 +84,7 @@ namespace MusicBeePlugin
                 }
             }
 
-            else
+            if (device != null && progressBarGdi != null)
             {
                 titleGdi.Text = title;
                 artistGdi.Text = artist;
@@ -103,6 +105,11 @@ namespace MusicBeePlugin
         {
             if (logitechObject.title != null && (logitechObject.state == Plugin.PlayState.Playing || logitechObject.state == Plugin.PlayState.Stopped))
             {
+                if (logitechObject.state == Plugin.PlayState.Playing)
+                {
+                    logitechObject.timerTime += 250;
+                }
+
                 //Update progressbar and position time on the screen after 1 second of music.
                 if (logitechObject.state == Plugin.PlayState.Playing && logitechObject.timerTime == 1000)
                 {
@@ -111,11 +118,6 @@ namespace MusicBeePlugin
                     int progresstime = (int)(((float)logitechObject.position / (float)logitechObject.duration) * 100);
                     logitechObject.progressBarGdi.Value = progresstime;
                     logitechObject.positionGdi.Text = logitechObject.timetoString(logitechObject.position);
-                }
-
-                else if (logitechObject.state == Plugin.PlayState.Playing)
-                {
-                    logitechObject.timerTime += 50;
                 }
 
                 //If music stopped then the progressbar and time must stop immediately
@@ -128,12 +130,15 @@ namespace MusicBeePlugin
 
                 logitechObject.device.DoUpdateAndDraw();
             }
+
+ 
         }
 
 
         private void applet_DeviceArrival(object sender, LcdDeviceTypeEventArgs e)
         {
             device = applet.OpenDeviceByType(e.DeviceType);
+            device.SoftButtonsChanged += new EventHandler<LcdSoftButtonsEventArgs>(buttonPressed);
 
             device.SetAsForegroundApplet = true;
 
@@ -159,17 +164,26 @@ namespace MusicBeePlugin
             else if (device.DeviceType == LcdDeviceType.Qvga)
             {
                 page = new LcdGdiPage(device);
-                Image logo = (Image)Resource.G19logo;
-                page.Children.Add(new LcdGdiImage(logo));
+                backgroundImage = (Image)Resource.G19logo;
+                backgroundGdi = new LcdGdiImage(backgroundImage);
+                page.Children.Add(backgroundGdi);
                 device.CurrentPage = page;
 
                 device.DoUpdateAndDraw();
                 firstTime = false;
             }
+
+                  }
+
+        private void buttonPressed(object sender, LcdSoftButtonsEventArgs e)
+        {
+            
         }
+
 
         private void createMonochrome()
         {
+
             page.Children.Clear();
             page.Dispose();
             page = null;
@@ -195,6 +209,8 @@ namespace MusicBeePlugin
             LcdGdiProgressBar progressBar = new LcdGdiProgressBar();
             progressBar.Size = new SizeF(136, 5);
             progressBar.Margin = new MarginF(12, 38, 0, 0);
+            progressBar.Minimum = 0;
+            progressBar.Maximum = 100;
 
             page.Children.Add(title);
             page.Children.Add(artist);
@@ -209,6 +225,17 @@ namespace MusicBeePlugin
 
         private void createColor()
         {
+            page.Children.Clear();
+            page.Dispose();
+            page = null;
+
+            page = new LcdGdiPage(device);
+            backgroundImage = (Image)Resource.G19Background;
+            backgroundGdi = new LcdGdiImage(backgroundImage);
+            page.Children.Add(backgroundGdi);
+            device.CurrentPage = page;
+
+            device.DoUpdateAndDraw();
 
         }
 
@@ -219,17 +246,17 @@ namespace MusicBeePlugin
                 case Plugin.PlayState.Playing:
 
                     state = Plugin.PlayState.Playing;
-
-                    if (getFirstTime())
+                    
+                    if (device != null && progressBarGdi == null)
                     {
-                        if (device.DeviceType == LcdDeviceType.Monochrome)
-                        {
-                            createMonochrome();
-                        }
-                        else
-                        {
-                            createColor();
-                        }
+                    if (device.DeviceType == LcdDeviceType.Monochrome)
+                    {
+                        createMonochrome();
+                    }
+                    else
+                    {
+                        createColor();
+                    }
                     }
                     break;
 
@@ -237,40 +264,23 @@ namespace MusicBeePlugin
 
                     state = Plugin.PlayState.Paused;
 
-                    if (!getFirstTime())
-                    {
-
-                    }
                     break;
 
                 case Plugin.PlayState.Stopped:
 
                     state = Plugin.PlayState.Stopped;
 
-                    if (!getFirstTime())
-                    {
-
-                    }
                     break;
 
                 case Plugin.PlayState.Loading:
 
                     state = Plugin.PlayState.Loading;
-
-                    if (!getFirstTime())
-                    {
-
-                    }
                     break;
 
                 case Plugin.PlayState.Undefined:
 
                     state = Plugin.PlayState.Undefined;
 
-                    if (!getFirstTime())
-                    {
-
-                    }
                     break;
 
             };
@@ -297,12 +307,12 @@ namespace MusicBeePlugin
 
         public void setPosition(int position)
         {
-            this.position = position;
+            this.position = position/1000;
         }
 
         public void setDuration(int duration)
         {
-            this.duration = duration;
+            this.duration = duration/1000;
         }
     }
 }
