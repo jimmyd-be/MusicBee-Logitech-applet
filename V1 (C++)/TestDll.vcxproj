@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>mb_LogitechPlugin</ProjectName>
+    <ProjectName>mb_Test</ProjectName>
     <ProjectGuid>{15843956-719F-4497-A06B-7879340B4248}</ProjectGuid>
     <RootNamespace>TestDll</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -22,7 +22,6 @@
     <PlatformToolset>v110</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <UseOfMfc>false</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -62,17 +61,15 @@
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Src;Src\LCDUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>TestDll.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>Lib\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,14 +77,11 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;TESTDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Src;Src\LCDUI;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalUsingDirectories>
-      </AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -95,9 +89,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalLibraryDirectories>Lib\x86;Gdiplus.lib;msimg32.lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>msimg32.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>TestDll.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -110,92 +101,17 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="Logitech.cpp" />
-    <ClCompile Include="Src\EZ_LCD.cpp" />
-    <ClCompile Include="Src\EZ_LCD_Page.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDAnimatedBitmap.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDBase.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDBitmap.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Src\LCDUI\LCDCollection.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDColorProgressBar.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDColorText.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDConnection.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDGfxBase.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDGfxColor.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDGfxMono.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDIcon.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDOutput.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDPage.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDPaginateText.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDPopup.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Src\LCDUI\LCDProgressBar.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDScrollingText.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDSkinnedProgressBar.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Src\LCDUI\LCDStreamingText.cpp" />
-    <ClCompile Include="Src\LCDUI\LCDText.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="LogitechPlugin.cpp" />
+    <ClCompile Include="TestDll.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Logitech.h" />
     <ClInclude Include="MusicBeeInterface_1_0.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="Src\EZ_LCD.h" />
-    <ClInclude Include="Src\EZ_LCD_Defines.h" />
-    <ClInclude Include="Src\EZ_LCD_Page.h" />
-    <ClInclude Include="Src\LCDUI\LCDAnimatedBitmap.h" />
-    <ClInclude Include="Src\LCDUI\LCDBase.h" />
-    <ClInclude Include="Src\LCDUI\LCDBitmap.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Src\LCDUI\LCDCollection.h" />
-    <ClInclude Include="Src\LCDUI\LCDColorProgressBar.h" />
-    <ClInclude Include="Src\LCDUI\LCDColorText.h" />
-    <ClInclude Include="Src\LCDUI\LCDConnection.h" />
-    <ClInclude Include="Src\LCDUI\LCDGfxBase.h" />
-    <ClInclude Include="Src\LCDUI\LCDGfxColor.h" />
-    <ClInclude Include="Src\LCDUI\LCDGfxMono.h" />
-    <ClInclude Include="Src\LCDUI\LCDIcon.h" />
-    <ClInclude Include="Src\LCDUI\LCDOutput.h" />
-    <ClInclude Include="Src\LCDUI\LCDPage.h" />
-    <ClInclude Include="Src\LCDUI\LCDPaginateText.h" />
-    <ClInclude Include="Src\LCDUI\LCDPopup.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Src\LCDUI\LCDProgressBar.h" />
-    <ClInclude Include="Src\LCDUI\LCDScrollingText.h" />
-    <ClInclude Include="Src\LCDUI\LCDSkinnedProgressBar.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Src\LCDUI\LCDStreamingText.h" />
-    <ClInclude Include="Src\LCDUI\LCDText.h" />
-    <ClInclude Include="Src\LCDUI\LCDUI.h" />
-    <ClInclude Include="Src\lglcd.h" />
-    <ClInclude Include="State.h" />
-    <ClInclude Include="stdafx.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="res\G19logo.bmp" />
-    <Image Include="res\G19Background.bmp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="LogitechPlugin.rc">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
-    </ResourceCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

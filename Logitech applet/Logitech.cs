@@ -7,7 +7,7 @@ using GammaJul;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Threading;
+using System.Timers;
 
 namespace MusicBeePlugin
 {
@@ -20,6 +20,8 @@ namespace MusicBeePlugin
         private LcdGdiPage page = null;
         private Font font = new Font("Microsoft Sans Serif", 8);
         private Font font2 = new Font("Microsoft Sans Serif", 7);
+        private Font font3 = new Font("Arial", 15);
+        private Font font4 = new Font("Arial", 10);
 
         private int timerTime = 0;
         private int position = 0;
@@ -31,15 +33,18 @@ namespace MusicBeePlugin
         private MusicBeePlugin.Plugin.PlayState state = Plugin.PlayState.Undefined;
 
         private Image backgroundImage = null;
-        LcdGdiImage backgroundGdi = null;
+        private LcdGdiImage backgroundGdi = null;
+        private LcdGdiImage artworkGdi = null;
+
         private LcdGdiText titleGdi = null;
         private LcdGdiText artistGdi = null;
         private LcdGdiText positionGdi = null;
         private LcdGdiText durationGdi = null;
+        private LcdGdiText albumGdi = null;
         private LcdGdiProgressBar progressBarGdi = null;
 
-       private Timer timer = new Timer(TimerCallback, null, 0, 250);
-
+       //private Timer timer = new Timer(TimerCallback, null, 0, 250);
+        private Timer timer = null;
         static Logitech logitechObject = null;
 
         public Logitech()
@@ -86,6 +91,12 @@ namespace MusicBeePlugin
 
             if (device != null && progressBarGdi != null)
             {
+                if (LcdDeviceType.Qvga == device.DeviceType)
+                {
+                    albumGdi.Text = album;
+                    artworkGdi.Image = Base64ToImage(artwork);
+                }
+
                 titleGdi.Text = title;
                 artistGdi.Text = artist;
                 positionGdi.Text = timetoString(position);
@@ -101,7 +112,7 @@ namespace MusicBeePlugin
             return firstTime;
         }
 
-        private static void TimerCallback(Object state)
+        private void TimerCallback(Object state, ElapsedEventArgs e)
         {
             if (logitechObject.title != null && (logitechObject.state == Plugin.PlayState.Playing || logitechObject.state == Plugin.PlayState.Stopped))
             {
@@ -141,6 +152,12 @@ namespace MusicBeePlugin
             device.SoftButtonsChanged += new EventHandler<LcdSoftButtonsEventArgs>(buttonPressed);
 
             device.SetAsForegroundApplet = true;
+
+            timer = new Timer(250);
+            timer.Elapsed += new ElapsedEventHandler(TimerCallback);
+            timer.Enabled = true;
+            timer.AutoReset = true;
+            timer.Start();
 
             connected = true;
 
@@ -190,33 +207,34 @@ namespace MusicBeePlugin
 
             page = new LcdGdiPage(device);
 
-            LcdGdiText title = new LcdGdiText(this.title, font);
-            title.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            title.Margin = new MarginF(-2, -1, 0, 0);
+            titleGdi = new LcdGdiText(this.title, font);
+            titleGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            titleGdi.Margin = new MarginF(-2, -1, 0, 0);
 
-            LcdGdiText artist = new LcdGdiText(this.artist, font);
-            artist.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            artist.Margin = new MarginF(-2, 12, 0, 0);
+            artistGdi = new LcdGdiText(this.artist, font);
+            artistGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            artistGdi.Margin = new MarginF(-2, 12, 0, 0);
 
-            LcdGdiText position = new LcdGdiText(timetoString(this.position), font2);
-            position.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            position.Margin = new MarginF(10, 26, 0, 0);
+            positionGdi = new LcdGdiText(timetoString(this.position), font2);
+            positionGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            positionGdi.Margin = new MarginF(10, 26, 0, 0);
 
-            LcdGdiText duration = new LcdGdiText(timetoString(this.duration), font2);
-            duration.HorizontalAlignment = LcdGdiHorizontalAlignment.Right;
-            duration.Margin = new MarginF(0, 26, 13, 0);
+            durationGdi = new LcdGdiText(timetoString(this.duration), font2);
+            durationGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Right;
+            durationGdi.Margin = new MarginF(0, 26, 13, 0);
 
-            LcdGdiProgressBar progressBar = new LcdGdiProgressBar();
-            progressBar.Size = new SizeF(136, 5);
-            progressBar.Margin = new MarginF(12, 38, 0, 0);
-            progressBar.Minimum = 0;
-            progressBar.Maximum = 100;
+            progressBarGdi = new LcdGdiProgressBar();
+            progressBarGdi.Size = new SizeF(136, 5);
+            progressBarGdi.Margin = new MarginF(12, 38, 0, 0);
+            progressBarGdi.Minimum = 0;
+            progressBarGdi.Maximum = 100;
 
-            page.Children.Add(title);
-            page.Children.Add(artist);
-            page.Children.Add(position);
-            page.Children.Add(duration);
-            page.Children.Add(progressBar);
+           
+            page.Children.Add(titleGdi);
+            page.Children.Add(artistGdi);
+            page.Children.Add(positionGdi);
+            page.Children.Add(durationGdi);
+            page.Children.Add(progressBarGdi);
 
             device.CurrentPage = page;
 
@@ -233,6 +251,49 @@ namespace MusicBeePlugin
             backgroundImage = (Image)Resource.G19Background;
             backgroundGdi = new LcdGdiImage(backgroundImage);
             page.Children.Add(backgroundGdi);
+
+            artistGdi = new LcdGdiText(this.artist, font3);
+            artistGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            artistGdi.Margin = new MarginF(5, 5, 5, 0);
+
+            titleGdi = new LcdGdiText(this.title, font3);
+            titleGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            titleGdi.Margin = new MarginF(5, 30, 5, 0);
+
+            albumGdi = new LcdGdiText(this.album, font3);
+            albumGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            albumGdi.Margin = new MarginF(5, 55, 5, 0);
+
+            positionGdi = new LcdGdiText(timetoString(this.position), font4);
+            positionGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            positionGdi.Margin = new MarginF(5, 105, 0, 0);
+
+            durationGdi = new LcdGdiText(timetoString(this.duration), font4);
+            durationGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Right;
+            durationGdi.Margin = new MarginF(0, 105, 5, 0);
+
+            artworkGdi = new LcdGdiImage(Base64ToImage(artwork));
+            artworkGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            artworkGdi.Size = new SizeF(130,130);
+            artworkGdi.Margin = new MarginF(0, 105, 0, 0);
+
+            progressBarGdi = new LcdGdiProgressBar();
+            progressBarGdi.Minimum = 0;
+            progressBarGdi.Maximum = 100;
+            progressBarGdi.Size = new SizeF(310, 20);
+            progressBarGdi.Margin = new MarginF(5, 80, 5, 0);
+
+
+            page.Children.Add(titleGdi);
+            page.Children.Add(artistGdi);
+            page.Children.Add(positionGdi);
+            page.Children.Add(durationGdi);
+            page.Children.Add(progressBarGdi);
+            page.Children.Add(albumGdi);
+            page.Children.Add(artworkGdi);
+
+
+
             device.CurrentPage = page;
 
             device.DoUpdateAndDraw();
@@ -302,6 +363,27 @@ namespace MusicBeePlugin
             }
 
             return minutes + ":" + seconds;
+        }
+
+        public Image Base64ToImage(string base64String)
+        {
+            Image image = null;
+            if (base64String != "")
+            {
+                // Convert Base64 String to byte[]
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+                MemoryStream ms = new MemoryStream(imageBytes, 0,
+                  imageBytes.Length);
+
+                // Convert byte[] to Image
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                image = Image.FromStream(ms, true);
+            }
+            else
+            {
+                image = Resource.NoArtwork;
+            }
+            return image;
         }
 
 

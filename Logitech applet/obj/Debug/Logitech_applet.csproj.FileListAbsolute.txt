@@ -1,5 +1,0 @@
-D:\Downloads\Logitech applet\bin\Debug\mb_LogitechApplet.dll.config
-D:\Downloads\Logitech applet\bin\Debug\mb_LogitechApplet.dll
-D:\Downloads\Logitech applet\bin\Debug\mb_LogitechApplet.pdb
-D:\Downloads\Logitech applet\obj\Debug\mb_LogitechApplet.dll
-D:\Downloads\Logitech applet\obj\Debug\mb_LogitechApplet.pdb

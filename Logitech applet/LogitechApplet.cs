@@ -138,8 +138,8 @@ namespace MusicBeePlugin
                     string album = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Album);
                     string title = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
                     string artwork = mbApiInterface.NowPlaying_GetArtwork();
-
-                     logitech.changeArtistTitle(artist, album, title, artwork, mbApiInterface.NowPlaying_GetDuration()/1000, mbApiInterface.Player_GetPosition()/1000);
+                   
+                    logitech.changeArtistTitle(artist, album, title, artwork, mbApiInterface.NowPlaying_GetDuration()/1000, mbApiInterface.Player_GetPosition()/1000);
                     break;
             }
         }
