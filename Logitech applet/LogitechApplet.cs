@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace MusicBeePlugin
 {
+
     public partial class Plugin
     {
         private MusicBeeApiInterface mbApiInterface;
@@ -14,6 +15,7 @@ namespace MusicBeePlugin
 
         public PluginInfo Initialise(IntPtr apiInterfacePtr)
         {
+            
             mbApiInterface = new MusicBeeApiInterface();
             mbApiInterface.Initialise(apiInterfacePtr);
             about.PluginInfoVersion = PluginInfoVersion;
@@ -85,12 +87,13 @@ namespace MusicBeePlugin
 
                 case NotificationType.PlayStateChanged:
                     
-                    if (logitech != null)
+                    if (logitech != null && logitech.connected)
                     {
                         switch (mbApiInterface.Player_GetPlayState())
                         {
                             case PlayState.Playing:
 
+                                //logitech.changeState(PlayState.Playing);
                                 logitech.changeState(PlayState.Playing);
 
                                 if (!logitech.getFirstTime())
@@ -100,34 +103,31 @@ namespace MusicBeePlugin
                                 }
                                 break;
                             case PlayState.Paused:
+                                logitech.changeState(PlayState.Paused);
                                 if (!logitech.getFirstTime())
                                 {
-                                    logitech.changeState(PlayState.Paused);
                                     logitech.setPosition(mbApiInterface.Player_GetPosition());
                                     logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
                                 }
                                 break;
                             case PlayState.Stopped:
+                                logitech.changeState(PlayState.Stopped);
                                 if (!logitech.getFirstTime())
                                 {
-                                    logitech.changeState(PlayState.Stopped);
                                     logitech.setPosition(mbApiInterface.Player_GetPosition());
                                     logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
                                 }
                                 break;
                             case PlayState.Loading:
+                                logitech.changeState(PlayState.Loading);
                                 if (!logitech.getFirstTime())
                                 {
-                                    logitech.changeState(PlayState.Loading);
                                     logitech.setPosition(mbApiInterface.Player_GetPosition());
                                     logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
                                 }
                                 break;
                             case PlayState.Undefined:
-                                if (!logitech.getFirstTime())
-                                {
-                                    logitech.changeState(PlayState.Undefined);
-                                }
+                                logitech.changeState(PlayState.Undefined);
                                 break;
                         }
                     }

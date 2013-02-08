@@ -7,7 +7,8 @@ using GammaJul;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Timers;
+using System.Threading;
+using System.Drawing.Drawing2D;
 
 namespace MusicBeePlugin
 {
@@ -43,13 +44,27 @@ namespace MusicBeePlugin
         private LcdGdiText albumGdi = null;
         private LcdGdiProgressBar progressBarGdi = null;
 
-       //private Timer timer = new Timer(TimerCallback, null, 0, 250);
+        private AutoResetEvent autoEvent = null;
         private Timer timer = null;
+
         static Logitech logitechObject = null;
 
         public Logitech()
         {
             Logitech.logitechObject = this;
+
+
+            // Create an event to signal the timeout count threshold in the 
+            // timer callback.
+            autoEvent = new AutoResetEvent(false);
+
+            // Create an inferred delegate that invokes methods for the timer.
+            TimerCallback tcb = TimerCallback;
+
+            // Create a timer that signals the delegate to invoke  
+            // CheckStatus after one second, and every 1/4 second  
+            // thereafter.
+            timer = new Timer(tcb, autoEvent, 1000, 250);
         }
 
         public void connect()
@@ -58,13 +73,14 @@ namespace MusicBeePlugin
             applet = new LcdApplet("MusicBee V2", appletCapabilities, false);
             applet.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
             applet.Connect();
-            
+
         }
 
         public void disconnect()
         {
+            timer.Dispose();
             //applet.Disconnect();
-           // applet = null;
+            //applet = null;
         }
 
         public void changeArtistTitle(string artist, string album, string title, string artwork, int duration, int position)
@@ -112,17 +128,20 @@ namespace MusicBeePlugin
             return firstTime;
         }
 
-        private void TimerCallback(Object state, ElapsedEventArgs e)
+        public static void TimerCallback(Object state)
         {
-            if (logitechObject.title != null && (logitechObject.state == Plugin.PlayState.Playing || logitechObject.state == Plugin.PlayState.Stopped))
+            AutoResetEvent autoEvent = (AutoResetEvent)state;
+
+            if (logitechObject.connected)
             {
-                if (logitechObject.state == Plugin.PlayState.Playing)
+                if (logitechObject.state == MusicBeePlugin.Plugin.PlayState.Playing)
                 {
                     logitechObject.timerTime += 250;
                 }
 
                 //Update progressbar and position time on the screen after 1 second of music.
-                if (logitechObject.state == Plugin.PlayState.Playing && logitechObject.timerTime == 1000)
+
+                if (logitechObject.state == MusicBeePlugin.Plugin.PlayState.Playing && logitechObject.timerTime == 1000)
                 {
                     logitechObject.timerTime = 0;
                     logitechObject.position++;
@@ -132,8 +151,9 @@ namespace MusicBeePlugin
                 }
 
                 //If music stopped then the progressbar and time must stop immediately
-                else if (logitechObject.state == Plugin.PlayState.Stopped)
+                else if (logitechObject.state == MusicBeePlugin.Plugin.PlayState.Stopped)
                 {
+                    logitechObject.timerTime = 0;
                     logitechObject.position = 0;
                     logitechObject.progressBarGdi.Value = 0;
                     logitechObject.positionGdi.Text = "00:00";
@@ -141,8 +161,6 @@ namespace MusicBeePlugin
 
                 logitechObject.device.DoUpdateAndDraw();
             }
-
- 
         }
 
 
@@ -152,12 +170,6 @@ namespace MusicBeePlugin
             device.SoftButtonsChanged += new EventHandler<LcdSoftButtonsEventArgs>(buttonPressed);
 
             device.SetAsForegroundApplet = true;
-
-            timer = new Timer(250);
-            timer.Elapsed += new ElapsedEventHandler(TimerCallback);
-            timer.Enabled = true;
-            timer.AutoReset = true;
-            timer.Start();
 
             connected = true;
 
@@ -190,11 +202,11 @@ namespace MusicBeePlugin
                 firstTime = false;
             }
 
-                  }
+        }
 
         private void buttonPressed(object sender, LcdSoftButtonsEventArgs e)
         {
-            
+
         }
 
 
@@ -229,7 +241,7 @@ namespace MusicBeePlugin
             progressBarGdi.Minimum = 0;
             progressBarGdi.Maximum = 100;
 
-           
+
             page.Children.Add(titleGdi);
             page.Children.Add(artistGdi);
             page.Children.Add(positionGdi);
@@ -274,7 +286,7 @@ namespace MusicBeePlugin
 
             artworkGdi = new LcdGdiImage(Base64ToImage(artwork));
             artworkGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            artworkGdi.Size = new SizeF(130,130);
+            artworkGdi.Size = new SizeF(130, 130);
             artworkGdi.Margin = new MarginF(0, 105, 0, 0);
 
             progressBarGdi = new LcdGdiProgressBar();
@@ -302,49 +314,20 @@ namespace MusicBeePlugin
 
         public void changeState(MusicBeePlugin.Plugin.PlayState state)
         {
-            switch (state)
+
+            this.state = state;
+
+            if (device != null && progressBarGdi == null && state == Plugin.PlayState.Playing)
             {
-                case Plugin.PlayState.Playing:
-
-                    state = Plugin.PlayState.Playing;
-                    
-                    if (device != null && progressBarGdi == null)
-                    {
-                    if (device.DeviceType == LcdDeviceType.Monochrome)
-                    {
-                        createMonochrome();
-                    }
-                    else
-                    {
-                        createColor();
-                    }
-                    }
-                    break;
-
-                case Plugin.PlayState.Paused:
-
-                    state = Plugin.PlayState.Paused;
-
-                    break;
-
-                case Plugin.PlayState.Stopped:
-
-                    state = Plugin.PlayState.Stopped;
-
-                    break;
-
-                case Plugin.PlayState.Loading:
-
-                    state = Plugin.PlayState.Loading;
-                    break;
-
-                case Plugin.PlayState.Undefined:
-
-                    state = Plugin.PlayState.Undefined;
-
-                    break;
-
-            };
+                if (device.DeviceType == LcdDeviceType.Monochrome)
+                {
+                    createMonochrome();
+                }
+                else
+                {
+                    createColor();
+                }
+            }
         }
 
         private string timetoString(int time)
@@ -378,6 +361,8 @@ namespace MusicBeePlugin
                 // Convert byte[] to Image
                 ms.Write(imageBytes, 0, imageBytes.Length);
                 image = Image.FromStream(ms, true);
+
+                image = resizeImage(image, new Size(320, 130));
             }
             else
             {
@@ -386,15 +371,45 @@ namespace MusicBeePlugin
             return image;
         }
 
+        private Image resizeImage(Image imgToResize, Size size)
+        {
+            int sourceWidth = imgToResize.Width;
+            int sourceHeight = imgToResize.Height;
+
+            float nPercent = 0;
+            float nPercentW = 0;
+            float nPercentH = 0;
+
+            nPercentW = ((float)size.Width / (float)sourceWidth);
+            nPercentH = ((float)size.Height / (float)sourceHeight);
+
+            if (nPercentH < nPercentW)
+                nPercent = nPercentH;
+            else
+                nPercent = nPercentW;
+
+            int destWidth = (int)(sourceWidth * nPercent);
+            int destHeight = (int)(sourceHeight * nPercent);
+
+            Bitmap b = new Bitmap(destWidth, destHeight);
+            Graphics g = Graphics.FromImage((Image)b);
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            g.DrawImage(imgToResize, 0, 0, destWidth, destHeight);
+            g.Dispose();
+
+            return (Image)b;
+        }
+
 
         public void setPosition(int position)
         {
-            this.position = position/1000;
+            this.position = position / 1000;
         }
 
         public void setDuration(int duration)
         {
-            this.duration = duration/1000;
+            this.duration = duration / 1000;
         }
     }
 }
