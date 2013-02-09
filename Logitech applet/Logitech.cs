@@ -14,6 +14,8 @@ namespace MusicBeePlugin
 {
     class Logitech
     {
+
+        #region Properties
         public bool connected = false;
         private LcdApplet applet = null;
         private LcdDevice device = null;
@@ -44,10 +46,17 @@ namespace MusicBeePlugin
         private LcdGdiText albumGdi = null;
         private LcdGdiProgressBar progressBarGdi = null;
 
+        private LcdGdiScrollViewer titleScroll = null;
+        private LcdGdiScrollViewer artistScroll = null;
+
         private AutoResetEvent autoEvent = null;
         private Timer timer = null;
 
         static Logitech logitechObject = null;
+
+        #endregion
+
+        #region Consturctor
 
         public Logitech()
         {
@@ -64,8 +73,35 @@ namespace MusicBeePlugin
             // Create a timer that signals the delegate to invoke  
             // CheckStatus after one second, and every 1/4 second  
             // thereafter.
-            timer = new Timer(tcb, autoEvent, 1000, 250);
+            timer = new Timer(tcb, autoEvent, 1000, 500);
         }
+
+        public void disconnect()
+        {
+            timer.Dispose();
+            //applet.Disconnect();
+            //applet = null;
+        }
+
+        #endregion
+        #region Getters/Setters
+
+        public bool getFirstTime()
+        {
+            return firstTime;
+        }
+
+        public void setPosition(int position)
+        {
+            this.position = position / 1000;
+        }
+
+        public void setDuration(int duration)
+        {
+            this.duration = duration / 1000;
+        }
+
+        #endregion
 
         public void connect()
         {
@@ -74,13 +110,6 @@ namespace MusicBeePlugin
             applet.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
             applet.Connect();
 
-        }
-
-        public void disconnect()
-        {
-            timer.Dispose();
-            //applet.Disconnect();
-            //applet = null;
         }
 
         public void changeArtistTitle(string artist, string album, string title, string artwork, int duration, int position)
@@ -123,10 +152,7 @@ namespace MusicBeePlugin
             }
         }
 
-        public bool getFirstTime()
-        {
-            return firstTime;
-        }
+       
 
         public static void TimerCallback(Object state)
         {
@@ -136,7 +162,7 @@ namespace MusicBeePlugin
             {
                 if (logitechObject.state == MusicBeePlugin.Plugin.PlayState.Playing)
                 {
-                    logitechObject.timerTime += 250;
+                    logitechObject.timerTime += 500;
                 }
 
                 //Update progressbar and position time on the screen after 1 second of music.
@@ -225,6 +251,7 @@ namespace MusicBeePlugin
 
             artistGdi = new LcdGdiText(this.artist, font);
             artistGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            artistGdi.VerticalAlignment = LcdGdiVerticalAlignment.Top;
             artistGdi.Margin = new MarginF(-2, 12, 0, 0);
 
             positionGdi = new LcdGdiText(timetoString(this.position), font2);
@@ -241,9 +268,28 @@ namespace MusicBeePlugin
             progressBarGdi.Minimum = 0;
             progressBarGdi.Maximum = 100;
 
+            titleScroll = new LcdGdiScrollViewer(titleGdi);
+            titleScroll.AutoScrollX = true;
+            titleScroll.AutoScrollY = false;
+            titleScroll.AutoScrollSpeedY = 0;
+            titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
+            titleScroll.Size = new SizeF(160, 12);
+            titleScroll.RenderingOrigin = new Point(10, 8);
 
+            //artistScroll = new LcdGdiScrollViewer(artistGdi);
+            //artistScroll.AutoScrollY = false;
+            //artistScroll.AutoScrollX = true;
+            //artistScroll.AutoScrollSpeedY = 0;
+            //artistScroll.Size = new SizeF(160, 8);
+            //artistScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            //artistScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //artistScroll.Margin = new MarginF(-2, 12, 0, 0);
+
+ 
             page.Children.Add(titleGdi);
             page.Children.Add(artistGdi);
+           page.Children.Add(titleScroll);
+            //page.Children.Add(artistScroll);
             page.Children.Add(positionGdi);
             page.Children.Add(durationGdi);
             page.Children.Add(progressBarGdi);
@@ -295,8 +341,14 @@ namespace MusicBeePlugin
             progressBarGdi.Size = new SizeF(310, 20);
             progressBarGdi.Margin = new MarginF(5, 80, 5, 0);
 
+            titleScroll = new LcdGdiScrollViewer(titleGdi);
+            titleScroll.AutoScrollX = true;
+            titleScroll.AutoScrollY = false;
+            titleScroll.AutoScrollSpeedY = 0;
+            titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
 
             page.Children.Add(titleGdi);
+            page.Children.Add(titleScroll);
             page.Children.Add(artistGdi);
             page.Children.Add(positionGdi);
             page.Children.Add(durationGdi);
@@ -402,14 +454,6 @@ namespace MusicBeePlugin
         }
 
 
-        public void setPosition(int position)
-        {
-            this.position = position / 1000;
-        }
 
-        public void setDuration(int duration)
-        {
-            this.duration = duration / 1000;
-        }
     }
 }
