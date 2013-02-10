@@ -1,8 +1,0 @@
-D:\Google Drive\Projecten\MusicBee\Logitech applet\bin\x86\Release\mb_LogitechPlugin.dll.config
-D:\Google Drive\Projecten\MusicBee\Logitech applet\bin\x86\Release\mb_LogitechPlugin.dll
-D:\Google Drive\Projecten\MusicBee\Logitech applet\bin\x86\Release\mb_LogitechPlugin.pdb
-D:\Google Drive\Projecten\MusicBee\Logitech applet\obj\x86\Release\MusicBeePlugin.Properties.Resources.resources
-D:\Google Drive\Projecten\MusicBee\Logitech applet\obj\x86\Release\MusicBeePlugin.Resource.resources
-D:\Google Drive\Projecten\MusicBee\Logitech applet\obj\x86\Release\Logitech_applet.csproj.GenerateResource.Cache
-D:\Google Drive\Projecten\MusicBee\Logitech applet\obj\x86\Release\mb_LogitechPlugin.dll
-D:\Google Drive\Projecten\MusicBee\Logitech applet\obj\x86\Release\mb_LogitechPlugin.pdb

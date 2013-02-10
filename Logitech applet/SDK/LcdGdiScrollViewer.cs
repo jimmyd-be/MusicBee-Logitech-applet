@@ -266,24 +266,34 @@ namespace GammaJul.LgLcd {
 				SetClipForChild(graphics);
 				_child.Update(elapsedTotalTime, elapsedTimeSinceLastFrame, page, graphics);
 				_extent = new SizeF(_child.AbsolutePosition + _child.FinalSize);
-				_maxScrollX = Math.Max(0.0f, _extent.Width - FinalSize.Width + 1.0f);
+				_maxScrollX = Math.Max(0.0f, _extent.Width - FinalSize.Width + 2.0f);
 				_maxScrollY = Math.Max(0.0f, _extent.Height - FinalSize.Height + 1.0f);
 
 				// Auto-scroll X
 				if (_autoScrollXWasSet) {
 					TimeSpan elapsedAutoScrollXTime = elapsedTotalTime - _autoScrollXStartTime;
-					if (elapsedAutoScrollXTime <= _autoScrollXFixedStartTime)
-						_currentScrollX = 0.0f;
-					else if (_currentScrollX >= _maxScrollX) {
-						if (_autoScrollXEndedTime == TimeSpan.Zero)
-							_autoScrollXEndedTime = elapsedTotalTime;
-						else if (elapsedTotalTime - _autoScrollXEndedTime >= _autoScrollXFixedEndTime) {
-							_autoScrollXWasSet = false;
-							_currentScrollX = 0.0f;
-						}
-					}
-					else
-						_currentScrollX = (float) ((elapsedAutoScrollXTime - _autoScrollXFixedStartTime).TotalSeconds * _autoScrollSpeedX);
+                    if (elapsedAutoScrollXTime <= _autoScrollXFixedStartTime)
+                    {
+                        _child.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                        _currentScrollX = 0.0f;
+                    }
+                    else if (_currentScrollX >= _maxScrollX)
+                    {
+                        if (_autoScrollXEndedTime == TimeSpan.Zero)
+                        {
+                            _autoScrollXEndedTime = elapsedTotalTime;
+                        }
+                        else if (elapsedTotalTime - _autoScrollXEndedTime >= _autoScrollXFixedEndTime)
+                        {
+                                                        _autoScrollXWasSet = false;
+                            _currentScrollX = 0.0f;
+                        }
+                    }
+                    else
+                    {
+                        _child.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                        _currentScrollX = (float)((elapsedAutoScrollXTime - _autoScrollXFixedStartTime).TotalSeconds * _autoScrollSpeedX);
+                    }
 				}
 				else {
 					_autoScrollXWasSet = true;

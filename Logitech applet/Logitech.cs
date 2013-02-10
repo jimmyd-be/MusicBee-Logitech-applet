@@ -46,6 +46,7 @@ namespace MusicBeePlugin
         private LcdGdiText albumGdi = null;
         private LcdGdiProgressBar progressBarGdi = null;
 
+        private LcdGdiScrollViewer albumScroll = null;
         private LcdGdiScrollViewer titleScroll = null;
         private LcdGdiScrollViewer artistScroll = null;
 
@@ -142,6 +143,7 @@ namespace MusicBeePlugin
                     artworkGdi.Image = Base64ToImage(artwork);
                 }
 
+
                 titleGdi.Text = title;
                 artistGdi.Text = artist;
                 positionGdi.Text = timetoString(position);
@@ -152,7 +154,7 @@ namespace MusicBeePlugin
             }
         }
 
-       
+
 
         public static void TimerCallback(Object state)
         {
@@ -273,23 +275,21 @@ namespace MusicBeePlugin
             titleScroll.AutoScrollY = false;
             titleScroll.AutoScrollSpeedY = 0;
             titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
-            titleScroll.Size = new SizeF(160, 12);
-            titleScroll.RenderingOrigin = new Point(10, 8);
+            titleScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
-            //artistScroll = new LcdGdiScrollViewer(artistGdi);
-            //artistScroll.AutoScrollY = false;
-            //artistScroll.AutoScrollX = true;
-            //artistScroll.AutoScrollSpeedY = 0;
-            //artistScroll.Size = new SizeF(160, 8);
-            //artistScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            //artistScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            //artistScroll.Margin = new MarginF(-2, 12, 0, 0);
 
- 
+            artistScroll = new LcdGdiScrollViewer(artistGdi);
+            artistScroll.AutoScrollY = false;
+            artistScroll.AutoScrollX = true;
+            artistScroll.AutoScrollSpeedY = 0;
+            artistScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
+            artistScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+
+
             page.Children.Add(titleGdi);
             page.Children.Add(artistGdi);
-           page.Children.Add(titleScroll);
-            //page.Children.Add(artistScroll);
+            page.Children.Add(titleScroll);
+            page.Children.Add(artistScroll);
             page.Children.Add(positionGdi);
             page.Children.Add(durationGdi);
             page.Children.Add(progressBarGdi);
@@ -346,6 +346,28 @@ namespace MusicBeePlugin
             titleScroll.AutoScrollY = false;
             titleScroll.AutoScrollSpeedY = 0;
             titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
+
+            titleScroll = new LcdGdiScrollViewer(titleGdi);
+            titleScroll.AutoScrollX = true;
+            titleScroll.AutoScrollY = false;
+            titleScroll.AutoScrollSpeedY = 0;
+            titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
+            titleScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+
+
+            artistScroll = new LcdGdiScrollViewer(artistGdi);
+            artistScroll.AutoScrollY = false;
+            artistScroll.AutoScrollX = true;
+            artistScroll.AutoScrollSpeedY = 0;
+            artistScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
+            artistScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+
+            albumScroll = new LcdGdiScrollViewer(albumGdi);
+            albumScroll.AutoScrollY = false;
+            albumScroll.AutoScrollX = true;
+            albumScroll.AutoScrollSpeedY = 0;
+            albumScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
+            albumScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
             page.Children.Add(titleGdi);
             page.Children.Add(titleScroll);
