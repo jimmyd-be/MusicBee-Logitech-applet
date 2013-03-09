@@ -20,7 +20,10 @@ namespace MusicBeePlugin
         private LcdApplet applet = null;
         private LcdDevice device = null;
         private bool firstTime = true;
+
         private LcdGdiPage page = null;
+
+
         private Font font = new Font("Microsoft Sans Serif", 8);
         private Font font2 = new Font("Microsoft Sans Serif", 7);
         private Font font3 = new Font("Arial", 15);
@@ -29,6 +32,7 @@ namespace MusicBeePlugin
         private int timerTime = 0;
         private int position = 0;
         private int duration = 0;
+
         private string artist = "";
         private string album = "";
         private string title = "";
@@ -45,6 +49,7 @@ namespace MusicBeePlugin
         private LcdGdiText durationGdi = null;
         private LcdGdiText albumGdi = null;
         private LcdGdiProgressBar progressBarGdi = null;
+
 
         private LcdGdiScrollViewer albumScroll = null;
         private LcdGdiScrollViewer titleScroll = null;
@@ -113,7 +118,7 @@ namespace MusicBeePlugin
 
         }
 
-        public void changeArtistTitle(string artist, string album, string title, string artwork, int duration, int position)
+        public void changeArtistTitle(string artist, string album, string title,  string rating, string artwork, int duration, int position)
         {
             this.artist = artist;
             this.album = album;
@@ -121,6 +126,7 @@ namespace MusicBeePlugin
             this.artwork = artwork;
             this.duration = duration;
             this.position = position;
+         //   this.rating = Convert.ToSingle(rating);
 
             if (device != null && progressBarGdi == null)
             {
@@ -221,6 +227,7 @@ namespace MusicBeePlugin
             else if (device.DeviceType == LcdDeviceType.Qvga)
             {
                 page = new LcdGdiPage(device);
+
                 backgroundImage = (Image)Resource.G19logo;
                 backgroundGdi = new LcdGdiImage(backgroundImage);
                 page.Children.Add(backgroundGdi);
@@ -234,7 +241,31 @@ namespace MusicBeePlugin
 
         private void buttonPressed(object sender, LcdSoftButtonsEventArgs e)
         {
+            LcdDevice device = (LcdDevice)sender;
 
+            // First button is pressed, switch to page one
+            if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
+            {
+                device.CurrentPage = device.Pages[0];
+            }
+
+            // Second button is pressed, switch to page two
+            else if ((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1)
+            {
+                device.CurrentPage = device.Pages[1];
+            }
+
+            // Third button is pressed
+            else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
+            {
+
+            }
+
+            // Fourth button is pressed
+            else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
+            {
+
+            }
         }
 
 
@@ -246,6 +277,7 @@ namespace MusicBeePlugin
             page = null;
 
             page = new LcdGdiPage(device);
+            //page2 = new LcdGdiPage(device);
 
             titleGdi = new LcdGdiText(this.title, font);
             titleGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
@@ -277,13 +309,42 @@ namespace MusicBeePlugin
             titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
             titleScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
-
             artistScroll = new LcdGdiScrollViewer(artistGdi);
             artistScroll.AutoScrollY = false;
             artistScroll.AutoScrollX = true;
             artistScroll.AutoScrollSpeedY = 0;
             artistScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
             artistScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+
+            //line1 = new LcdGdiText("test", font2);
+            //line1.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //line1.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //line1.Margin = new MarginF(-2, -4, 0, 0);
+
+            //line2 = new LcdGdiText("test 1", font2);
+            //line2.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //line2.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //line2.Margin = new MarginF(-2, 3, 0, 0);
+
+            //line3 = new LcdGdiText("test 2", font2);
+            //line3.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //line3.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //line3.Margin = new MarginF(-2, 10, 0, 0);
+
+            //line4 = new LcdGdiText("test 3", font2);
+            //line4.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //line4.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //line4.Margin = new MarginF(-2, 17, 0, 0);
+
+            //line5 = new LcdGdiText("test 4", font2);
+            //line5.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //line5.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //line5.Margin = new MarginF(-2, 24, 0, 0);
+
+            //line6 = new LcdGdiText("test 5", font2);
+            //line6.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //line6.VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //line6.Margin = new MarginF(-2, 31, 0, 0);
 
 
             page.Children.Add(titleGdi);
@@ -293,6 +354,13 @@ namespace MusicBeePlugin
             page.Children.Add(positionGdi);
             page.Children.Add(durationGdi);
             page.Children.Add(progressBarGdi);
+
+            //page2.Children.Add(line1);
+            //page2.Children.Add(line2);
+            //page2.Children.Add(line3);
+            //page2.Children.Add(line4);
+            //page2.Children.Add(line5);
+            //page2.Children.Add(line6);
 
             device.CurrentPage = page;
 

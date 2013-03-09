@@ -93,7 +93,6 @@ namespace MusicBeePlugin
                         {
                             case PlayState.Playing:
 
-                                //logitech.changeState(PlayState.Playing);
                                 logitech.changeState(PlayState.Playing);
 
                                 if (!logitech.getFirstTime())
@@ -133,13 +132,16 @@ namespace MusicBeePlugin
                     }
                     break;
 
+                 case NotificationType.RatingChanged:
                 case NotificationType.TrackChanged:
                     string artist = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Artist);
                     string album = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Album);
                     string title = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
                     string artwork = mbApiInterface.NowPlaying_GetArtwork();
-                   
-                    logitech.changeArtistTitle(artist, album, title, artwork, mbApiInterface.NowPlaying_GetDuration()/1000, mbApiInterface.Player_GetPosition()/1000);
+                    string rating = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Rating);
+                    string playlist = mbApiInterface.Playlist_QueryGetAllFiles();
+
+                    logitech.changeArtistTitle(artist, album, title, rating, artwork, mbApiInterface.NowPlaying_GetDuration()/1000, mbApiInterface.Player_GetPosition()/1000);
                     break;
             }
         }
