@@ -132,6 +132,7 @@ namespace MusicBeePlugin
                     }
                     break;
 
+                case NotificationType.NowPlayingArtworkReady:
                  case NotificationType.RatingChanged:
                 case NotificationType.TrackChanged:
                     string artist = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Artist);

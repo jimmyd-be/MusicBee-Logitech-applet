@@ -145,10 +145,9 @@ namespace MusicBeePlugin
             {
                 if (LcdDeviceType.Qvga == device.DeviceType)
                 {
-                    albumGdi.Text = album;
                     artworkGdi.Image = Base64ToImage(artwork);
+                    albumGdi.Text = album;
                 }
-
 
                 titleGdi.Text = title;
                 artistGdi.Text = artist;
@@ -414,14 +413,7 @@ namespace MusicBeePlugin
             titleScroll.AutoScrollY = false;
             titleScroll.AutoScrollSpeedY = 0;
             titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
-
-            titleScroll = new LcdGdiScrollViewer(titleGdi);
-            titleScroll.AutoScrollX = true;
-            titleScroll.AutoScrollY = false;
-            titleScroll.AutoScrollSpeedY = 0;
-            titleScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
             titleScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
-
 
             artistScroll = new LcdGdiScrollViewer(artistGdi);
             artistScroll.AutoScrollY = false;
@@ -445,8 +437,6 @@ namespace MusicBeePlugin
             page.Children.Add(progressBarGdi);
             page.Children.Add(albumGdi);
             page.Children.Add(artworkGdi);
-
-
 
             device.CurrentPage = page;
 
@@ -493,7 +483,7 @@ namespace MusicBeePlugin
         public Image Base64ToImage(string base64String)
         {
             Image image = null;
-            if (base64String != "")
+            if (base64String != "" && base64String != null)
             {
                 // Convert Base64 String to byte[]
                 byte[] imageBytes = Convert.FromBase64String(base64String);
