@@ -82,13 +82,11 @@ namespace MusicBeePlugin
                     if (logitech == null)
                     {
                         logitech = new Logitech(this);
+                        logitech.connect();
 
                         settings = new Settings(mbApiInterface.Setting_GetPersistentStoragePath(), logitech);
 
                         settings.openSettings();
-
-                        logitech.connect();
-
                     }
                     break;
 

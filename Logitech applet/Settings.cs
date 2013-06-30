@@ -72,8 +72,8 @@ namespace MusicBeePlugin
         private void saveButton_Click(object sender, EventArgs e)
         {
             bool alwaysOnTop = radioButton1.Checked;
-            
-            string[] lines = { "alwaysOnTop: "+alwaysOnTop};
+
+            string[] lines = { "alwaysOnTop: " + alwaysOnTop };
             File.WriteAllLines(settingsPath_ + "LogitechLCDSettings.ini", lines);
 
             logitech_.settingsChanged(alwaysOnTop);
