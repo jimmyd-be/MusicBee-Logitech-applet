@@ -82,7 +82,6 @@ namespace MusicBeePlugin
                     if (logitech == null)
                     {
                         logitech = new Logitech(this);
-                        logitech.connect();
 
                         settings = new Settings(mbApiInterface.Setting_GetPersistentStoragePath(), logitech);
 
@@ -152,19 +151,6 @@ namespace MusicBeePlugin
                     break;
             }
         }
-
-        //public ArrayList getPlayList(int scroll)
-        //{
-        //    ArrayList playlist = new ArrayList();
-
-        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + scroll));
-        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + 1 + scroll));
-        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() +2+ scroll));
-        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + 3 + scroll));
-        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + 4 + scroll));
-            
-        //    return playlist;
-        //}
 
         public void changeRating(float number)
         {
