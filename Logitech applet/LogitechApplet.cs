@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace MusicBeePlugin
 {
@@ -12,10 +13,10 @@ namespace MusicBeePlugin
         private MusicBeeApiInterface mbApiInterface;
         private PluginInfo about = new PluginInfo();
         private Logitech logitech = null;
+        private Settings settings = null;
 
         public PluginInfo Initialise(IntPtr apiInterfacePtr)
         {
-            
             mbApiInterface = new MusicBeeApiInterface();
             mbApiInterface.Initialise(apiInterfacePtr);
             about.PluginInfoVersion = PluginInfoVersion;
@@ -36,7 +37,8 @@ namespace MusicBeePlugin
 
         public bool Configure(IntPtr panelHandle)
         {
-            return false;
+            settings.Show();
+            return true;
         }
 
         // called by MusicBee when the user clicks Apply or Save in the MusicBee Preferences screen.
@@ -44,7 +46,7 @@ namespace MusicBeePlugin
         public void SaveSettings()
         {
             // save any persistent settings in a sub-folder of this path
-            //  string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
+              string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
         }
 
         // MusicBee is closing the plugin (plugin is being disabled by user or MusicBee is shutting down)
@@ -54,6 +56,12 @@ namespace MusicBeePlugin
             {
                 logitech.disconnect();
                 logitech = null;
+            }
+
+            if (settings != null)
+            {
+                settings.Close();
+                settings = null;
             }
         }
 
@@ -73,14 +81,13 @@ namespace MusicBeePlugin
 
                     if (logitech == null)
                     {
-                        logitech = new Logitech();
-                        logitech.connect();
+                        logitech = new Logitech(this);
 
-                        //if (!logitech.connected)
-                        //{
-                            
-                        //  //  Close(PluginCloseReason.StopNoUnload);
-                        //}
+                        settings = new Settings(mbApiInterface.Setting_GetPersistentStoragePath(), logitech);
+
+                        settings.openSettings();
+
+                        logitech.connect();
 
                     }
                     break;
@@ -97,6 +104,7 @@ namespace MusicBeePlugin
 
                                 if (!logitech.getFirstTime())
                                 {
+                                    updateTrackText();
                                     logitech.setPosition(mbApiInterface.Player_GetPosition());
                                     logitech.setDuration(mbApiInterface.NowPlaying_GetDuration());
                                 }
@@ -128,24 +136,110 @@ namespace MusicBeePlugin
                             case PlayState.Undefined:
                                 logitech.changeState(PlayState.Undefined);
                                 break;
+
                         }
                     }
                     break;
 
+                case NotificationType.NowPlayingListChanged:
+                case NotificationType.PlayerEqualiserOnOffChanged:
+                case NotificationType.PlayerRepeatChanged:
+                case NotificationType.PlayerShuffleChanged:
+                case NotificationType.AutoDjStarted:
+                case NotificationType.AutoDjStopped:
                 case NotificationType.NowPlayingArtworkReady:
-                 case NotificationType.RatingChanged:
+                case NotificationType.RatingChanged:
                 case NotificationType.TrackChanged:
-                    string artist = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Artist);
-                    string album = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Album);
-                    string title = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
-                    string artwork = mbApiInterface.NowPlaying_GetArtwork();
-                    string rating = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Rating);
-                    string playlist = mbApiInterface.Playlist_QueryGetAllFiles();
-
-                    logitech.changeArtistTitle(artist, album, title, rating, artwork, mbApiInterface.NowPlaying_GetDuration()/1000, mbApiInterface.Player_GetPosition()/1000);
+                    updateTrackText();
                     break;
             }
         }
+
+        //public ArrayList getPlayList(int scroll)
+        //{
+        //    ArrayList playlist = new ArrayList();
+
+        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + scroll));
+        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + 1 + scroll));
+        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() +2+ scroll));
+        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + 3 + scroll));
+        //    playlist.Add(mbApiInterface.NowPlayingList_GetListFileUrl(mbApiInterface.NowPlayingList_GetCurrentIndex() + 4 + scroll));
+            
+        //    return playlist;
+        //}
+
+        public void changeRating(float number)
+        {
+            String url = mbApiInterface.NowPlaying_GetFileUrl();
+            mbApiInterface.Library_SetFileTag(url, MetaDataType.Rating, number.ToString());
+        }
+
+        public void updateTrackText()
+        {
+            string artist = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Artist);
+            string album = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Album);
+            string title = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
+            string artwork = mbApiInterface.NowPlaying_GetArtwork();
+            string rating = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Rating);
+          //  ArrayList playlist = getPlayList(0);
+
+            bool autoDJ = mbApiInterface.Player_GetAutoDjEnabled();
+            bool equaliser = mbApiInterface.Player_GetEqualiserEnabled();
+            RepeatMode repeat = mbApiInterface.Player_GetRepeat();
+            bool shuffle = mbApiInterface.Player_GetShuffle();
+
+            logitech.changeArtistTitle(artist, album, title, rating, artwork, mbApiInterface.NowPlaying_GetDuration() / 1000, mbApiInterface.Player_GetPosition() / 1000, autoDJ, equaliser, shuffle, repeat);
+        }
+
+
+        public void changeSettings(bool autoDJ, bool equaliser, bool shuffle, RepeatMode repeat)
+        {
+            bool autoDJMusicbee = mbApiInterface.Player_GetAutoDjEnabled();
+            bool equaliserMusicbee = mbApiInterface.Player_GetEqualiserEnabled();
+            RepeatMode repeatMusicbee = mbApiInterface.Player_GetRepeat();
+            bool shuffleMusicbee = mbApiInterface.Player_GetShuffle();
+
+            if (autoDJ && autoDJMusicbee != autoDJ)
+            {
+                mbApiInterface.Player_StartAutoDj();
+            }
+            else if (autoDJMusicbee != autoDJ)
+            {
+                mbApiInterface.Player_SetShuffle(true);
+                mbApiInterface.Player_SetShuffle(false);
+            }
+
+            if (equaliserMusicbee != equaliser)
+            {
+                mbApiInterface.Player_SetEqualiserEnabled(equaliser);
+            }
+
+            if(repeat != repeatMusicbee)
+            {
+
+                mbApiInterface.Player_SetRepeat(repeat);
+            }
+
+            if (shuffle != shuffleMusicbee)
+            {
+                mbApiInterface.Player_SetShuffle(shuffle);
+            }
+
+        }
+
+        public string getTrackName(String url)
+        {
+            if(url.Length > 0)
+            {
+                return mbApiInterface.Library_GetFileTag(url, MetaDataType.TrackTitle);
+                }
+                else
+                {
+                    return "";
+                }
+        }
+
+
 
         // return an array of lyric or artwork provider names this plugin supports
         // the providers will be iterated through one by one and passed to the RetrieveLyrics/ RetrieveArtwork function in order set by the user in the MusicBee Tags(2) preferences screen until a match is found
@@ -256,5 +350,6 @@ namespace MusicBeePlugin
         }
 
         #endregion
+
     }
 }

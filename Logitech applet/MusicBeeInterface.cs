@@ -232,7 +232,11 @@ namespace MusicBeePlugin
             PlayCountersChanged = 13,
             ScreenSaverActivating = 14,
             ShutdownStarted = 17,
-            EmbedInPanel = 19
+            EmbedInPanel = 19,
+            PlayerRepeatChanged = 20,
+            PlayerShuffleChanged = 21,
+            PlayerEqualiserOnOffChanged = 22,
+            PlayerScrobbleChanged = 23
         }
 
         public enum PluginCloseReason

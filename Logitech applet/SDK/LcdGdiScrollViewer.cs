@@ -302,26 +302,26 @@ namespace GammaJul.LgLcd {
 				}
 
 				// Auto-scroll Y
-				if (_autoScrollYWasSet) {
-					TimeSpan elapsedAutoScrollYTime = elapsedTotalTime - _autoScrollYStartTime;
-					if (elapsedAutoScrollYTime <= _autoScrollYFixedStartTime)
-						_currentScrollY = 0.0f;
-					else if (_currentScrollY >= _maxScrollY) {
-						if (_autoScrollYEndedTime == TimeSpan.Zero)
-							_autoScrollYEndedTime = elapsedTotalTime;
-						else if (elapsedTotalTime - _autoScrollYEndedTime >= _autoScrollYFixedEndTime) {
-							_autoScrollYWasSet = false;
-							_currentScrollY = 0.0f;
-						}
-					}
-					else
-						_currentScrollY = (float) ((elapsedAutoScrollYTime - _autoScrollYFixedStartTime).TotalSeconds * _autoScrollSpeedY);
-				}
-				else {
-					_autoScrollYWasSet = true;
-					_autoScrollYStartTime = elapsedTotalTime;
-					_autoScrollYEndedTime = TimeSpan.Zero;
-				}
+                if (_autoScrollYWasSet) {
+                    TimeSpan elapsedAutoScrollYTime = elapsedTotalTime - _autoScrollYStartTime;
+                    if (elapsedAutoScrollYTime <= _autoScrollYFixedStartTime)
+                        _currentScrollY = 0.0f;
+                    else if (_currentScrollY >= _maxScrollY) {
+                        if (_autoScrollYEndedTime == TimeSpan.Zero)
+                            _autoScrollYEndedTime = elapsedTotalTime;
+                        else if (elapsedTotalTime - _autoScrollYEndedTime >= _autoScrollYFixedEndTime) {
+                            _autoScrollYWasSet = false;
+                            _currentScrollY = 0.0f;
+                        }
+                    }
+                    else
+                        _currentScrollY = (float) ((elapsedAutoScrollYTime - _autoScrollYFixedStartTime).TotalSeconds * _autoScrollSpeedY);
+                }
+                else {
+                    _autoScrollYWasSet = true;
+                    _autoScrollYStartTime = elapsedTotalTime;
+                    _autoScrollYEndedTime = TimeSpan.Zero;
+                }
 
 				_currentScrollX = Math.Min(_currentScrollX, _maxScrollX);
 				_currentScrollY = Math.Min(_currentScrollY, _maxScrollY);

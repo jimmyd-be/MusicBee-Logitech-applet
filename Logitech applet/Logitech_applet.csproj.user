@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <StartAction>Project</StartAction>
+    <StartProgram>C:\Program Files %28x86%29\MusicBee\MusicBee.exe</StartProgram>
+    <StartWorkingDirectory>
+    </StartWorkingDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <StartAction>Program</StartAction>
+    <StartProgram>C:\Program Files %28x86%29\MusicBee\MusicBee.exe</StartProgram>
+    <StartWorkingDirectory>C:\Program Files %28x86%29\MusicBee\Plugins\</StartWorkingDirectory>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <RemoteDebugEnabled>false</RemoteDebugEnabled>
+  </PropertyGroup>
+</Project>
