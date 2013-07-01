@@ -7,7 +7,6 @@ using System.Collections;
 
 namespace MusicBeePlugin
 {
-
     public partial class Plugin
     {
         private MusicBeeApiInterface mbApiInterface;
@@ -46,7 +45,7 @@ namespace MusicBeePlugin
         public void SaveSettings()
         {
             // save any persistent settings in a sub-folder of this path
-              string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
+            string dataPath = mbApiInterface.Setting_GetPersistentStoragePath();
         }
 
         // MusicBee is closing the plugin (plugin is being disabled by user or MusicBee is shutting down)
@@ -90,7 +89,7 @@ namespace MusicBeePlugin
                     break;
 
                 case NotificationType.PlayStateChanged:
-                    
+
                     if (logitech != null && logitech.connected)
                     {
                         switch (mbApiInterface.Player_GetPlayState())
@@ -155,7 +154,8 @@ namespace MusicBeePlugin
         public void changeRating(float number)
         {
             String url = mbApiInterface.NowPlaying_GetFileUrl();
-            mbApiInterface.Library_SetFileTag(url, MetaDataType.Rating, number.ToString());
+            string test = number.ToString();
+            mbApiInterface.Library_SetFileTag(url, MetaDataType.Rating, "0,5");
         }
 
         public void updateTrackText()
@@ -165,7 +165,6 @@ namespace MusicBeePlugin
             string title = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
             string artwork = mbApiInterface.NowPlaying_GetArtwork();
             string rating = mbApiInterface.NowPlaying_GetFileTag(MetaDataType.Rating);
-          //  ArrayList playlist = getPlayList(0);
 
             bool autoDJ = mbApiInterface.Player_GetAutoDjEnabled();
             bool equaliser = mbApiInterface.Player_GetEqualiserEnabled();
@@ -198,7 +197,7 @@ namespace MusicBeePlugin
                 mbApiInterface.Player_SetEqualiserEnabled(equaliser);
             }
 
-            if(repeat != repeatMusicbee)
+            if (repeat != repeatMusicbee)
             {
 
                 mbApiInterface.Player_SetRepeat(repeat);
@@ -213,17 +212,15 @@ namespace MusicBeePlugin
 
         public string getTrackName(String url)
         {
-            if(url.Length > 0)
+            if (url.Length > 0)
             {
                 return mbApiInterface.Library_GetFileTag(url, MetaDataType.TrackTitle);
-                }
-                else
-                {
-                    return "";
-                }
+            }
+            else
+            {
+                return "";
+            }
         }
-
-
 
         // return an array of lyric or artwork provider names this plugin supports
         // the providers will be iterated through one by one and passed to the RetrieveLyrics/ RetrieveArtwork function in order set by the user in the MusicBee Tags(2) preferences screen until a match is found

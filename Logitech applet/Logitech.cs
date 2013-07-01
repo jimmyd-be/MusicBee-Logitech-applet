@@ -53,7 +53,7 @@ namespace MusicBeePlugin
         private string title = "";
         private string artwork = "";
         private float rating = 0;
-        
+
         private Image backgroundImage = null;
 
         private LcdGdiImage backgroundGdi = null;
@@ -135,13 +135,6 @@ namespace MusicBeePlugin
         {
             this.duration = duration / 1000;
         }
-
-        //public int getPlaylistScroll()
-        //{
-        //    return playlistScroll;
-        //}
-
-
         #endregion
 
         public void connect()
@@ -150,7 +143,6 @@ namespace MusicBeePlugin
             applet = new LcdApplet("MusicBee V2", appletCapabilities, false);
             applet.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
             applet.Connect();
-
         }
 
         public void changeArtistTitle(string artist, string album, string title, string rating, string artwork, int duration, int position, bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)
@@ -175,11 +167,6 @@ namespace MusicBeePlugin
             {
                 this.rating = 0;
             }
-
-
-            timer.Dispose();
-            TimerCallback tcb = TimerCallback;
-
 
             if (device != null && progressBarGdi == null)
             {
@@ -258,11 +245,8 @@ namespace MusicBeePlugin
                 {
 
                 }
-                timer = new Timer(tcb, autoEvent, 1000, 500);
             }
         }
-
-
 
         public static void TimerCallback(Object state)
         {
@@ -314,11 +298,10 @@ namespace MusicBeePlugin
                 }
                 catch (System.InvalidOperationException)
                 {
-
+                    //Noting to dd
                 }
             }
         }
-
 
         private void applet_DeviceArrival(object sender, LcdDeviceTypeEventArgs e)
         {
@@ -343,9 +326,7 @@ namespace MusicBeePlugin
 
                 device.DoUpdateAndDraw();
                 firstTime = false;
-
             }
-
             else if (device.DeviceType == LcdDeviceType.Qvga)
             {
                 page[0] = new LcdGdiPage(device);
@@ -362,13 +343,12 @@ namespace MusicBeePlugin
 
         private void buttonPressed(object sender, LcdSoftButtonsEventArgs e)
         {
-
             if (started)
             {
                 LcdDevice device = (LcdDevice)sender;
 
                 // First button is pressed, switch to page one
-                if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
+                if(((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0) || (e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left) 
                 {
                     if (pageNumber == 0)
                     {
@@ -383,9 +363,8 @@ namespace MusicBeePlugin
                 }
 
                 // Second button is pressed
-                else if ((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1)
+                else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1) || (e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down) 
                 {
-
                     if (device.CurrentPage == page[0])
                     {
                         if (this.rating != 0)
@@ -394,12 +373,6 @@ namespace MusicBeePlugin
                             musicBeePlugin.changeRating(this.rating);
                         }
                     }
-
-                    //else if (device.CurrentPage == page[1])
-                    //{
-                    //    playlistScroll -= 1;
-                    //    this.playlist = musicBeePlugin.getPlayList(playlistScroll);
-                    //}
 
                     else if (device.CurrentPage == page[1])
                     {
@@ -418,7 +391,7 @@ namespace MusicBeePlugin
                 }
 
                 // Third button is pressed
-                else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
+                else if(((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2) || (e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up) 
                 {
                     if (device.CurrentPage == page[0])
                     {
@@ -428,11 +401,6 @@ namespace MusicBeePlugin
                             musicBeePlugin.changeRating(this.rating);
                         }
                     }
-                    //else if (device.CurrentPage == page[1])
-                    //{
-                    //    playlistScroll += 1;
-                    //    this.playlist = musicBeePlugin.getPlayList(playlistScroll);
-                    //}
 
                     else if (device.CurrentPage == page[1])
                     {
@@ -451,7 +419,7 @@ namespace MusicBeePlugin
                 }
 
                 // Fourth button is pressed
-                else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
+                else if (((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3) || (e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right) 
                 {
                     if (pageNumber == page.Length - 1)
                     {
@@ -487,7 +455,6 @@ namespace MusicBeePlugin
                                 settingsGdi[3].Text = "Repeat: " + repeat;
                                 break;
                         };
-
                     }
                     else
                     {
@@ -575,9 +542,8 @@ namespace MusicBeePlugin
             page[0].Children.Add(durationGdi);
             page[0].Children.Add(progressBarGdi);
 
-
             /**
-             * Create second screen (playlist)
+             * Create second screen (settings)
              * */
             settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font2);
             settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
@@ -681,6 +647,36 @@ namespace MusicBeePlugin
             page[0].Children.Add(albumGdi);
             page[0].Children.Add(artworkGdi);
 
+
+            ///**
+            // * Create second screen (settings)
+            // * */
+            //settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font2);
+            //settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            //settingsGdi[0].Margin = new MarginF(-2, 0, 0, 0);
+
+            //settingsGdi[1] = new LcdGdiText("Auto DJ: " + autoDJ, font2);
+            //settingsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //settingsGdi[1].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //settingsGdi[1].Margin = new MarginF(-2, 10, 0, 0);
+
+            //settingsGdi[2] = new LcdGdiText("Equalizer: " + equaliser, font2);
+            //settingsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //settingsGdi[2].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //settingsGdi[2].Margin = new MarginF(-2, 20, 0, 0);
+
+            //settingsGdi[3] = new LcdGdiText("Repeat: " + repeat, font2);
+            //settingsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            //settingsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            //settingsGdi[3].Margin = new MarginF(-2, 30, 0, 0);
+
+            //page[1].Children.Add(settingsGdi[0]);
+            //page[1].Children.Add(settingsGdi[1]);
+            //page[1].Children.Add(settingsGdi[2]);
+            //page[1].Children.Add(settingsGdi[3]);
+
+
+
             device.CurrentPage = page[0];
 
             device.DoUpdateAndDraw();
@@ -782,6 +778,5 @@ namespace MusicBeePlugin
             this.alwaysOnTop = alwaysOnTop_;
             device.SetAsForegroundApplet = alwaysOnTop;
         }
-
     }
 }
