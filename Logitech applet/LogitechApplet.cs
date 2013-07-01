@@ -155,7 +155,7 @@ namespace MusicBeePlugin
         {
             String url = mbApiInterface.NowPlaying_GetFileUrl();
             string test = number.ToString();
-            mbApiInterface.Library_SetFileTag(url, MetaDataType.Rating, "0,5");
+            mbApiInterface.Library_SetFileTag(url, MetaDataType.Rating, "0.5");
         }
 
         public void updateTrackText()
