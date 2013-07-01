@@ -46,6 +46,7 @@ namespace MusicBeePlugin
         private bool autoDJ = false;
         private bool equaliser = false;
         private bool shuffle = false;
+        private bool started = false;
 
         private string artist = "";
         private string album = "";
@@ -165,7 +166,6 @@ namespace MusicBeePlugin
             this.equaliser = equaliser;
             this.shuffle = shuffle;
             this.repeat = repeat;
-            // this.playlist = playList;
 
             if (rating != "")
             {
@@ -220,43 +220,44 @@ namespace MusicBeePlugin
                 int progresstime = (int)(((float)position / (float)duration) * 100);
                 progressBarGdi.Value = progresstime;
 
-                //playlistLine1.Text = musicBeePlugin.getTrackName(playList[0].ToString());
-                //playlistLine2.Text = musicBeePlugin.getTrackName(playList[1].ToString());
-                //playlistLine3.Text = musicBeePlugin.getTrackName(playList[2].ToString());
-                //playlistLine4.Text = musicBeePlugin.getTrackName(playList[3].ToString());
-                //playlistLine5.Text = musicBeePlugin.getTrackName(playList[4].ToString());
-
-                //if (this.shuffle)
-                //{
-                //    settingsGdi[0].Text = "Shuffle: Enabled";
-                //}
-                //else
-                //{
-                //    settingsGdi[0].Text = "Shuffle: Disabled";
-                //}
+                if (this.shuffle)
+                {
+                    settingsGdi[0].Text = "Shuffle: Enabled";
+                }
+                else
+                {
+                    settingsGdi[0].Text = "Shuffle: Disabled";
+                }
 
 
-                //if (this.autoDJ)
-                //{
-                //    settingsGdi[1].Text = "Auto DJ = Enabled";
-                //}
-                //else
-                //{
-                //    settingsGdi[1].Text = "Auto DJ = Disabled";
-                //}
+                if (this.autoDJ)
+                {
+                    settingsGdi[1].Text = "Auto DJ = Enabled";
+                }
+                else
+                {
+                    settingsGdi[1].Text = "Auto DJ = Disabled";
+                }
 
-                //if (this.equaliser)
-                //{
-                //    settingsGdi[2].Text = "Equaliser: Enabled";
-                //}
-                //else
-                //{
-                //    settingsGdi[2].Text = "Equaliser: Disabled";
-                //}
+                if (this.equaliser)
+                {
+                    settingsGdi[2].Text = "Equaliser: Enabled";
+                }
+                else
+                {
+                    settingsGdi[2].Text = "Equaliser: Disabled";
+                }
 
-                //settingsGdi[3].Text = "Repeat: " + this.repeat;
+                settingsGdi[3].Text = "Repeat: " + this.repeat;
 
-                device.DoUpdateAndDraw();
+                try
+                {
+                    device.DoUpdateAndDraw();
+                }
+                catch (System.InvalidOperationException)
+                {
+
+                }
                 timer = new Timer(tcb, autoEvent, 1000, 500);
             }
         }
@@ -307,7 +308,14 @@ namespace MusicBeePlugin
                     logitechObject.positionGdi.Text = "00:00";
                 }
 
-                logitechObject.device.DoUpdateAndDraw();
+                try
+                {
+                    logitechObject.device.DoUpdateAndDraw();
+                }
+                catch (System.InvalidOperationException)
+                {
+
+                }
             }
         }
 
@@ -350,145 +358,148 @@ namespace MusicBeePlugin
                 device.DoUpdateAndDraw();
                 firstTime = false;
             }
-
         }
 
         private void buttonPressed(object sender, LcdSoftButtonsEventArgs e)
         {
-            LcdDevice device = (LcdDevice)sender;
 
-            // First button is pressed, switch to page one
-            if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
+            if (started)
             {
-                if (pageNumber == 0)
+                LcdDevice device = (LcdDevice)sender;
+
+                // First button is pressed, switch to page one
+                if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
                 {
-                    pageNumber = page.Length - 1;
-                    device.CurrentPage = page[pageNumber];
+                    if (pageNumber == 0)
+                    {
+                        pageNumber = page.Length - 1;
+                        device.CurrentPage = page[pageNumber];
+                    }
+                    else
+                    {
+                        pageNumber -= 1;
+                        device.CurrentPage = page[pageNumber];
+                    }
                 }
-                else
+
+                // Second button is pressed
+                else if ((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1)
                 {
-                    pageNumber -= 1;
-                    device.CurrentPage = page[pageNumber];
+
+                    if (device.CurrentPage == page[0])
+                    {
+                        if (this.rating != 0)
+                        {
+                            this.rating -= 0.5f;
+                            musicBeePlugin.changeRating(this.rating);
+                        }
+                    }
+
+                    //else if (device.CurrentPage == page[1])
+                    //{
+                    //    playlistScroll -= 1;
+                    //    this.playlist = musicBeePlugin.getPlayList(playlistScroll);
+                    //}
+
+                    else if (device.CurrentPage == page[1])
+                    {
+                        if (settingSelected != 0)
+                        {
+                            settingSelected -= 1;
+                        }
+
+                        for (int i = 0; i < settingsGdi.Length; i++)
+                        {
+                            settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                        }
+
+                        settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                    }
                 }
+
+                // Third button is pressed
+                else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
+                {
+                    if (device.CurrentPage == page[0])
+                    {
+                        if (this.rating != 5)
+                        {
+                            this.rating += 0.5f;
+                            musicBeePlugin.changeRating(this.rating);
+                        }
+                    }
+                    //else if (device.CurrentPage == page[1])
+                    //{
+                    //    playlistScroll += 1;
+                    //    this.playlist = musicBeePlugin.getPlayList(playlistScroll);
+                    //}
+
+                    else if (device.CurrentPage == page[1])
+                    {
+                        if (settingSelected != 3)
+                        {
+                            settingSelected += 1;
+                        }
+
+                        for (int i = 0; i < settingsGdi.Length; i++)
+                        {
+                            settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                        }
+
+                        settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                    }
+                }
+
+                // Fourth button is pressed
+                else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
+                {
+                    if (pageNumber == page.Length - 1)
+                    {
+                        switch (settingSelected)
+                        {
+
+                            case 0:
+                                shuffle = !shuffle;
+                                settingsGdi[0].Text = "Shuffle: " + shuffle;
+                                break;
+
+                            case 1:
+                                autoDJ = !autoDJ;
+                                settingsGdi[1].Text = "Auto DJ: " + autoDJ;
+                                break;
+
+                            case 2:
+                                equaliser = !equaliser;
+                                settingsGdi[2].Text = "Equalizer: " + equaliser;
+                                break;
+
+                            case 3:
+
+                                if (repeatSelected == 2)
+                                {
+                                    repeatSelected = 0;
+                                }
+                                else
+                                {
+                                    repeatSelected++;
+                                }
+                                repeat = repeatArray[repeatSelected];
+                                settingsGdi[3].Text = "Repeat: " + repeat;
+                                break;
+                        };
+
+                    }
+                    else
+                    {
+                        pageNumber += 1;
+                        device.CurrentPage = page[pageNumber];
+                    }
+                }
+
+                musicBeePlugin.changeSettings(autoDJ, equaliser, shuffle, repeat);
+                musicBeePlugin.updateTrackText();
+                device.DoUpdateAndDraw();
             }
-
-            // Second button is pressed
-            else if ((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1)
-            {
-
-                if (device.CurrentPage == page[0])
-                {
-                    if (this.rating != 0)
-                    {
-                        this.rating -= 0.5f;
-                        musicBeePlugin.changeRating(this.rating);
-                    }
-                }
-
-                //else if (device.CurrentPage == page[1])
-                //{
-                //    playlistScroll -= 1;
-                //    this.playlist = musicBeePlugin.getPlayList(playlistScroll);
-                //}
-
-                else if (device.CurrentPage == page[1])
-                {
-                    if (settingSelected != 0)
-                    {
-                        settingSelected -= 1;
-                    }
-
-                    for (int i = 0; i < settingsGdi.Length; i++)
-                    {
-                        settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-                    }
-
-                    settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-                }
-            }
-
-            // Third button is pressed
-            else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
-            {
-                if (device.CurrentPage == page[0])
-                {
-                    if (this.rating != 5)
-                    {
-                        this.rating += 0.5f;
-                        musicBeePlugin.changeRating(this.rating);
-                    }
-                }
-                //else if (device.CurrentPage == page[1])
-                //{
-                //    playlistScroll += 1;
-                //    this.playlist = musicBeePlugin.getPlayList(playlistScroll);
-                //}
-
-                else if (device.CurrentPage == page[1])
-                {
-                    if (settingSelected != 3)
-                    {
-                        settingSelected += 1;
-                    }
-
-                    for (int i = 0; i < settingsGdi.Length; i++)
-                    {
-                        settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-                    }
-
-                    settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-                }
-            }
-
-            // Fourth button is pressed
-            else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
-            {
-                if (pageNumber == page.Length - 1)
-                {
-                    switch (settingSelected)
-                    {
-
-                        case 0:
-                            shuffle = !shuffle;
-                            settingsGdi[0].Text = "Shuffle: " + shuffle;
-                            break;
-
-                        case 1:
-                            autoDJ = !autoDJ;
-                            settingsGdi[1].Text = "Auto DJ: " + autoDJ;
-                            break;
-
-                        case 2:
-                            equaliser = !equaliser;
-                            settingsGdi[2].Text = "Equalizer: " + equaliser;
-                            break;
-
-                        case 3:
-
-                            if (repeatSelected == 2)
-                            {
-                                repeatSelected = 0;
-                            }
-                            else
-                            {
-                                repeatSelected++;
-                            }
-                            repeat = repeatArray[repeatSelected];
-                            settingsGdi[3].Text = "Repeat: " + repeat;
-                            break;
-                    };
-
-                }
-                else
-                {
-                    pageNumber += 1;
-                    device.CurrentPage = page[pageNumber];
-                }
-            }
-
-            musicBeePlugin.changeSettings(autoDJ, equaliser, shuffle, repeat);
-            musicBeePlugin.updateTrackText();
-            device.DoUpdateAndDraw();
 
         }
 
@@ -500,7 +511,6 @@ namespace MusicBeePlugin
 
             page[0] = new LcdGdiPage(device);
             page[1] = new LcdGdiPage(device);
-            //page[2] = new LcdGdiPage(device);
 
             /**
              * Create first window (player)
@@ -569,37 +579,6 @@ namespace MusicBeePlugin
             /**
              * Create second screen (playlist)
              * */
-
-            //playlistLine1 = new LcdGdiText("", font2);
-            //playlistLine1.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            //playlistLine1.Margin = new MarginF(-2, -2, 0, 0);
-
-            //playlistLine2 = new LcdGdiText("", font2);
-            //playlistLine2.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            //playlistLine2.Margin = new MarginF(-2, 6, 0, 0);
-
-            //playlistLine3 = new LcdGdiText("", font2);
-            //playlistLine3.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            //playlistLine3.Margin = new MarginF(-2, 14, 0, 0);
-
-            //playlistLine4 = new LcdGdiText("", font2);
-            //playlistLine4.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            //playlistLine4.Margin = new MarginF(-2, 22, 0, 0);
-
-            //playlistLine5 = new LcdGdiText("", font2);
-            //playlistLine5.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            //playlistLine5.Margin = new MarginF(-2, 30, 0, 0);
-
-            //page[1].Children.Add(playlistLine1);
-            //page[1].Children.Add(playlistLine2);
-            //page[1].Children.Add(playlistLine3);
-            //page[1].Children.Add(playlistLine4);
-            //page[1].Children.Add(playlistLine5);
-
-
-            /**
-             * Create thirth screen (settings)
-             * */
             settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font2);
             settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
             settingsGdi[0].Margin = new MarginF(-2, 0, 0, 0);
@@ -627,6 +606,7 @@ namespace MusicBeePlugin
             device.CurrentPage = page[0];
 
             device.DoUpdateAndDraw();
+            started = true;
         }
 
         private void createColor()
@@ -704,6 +684,7 @@ namespace MusicBeePlugin
             device.CurrentPage = page[0];
 
             device.DoUpdateAndDraw();
+            started = true;
 
         }
 
