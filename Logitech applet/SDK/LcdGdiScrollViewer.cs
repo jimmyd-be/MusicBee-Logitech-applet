@@ -285,7 +285,7 @@ namespace GammaJul.LgLcd {
                         }
                         else if (elapsedTotalTime - _autoScrollXEndedTime >= _autoScrollXFixedEndTime)
                         {
-                                                        _autoScrollXWasSet = false;
+                            _autoScrollXWasSet = false;
                             _currentScrollX = 0.0f;
                         }
                     }

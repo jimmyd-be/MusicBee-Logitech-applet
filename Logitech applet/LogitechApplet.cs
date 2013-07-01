@@ -132,7 +132,6 @@ namespace MusicBeePlugin
                             case PlayState.Undefined:
                                 logitech.changeState(PlayState.Undefined);
                                 break;
-
                         }
                     }
                     break;
@@ -154,8 +153,10 @@ namespace MusicBeePlugin
         public void changeRating(float number)
         {
             String url = mbApiInterface.NowPlaying_GetFileUrl();
-            string test = number.ToString();
-            mbApiInterface.Library_SetFileTag(url, MetaDataType.Rating, "0.5");
+            mbApiInterface.Library_SetFileTag(url, MetaDataType.Rating, number.ToString());
+
+            mbApiInterface.Library_CommitTagsToFile(url);
+            mbApiInterface.MB_RefreshPanels();
         }
 
         public void updateTrackText()
