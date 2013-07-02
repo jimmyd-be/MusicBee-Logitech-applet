@@ -177,13 +177,15 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\pause.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\play.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="res\NoArtwork.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="res\empty.png" />
+    <Content Include="res\star.png" />
+    <Content Include="res\star_half.png" />
+    <Content Include="res\star_rating_empty.png" />
+    <Content Include="res\star_rating_full.png" />
+    <Content Include="res\star_rating_half.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

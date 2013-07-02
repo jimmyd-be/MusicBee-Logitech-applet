@@ -55,9 +55,15 @@ namespace MusicBeePlugin
         private float rating = 0;
 
         private Image backgroundImage = null;
+        private Image fullStarImage = null;
+        private Image halfStarImage = null;
+        private Image emptyStarImage = null;
+        private Image emptyImage = null;
 
         private LcdGdiImage backgroundGdi = null;
         private LcdGdiImage artworkGdi = null;
+
+        private LcdGdiImage[] ratingColorGdi = null;
 
         private LcdGdiText titleGdi = null;
         private LcdGdiText artistGdi = null;
@@ -187,6 +193,36 @@ namespace MusicBeePlugin
                 {
                     artworkGdi.Image = Base64ToImage(artwork);
                     albumGdi.Text = album;
+
+                    float tempRating = this.rating;
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        if (this.rating != 0)
+                        {
+                            if (tempRating - 1 >= 0)
+                            {
+                                ratingColorGdi[i].Image = fullStarImage;
+                                tempRating--;
+                            }
+
+                            else if (tempRating - 0.5f == 0)
+                            {
+                                ratingColorGdi[i].Image = halfStarImage;
+                                tempRating -= 0.5f;
+                            }
+
+                            else
+                            {
+                                ratingColorGdi[i].Image = emptyStarImage;
+                            }
+                        }
+                        else
+                        {
+                            ratingColorGdi[i].Image = emptyImage;
+                        }
+
+                    }
                 }
                 else if (device.DeviceType == LcdDeviceType.Monochrome)
                 {
@@ -348,7 +384,7 @@ namespace MusicBeePlugin
                 LcdDevice device = (LcdDevice)sender;
 
                 // First button is pressed, switch to page one
-                if(((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0) || (e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left) 
+                if (((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0) || (e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left)
                 {
                     if (pageNumber == 0)
                     {
@@ -363,7 +399,7 @@ namespace MusicBeePlugin
                 }
 
                 // Second button is pressed
-                else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1) || (e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up) 
+                else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1))
                 {
                     if (device.CurrentPage == page[0])
                     {
@@ -419,7 +455,7 @@ namespace MusicBeePlugin
                 }
 
                 //G19 down button pressed
-                else if((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down)
+                else if ((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down)
                 {
                     if (device.CurrentPage == page[0])
                     {
@@ -447,7 +483,7 @@ namespace MusicBeePlugin
                 }
 
                 // Third button is pressed
-                else if((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
+                else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
                 {
                     if (device.CurrentPage == page[0])
                     {
@@ -474,7 +510,7 @@ namespace MusicBeePlugin
                     }
                 }
 
-                else if((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right)
+                else if ((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right)
                 {
                     if (pageNumber == page.Length - 1)
                     {
@@ -749,6 +785,10 @@ namespace MusicBeePlugin
             albumScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
             albumScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
+            fullStarImage = (Image)Resource.star_rating_full;
+            halfStarImage = (Image)Resource.star_rating_half;
+            emptyStarImage = (Image)Resource.star_rating_empty;
+            emptyImage = (Image)Resource.empty;
             page[0].Children.Add(titleGdi);
             page[0].Children.Add(titleScroll);
             page[0].Children.Add(artistGdi);
@@ -757,6 +797,40 @@ namespace MusicBeePlugin
             page[0].Children.Add(progressBarGdi);
             page[0].Children.Add(albumGdi);
             page[0].Children.Add(artworkGdi);
+
+            ratingColorGdi = new LcdGdiImage[5];
+
+            float tempRating = this.rating;
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (this.rating != 0)
+                {
+                    if (tempRating - 1 >= 0)
+                    {
+                        ratingColorGdi[i] = new LcdGdiImage(fullStarImage);
+                        tempRating--;
+                    }
+
+                    else if (tempRating - 0.5f == 0)
+                    {
+                        ratingColorGdi[i] = new LcdGdiImage(halfStarImage);
+                        tempRating -= 0.5f;
+                    }
+
+                    else
+                    {
+                        ratingColorGdi[i] = new LcdGdiImage(emptyStarImage);
+                    }
+                }
+                else
+                {
+                    ratingColorGdi[i] = new LcdGdiImage(emptyStarImage);
+                }
+                ratingColorGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                ratingColorGdi[i].Margin = new MarginF((18 * i) + 5, 215, 0, 0);
+                page[0].Children.Add(ratingColorGdi[i]);
+            }
 
             /**
              * Create second screen (settings)
