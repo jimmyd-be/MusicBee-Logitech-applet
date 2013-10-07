@@ -170,6 +170,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Resource.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
@@ -181,8 +182,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="res\empty.png" />
-    <Content Include="res\star.png" />
-    <Content Include="res\star_half.png" />
+    <None Include="res\highVolume.ico" />
+    <None Include="res\lowVolume.ico" />
     <Content Include="res\star_rating_empty.png" />
     <Content Include="res\star_rating_full.png" />
     <Content Include="res\star_rating_half.png" />

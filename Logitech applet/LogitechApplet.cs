@@ -145,6 +145,8 @@ namespace MusicBeePlugin
                 case NotificationType.NowPlayingArtworkReady:
                 case NotificationType.RatingChanged:
                 case NotificationType.TrackChanged:
+                case NotificationType.VolumeLevelChanged:
+                case NotificationType.VolumeMuteChanged:
                     updateTrackText();
                     break;
             }
@@ -157,6 +159,11 @@ namespace MusicBeePlugin
 
             mbApiInterface.Library_CommitTagsToFile(url);
             mbApiInterface.MB_RefreshPanels();
+        }
+
+        public void changeVolume(float volume)
+        {
+            mbApiInterface.Player_SetVolume(volume);
         }
 
         public void updateTrackText()
@@ -172,7 +179,9 @@ namespace MusicBeePlugin
             RepeatMode repeat = mbApiInterface.Player_GetRepeat();
             bool shuffle = mbApiInterface.Player_GetShuffle();
 
-            logitech.changeArtistTitle(artist, album, title, rating, artwork, mbApiInterface.NowPlaying_GetDuration() / 1000, mbApiInterface.Player_GetPosition() / 1000, autoDJ, equaliser, shuffle, repeat);
+            float volume = mbApiInterface.Player_GetVolume();
+
+            logitech.changeArtistTitle(artist, album, title, rating, artwork, mbApiInterface.NowPlaying_GetDuration() / 1000, mbApiInterface.Player_GetPosition() / 1000, autoDJ, equaliser, shuffle, repeat, volume);
         }
 
 

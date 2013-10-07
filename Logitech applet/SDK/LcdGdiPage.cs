@@ -114,21 +114,31 @@ namespace GammaJul.LgLcd {
 		/// <returns>Implementors must return a pixel array conforming to
 		/// <see cref="LcdPage.Device"/>'s <see cref="LcdDevice.DeviceType"/>.</returns>
 		protected override byte[] DrawCore() {
-			if (_graphics == null)
-				_graphics = Graphics.FromImage(_bitmap);
-			using (Graphics graphics = _graphics) {
-				PrepareGraphics(graphics);
-				graphics.FillRectangle(Brushes.White, _rectangle);
-				foreach (LcdGdiObject child in _children) {
-					if (child.IsVisible) {
-						PrepareGraphicsForChild(graphics, child);
-						child.Draw(this, graphics);
-						graphics.ResetClip();
-					}
-				}
-				OnGdiDrawing(graphics);
-			}
-			_graphics = null;
+            try
+            {
+                if (_graphics == null)
+                    _graphics = Graphics.FromImage(_bitmap);
+                using (Graphics graphics = _graphics)
+                {
+                    PrepareGraphics(graphics);
+                    graphics.FillRectangle(Brushes.White, _rectangle);
+                    foreach (LcdGdiObject child in _children)
+                    {
+                        if (child.IsVisible)
+                        {
+                            PrepareGraphicsForChild(graphics, child);
+                            child.Draw(this, graphics);
+                            graphics.ResetClip();
+                        }
+                    }
+                    OnGdiDrawing(graphics);
+                }
+                _graphics = null;
+            }
+            catch  (Exception e)
+            {
+
+            }
 			return PixelsFromBitmap();
 		}
 

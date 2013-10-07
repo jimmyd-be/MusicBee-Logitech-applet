@@ -25,12 +25,24 @@ namespace MusicBeePlugin
         public void openSettings()
         {
             bool alwaysOnTop = true;
+            int volume = 1;
            
             string[] lines = File.ReadAllLines(settingsPath_ + "LogitechLCDSettings.ini");
 
             if (lines.Length > 0)
             {
                 string alwaysOnTopString = lines[0].Replace("alwaysOnTop: ", "");
+                string volumeString = lines[1].Replace("volumeChanger: ", "");
+
+                try
+                {
+                    volume = Convert.ToInt32(volumeString);
+                }
+                catch (FormatException)
+                {
+
+                }
+
                 try
                 {
                     alwaysOnTop = Convert.ToBoolean(alwaysOnTopString);
@@ -50,8 +62,9 @@ namespace MusicBeePlugin
                 this.radioButton1.Checked = false;
             }
 
+            this.numericUpDown1.Value = volume;
 
-            logitech_.settingsChanged(alwaysOnTop);
+            logitech_.settingsChanged(alwaysOnTop, volume);
         }
 
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
@@ -73,10 +86,12 @@ namespace MusicBeePlugin
         {
             bool alwaysOnTop = radioButton1.Checked;
 
-            string[] lines = { "alwaysOnTop: " + alwaysOnTop };
+            int volume = (int)numericUpDown1.Value;
+
+            string[] lines = { "alwaysOnTop: " + alwaysOnTop, "volumeChanger: " + volume };
             File.WriteAllLines(settingsPath_ + "LogitechLCDSettings.ini", lines);
 
-            logitech_.settingsChanged(alwaysOnTop);
+            logitech_.settingsChanged(alwaysOnTop, volume);
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)

@@ -25,7 +25,7 @@ namespace MusicBeePlugin
         private Plugin musicBeePlugin = null;
         private LcdApplet applet = null;
         private LcdDevice device = null;
-        private LcdGdiPage[] page = new LcdGdiPage[2];
+        private LcdGdiPage[] page = new LcdGdiPage[3];
 
         private Font font = new Font("Microsoft Sans Serif", 8);
         private Font font2 = new Font("Microsoft Sans Serif", 7);
@@ -36,9 +36,10 @@ namespace MusicBeePlugin
         private int position = 0;
         private int duration = 0;
         private int alwaysOnTopCounter = 0;
-        private int pageNumber = 0;
+        private int pageNumber = 1;
         private int settingSelected = 0;
         private int repeatSelected = 0;
+        private float volumeChanger = 0.1f;
 
         private bool firstTime = true;
         private bool eventHappened = true;
@@ -52,6 +53,8 @@ namespace MusicBeePlugin
         private string album = "";
         private string title = "";
         private string artwork = "";
+
+        private float volume = 1;
         private float rating = 0;
 
         private Image backgroundImage = null;
@@ -65,6 +68,9 @@ namespace MusicBeePlugin
 
         private LcdGdiImage[] ratingColorGdi = null;
 
+        private LcdGdiIcon lowVolumeIcon;
+        private LcdGdiIcon highVolumeIcon;
+
         private LcdGdiText titleGdi = null;
         private LcdGdiText artistGdi = null;
         private LcdGdiText positionGdi = null;
@@ -73,6 +79,7 @@ namespace MusicBeePlugin
         private LcdGdiText ratingGdi = null;
 
         private LcdGdiProgressBar progressBarGdi = null;
+        private LcdGdiProgressBar volumeBarGdi = null;
 
         //Shuffle 0
         //AutoDJ 1
@@ -151,7 +158,7 @@ namespace MusicBeePlugin
             applet.Connect();
         }
 
-        public void changeArtistTitle(string artist, string album, string title, string rating, string artwork, int duration, int position, bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)
+        public void changeArtistTitle(string artist, string album, string title, string rating, string artwork, int duration, int position, bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat, float volume)
         {
             eventHappened = true;
             this.artist = artist;
@@ -164,6 +171,7 @@ namespace MusicBeePlugin
             this.equaliser = equaliser;
             this.shuffle = shuffle;
             this.repeat = repeat;
+            this.volume = volume;
 
             if (rating != "")
             {
@@ -242,6 +250,7 @@ namespace MusicBeePlugin
                 durationGdi.Text = timetoString(duration);
                 int progresstime = (int)(((float)position / (float)duration) * 100);
                 progressBarGdi.Value = progresstime;
+                volumeBarGdi.Value = (int)(this.volume * 100);
 
                 if (this.shuffle)
                 {
@@ -403,6 +412,15 @@ namespace MusicBeePlugin
                 {
                     if (device.CurrentPage == page[0])
                     {
+                        volume -= volumeChanger;
+
+                        if (volume < 0)
+                        {
+                            volume = 0;
+                        }
+                    }
+                    else if (device.CurrentPage == page[1])
+                    {
                         if (this.rating != 0)
                         {
                             this.rating -= 0.5f;
@@ -410,7 +428,7 @@ namespace MusicBeePlugin
                         }
                     }
 
-                    else if (device.CurrentPage == page[1])
+                    else if (device.CurrentPage == page[2])
                     {
                         if (settingSelected != 0)
                         {
@@ -487,6 +505,15 @@ namespace MusicBeePlugin
                 {
                     if (device.CurrentPage == page[0])
                     {
+                        volume += volumeChanger;
+
+                        if(volume > 1)
+                        {
+                            volume = 1;
+                        }
+                    }
+                    else if (device.CurrentPage == page[1])
+                    {
                         if (this.rating != 5)
                         {
                             this.rating += 0.5f;
@@ -494,7 +521,7 @@ namespace MusicBeePlugin
                         }
                     }
 
-                    else if (device.CurrentPage == page[1])
+                    else if (device.CurrentPage == page[2])
                     {
                         if (settingSelected != 3)
                         {
@@ -608,6 +635,7 @@ namespace MusicBeePlugin
                     }
                 }
 
+                musicBeePlugin.changeVolume(volume);
                 musicBeePlugin.changeSettings(autoDJ, equaliser, shuffle, repeat);
                 musicBeePlugin.updateTrackText();
                 device.DoUpdateAndDraw();
@@ -623,9 +651,35 @@ namespace MusicBeePlugin
 
             page[0] = new LcdGdiPage(device);
             page[1] = new LcdGdiPage(device);
+            page[2] = new LcdGdiPage(device);
 
             /**
-             * Create first window (player)
+             * Create first window (volume)
+             **/
+            volumeBarGdi = new LcdGdiProgressBar();
+            volumeBarGdi.Size = new SizeF(136, 5);
+            volumeBarGdi.Margin = new MarginF(12, 38, 0, 0);
+            volumeBarGdi.Minimum = 0;
+            volumeBarGdi.Maximum = 100;
+            volumeBarGdi.Value = (int)(this.volume*100);
+
+            Icon icon = (Icon)Resource.lowVolume;
+            icon = new Icon(icon, 16, 16);
+            lowVolumeIcon = new LcdGdiIcon(icon);
+            lowVolumeIcon.Margin = new MarginF(10, 20, 0, 0);
+
+            icon = (Icon)Resource.highVolume;
+
+            icon = new Icon(icon, 16, 16);
+            highVolumeIcon = new LcdGdiIcon(icon);
+            highVolumeIcon.Margin = new MarginF(134, 20, 0, 0);
+
+            page[0].Children.Add(volumeBarGdi);
+            page[0].Children.Add(highVolumeIcon);
+            page[0].Children.Add(lowVolumeIcon);
+
+            /**
+             * Create second window (player)
              **/
             titleGdi = new LcdGdiText(this.title, font);
             titleGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
@@ -653,7 +707,6 @@ namespace MusicBeePlugin
                 ratingGdi.Text = "";
             }
 
-
             durationGdi = new LcdGdiText(timetoString(this.duration), font2);
             durationGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Right;
             durationGdi.Margin = new MarginF(0, 26, 13, 0);
@@ -678,17 +731,17 @@ namespace MusicBeePlugin
             artistScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
             artistScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
-            page[0].Children.Add(titleGdi);
-            page[0].Children.Add(artistGdi);
-            page[0].Children.Add(titleScroll);
-            page[0].Children.Add(artistScroll);
-            page[0].Children.Add(positionGdi);
-            page[0].Children.Add(ratingGdi);
-            page[0].Children.Add(durationGdi);
-            page[0].Children.Add(progressBarGdi);
+            page[1].Children.Add(titleGdi);
+            page[1].Children.Add(artistGdi);
+            page[1].Children.Add(titleScroll);
+            page[1].Children.Add(artistScroll);
+            page[1].Children.Add(positionGdi);
+            page[1].Children.Add(ratingGdi);
+            page[1].Children.Add(durationGdi);
+            page[1].Children.Add(progressBarGdi);
 
             /**
-             * Create second screen (settings)
+             * Create thirth screen (settings)
              * */
             settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font2);
             settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
@@ -709,12 +762,12 @@ namespace MusicBeePlugin
             settingsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
             settingsGdi[3].Margin = new MarginF(-2, 30, 0, 0);
 
-            page[1].Children.Add(settingsGdi[0]);
-            page[1].Children.Add(settingsGdi[1]);
-            page[1].Children.Add(settingsGdi[2]);
-            page[1].Children.Add(settingsGdi[3]);
+            page[2].Children.Add(settingsGdi[0]);
+            page[2].Children.Add(settingsGdi[1]);
+            page[2].Children.Add(settingsGdi[2]);
+            page[2].Children.Add(settingsGdi[3]);
 
-            device.CurrentPage = page[0];
+            device.CurrentPage = page[1];
 
             device.DoUpdateAndDraw();
             started = true;
@@ -954,8 +1007,10 @@ namespace MusicBeePlugin
             return (Image)b;
         }
 
-        public void settingsChanged(bool alwaysOnTop_)
+        public void settingsChanged(bool alwaysOnTop_, int volume)
         {
+            this.volumeChanger = volume / 100f;
+
             this.alwaysOnTop = alwaysOnTop_;
             device.SetAsForegroundApplet = alwaysOnTop;
         }

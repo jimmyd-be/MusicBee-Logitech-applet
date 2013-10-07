@@ -101,21 +101,29 @@ namespace GammaJul.LgLcd {
 		/// <param name="page">Page where this object will be drawn.</param>
 		/// <param name="graphics"><see cref="Graphics"/> to use for drawing.</param>
 		protected internal override void Update(TimeSpan elapsedTotalTime, TimeSpan elapsedTimeSinceLastFrame, LcdGdiPage page, Graphics graphics) {
-			if (String.IsNullOrEmpty(Text) || Brush == null || Font == null)
-				FinalSize = SizeF.Empty;
-			else {
-				graphics.TextContrast = _textContrast;
-				graphics.TextRenderingHint = _textRenderingHint;
-				_stringFormat.SetMeasurableCharacterRanges(new[] { new CharacterRange(0, _text.Length) });
-				_boundSize = Size == SizeF.Empty ? new SizeF(65536.0f, 65536.0f) : Size;
-				if (HorizontalAlignment == LcdGdiHorizontalAlignment.Stretch)
-					_boundSize.Width = page.Bitmap.Width - Margin.Left - Margin.Right;
-				if (VerticalAlignment == LcdGdiVerticalAlignment.Stretch)
-					_boundSize.Height = page.Bitmap.Height - Margin.Top - Margin.Bottom;
-				Region[] regions = graphics.MeasureCharacterRanges(Text, Font, new RectangleF(PointF.Empty, _boundSize), _stringFormat);
-				FinalSize = regions[0].GetBounds(graphics).Size;
-			}
-			CalcAbsolutePosition(page.Bitmap.Size, 1.0f);
+            try
+            {
+                if (String.IsNullOrEmpty(Text) || Brush == null || Font == null)
+                    FinalSize = SizeF.Empty;
+                else
+                {
+                    graphics.TextContrast = _textContrast;
+                    graphics.TextRenderingHint = _textRenderingHint;
+                    _stringFormat.SetMeasurableCharacterRanges(new[] { new CharacterRange(0, _text.Length) });
+                    _boundSize = Size == SizeF.Empty ? new SizeF(65536.0f, 65536.0f) : Size;
+                    if (HorizontalAlignment == LcdGdiHorizontalAlignment.Stretch)
+                        _boundSize.Width = page.Bitmap.Width - Margin.Left - Margin.Right;
+                    if (VerticalAlignment == LcdGdiVerticalAlignment.Stretch)
+                        _boundSize.Height = page.Bitmap.Height - Margin.Top - Margin.Bottom;
+                    Region[] regions = graphics.MeasureCharacterRanges(Text, Font, new RectangleF(PointF.Empty, _boundSize), _stringFormat);
+                    FinalSize = regions[0].GetBounds(graphics).Size;
+                }
+                CalcAbsolutePosition(page.Bitmap.Size, 1.0f);
+            }
+            catch(Exception e)
+            {
+
+            }
 		}
 
 		/// <summary>
