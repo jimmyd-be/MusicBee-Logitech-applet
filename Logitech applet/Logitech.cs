@@ -25,7 +25,7 @@ namespace MusicBeePlugin
         private Plugin musicBeePlugin = null;
         private LcdApplet applet = null;
         private LcdDevice device = null;
-        private LcdGdiPage[] page = new LcdGdiPage[3];
+        private LcdGdiPage[] page = null;
 
         private Font font = new Font("Microsoft Sans Serif", 8);
         private Font font2 = new Font("Microsoft Sans Serif", 7);
@@ -39,7 +39,6 @@ namespace MusicBeePlugin
         private int pageNumber = 1;
         private int settingSelected = 0;
         private int repeatSelected = 0;
-        private float volumeChanger = 0.1f;
 
         private bool firstTime = true;
         private bool eventHappened = true;
@@ -48,12 +47,14 @@ namespace MusicBeePlugin
         private bool equaliser = false;
         private bool shuffle = false;
         private bool started = false;
+        private bool volumeActive = false;
 
         private string artist = "";
         private string album = "";
         private string title = "";
         private string artwork = "";
 
+        private float volumeChanger = 0.1f;
         private float volume = 1;
         private float rating = 0;
 
@@ -85,7 +86,7 @@ namespace MusicBeePlugin
         //AutoDJ 1
         //Equaliser 2
         //repeat 3
-        private LcdGdiText[] settingsGdi = new LcdGdiText[4];
+        private LcdGdiText[] settingsGdi = null;
 
         private LcdGdiScrollViewer albumScroll = null;
         private LcdGdiScrollViewer titleScroll = null;
@@ -359,6 +360,7 @@ namespace MusicBeePlugin
 
             if (device.DeviceType == LcdDeviceType.Monochrome)
             {
+                page = new LcdGdiPage[3];
                 page[0] = new LcdGdiPage(device);
                 Font font = new Font("Microsoft Sans Serif", 25);
 
@@ -374,6 +376,7 @@ namespace MusicBeePlugin
             }
             else if (device.DeviceType == LcdDeviceType.Qvga)
             {
+                page = new LcdGdiPage[2];
                 page[0] = new LcdGdiPage(device);
 
                 backgroundImage = (Image)Resource.G19logo;
@@ -458,11 +461,22 @@ namespace MusicBeePlugin
 
                     else if (device.CurrentPage == page[1])
                     {
-                        if (settingSelected != 0)
+                        if (volumeActive)
                         {
-                            settingSelected -= 1;
-                        }
+                            volume += volumeChanger;
 
+                            if (volume > 1)
+                            {
+                                volume = 1;
+                            }
+                        }
+                        else
+                        {
+                            if (settingSelected != 0)
+                            {
+                                settingSelected -= 1;
+                            }
+                        }
                         for (int i = 0; i < settingsGdi.Length; i++)
                         {
                             settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
@@ -486,11 +500,22 @@ namespace MusicBeePlugin
 
                     else if (device.CurrentPage == page[1])
                     {
-                        if (settingSelected != 3)
+                        if (volumeActive)
                         {
-                            settingSelected += 1;
-                        }
+                            volume -= volumeChanger;
 
+                            if (volume < 0)
+                            {
+                                volume = 0;
+                            }
+                        }
+                        else
+                        {
+                            if (settingSelected != settingsGdi.Length - 1)
+                            {
+                                settingSelected += 1;
+                            }
+                        }
                         for (int i = 0; i < settingsGdi.Length; i++)
                         {
                             settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
@@ -586,6 +611,9 @@ namespace MusicBeePlugin
                                 repeat = repeatArray[repeatSelected];
                                 settingsGdi[3].Text = "Repeat: " + repeat;
                                 break;
+                            case 4:
+                                volumeActive = !volumeActive;
+                                break;
                         };
                     }
                 }
@@ -645,6 +673,8 @@ namespace MusicBeePlugin
 
         private void createMonochrome()
         {
+            settingsGdi = new LcdGdiText[4];
+
             page[0].Children.Clear();
             page[0].Dispose();
             page[0] = null;
@@ -775,6 +805,8 @@ namespace MusicBeePlugin
 
         private void createColor()
         {
+            settingsGdi = new LcdGdiText[5];
+
             page[0].Children.Clear();
             page[0].Dispose();
             page[0] = null;
@@ -905,11 +937,24 @@ namespace MusicBeePlugin
             settingsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
             settingsGdi[3].Margin = new MarginF(5, 80, 0, 0);
 
+            settingsGdi[4] = new LcdGdiText("Volume", font3);
+            settingsGdi[4].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[4].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            settingsGdi[4].Margin = new MarginF(5, 105, 0, 0);
+
+            volumeBarGdi = new LcdGdiProgressBar();
+            volumeBarGdi.Minimum = 0;
+            volumeBarGdi.Maximum = 100;
+            volumeBarGdi.Size = new SizeF(310, 20);
+            volumeBarGdi.Margin = new MarginF(5, 150, 5, 0);
+
             page[1].Children.Add(backgroundGdi);
             page[1].Children.Add(settingsGdi[0]);
             page[1].Children.Add(settingsGdi[1]);
             page[1].Children.Add(settingsGdi[2]);
             page[1].Children.Add(settingsGdi[3]);
+            page[1].Children.Add(settingsGdi[4]);
+            page[1].Children.Add(volumeBarGdi);
 
             device.CurrentPage = page[0];
 

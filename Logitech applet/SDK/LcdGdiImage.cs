@@ -16,12 +16,17 @@ namespace GammaJul.LgLcd {
 		public Image Image {
 			get { return _image; }
 			set {
-				if (_image != value) {
-					_image = value;
-					if (value != null)
-						Size = _image.Size;
-					HasChanged = true;
-				}
+                try
+                {
+                    if (_image != value)
+                    {
+                        _image = value;
+                        if (value != null)
+                            Size = _image.Size;
+                        HasChanged = true;
+                    }
+                }
+                catch (Exception) { }
 			}
 		}
 

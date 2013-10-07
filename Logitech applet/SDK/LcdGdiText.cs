@@ -120,10 +120,7 @@ namespace GammaJul.LgLcd {
                 }
                 CalcAbsolutePosition(page.Bitmap.Size, 1.0f);
             }
-            catch(Exception e)
-            {
-
-            }
+            catch(Exception){}
 		}
 
 		/// <summary>

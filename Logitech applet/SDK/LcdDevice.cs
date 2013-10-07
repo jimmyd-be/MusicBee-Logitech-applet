@@ -211,7 +211,11 @@ namespace GammaJul.LgLcd {
 
 
 		private int SoftButtonsChangedCallback(int device, LcdSoftButtons buttons, IntPtr context) {
-			OnSoftButtonsChanged(buttons);
+            try
+            {
+                OnSoftButtonsChanged(buttons);
+            }
+            catch (Exception) { }
 			return 0;
 		}
 

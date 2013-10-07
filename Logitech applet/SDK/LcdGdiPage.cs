@@ -135,10 +135,8 @@ namespace GammaJul.LgLcd {
                 }
                 _graphics = null;
             }
-            catch  (Exception e)
-            {
+            catch  (Exception){}
 
-            }
 			return PixelsFromBitmap();
 		}
 
