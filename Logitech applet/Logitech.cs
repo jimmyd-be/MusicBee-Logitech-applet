@@ -748,7 +748,7 @@ namespace MusicBeePlugin
                 }
                 else if (device.CurrentPage == page[3])
                 {
-                    if (controlSelected != 3)
+                    if (controlSelected != 4)
                     {
                         controlSelected += 1;
                     }
@@ -782,7 +782,7 @@ namespace MusicBeePlugin
             pageNumber = 2;
 
             settingsGdi = new LcdGdiText[4];
-            controlsGdi = new LcdGdiText[4];
+            controlsGdi = new LcdGdiText[5];
 
             page[0].Children.Clear();
             page[0].Dispose();
@@ -914,27 +914,33 @@ namespace MusicBeePlugin
 
             controlsGdi[0] = new LcdGdiText("Start/Pauze", font2);
             controlsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            controlsGdi[0].Margin = new MarginF(-2, 0, 0, 0);
+            controlsGdi[0].Margin = new MarginF(-2, -0, 0, 0);
 
             controlsGdi[1] = new LcdGdiText("Play next song", font2);
             controlsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
             controlsGdi[1].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            controlsGdi[1].Margin = new MarginF(-2, 10, 0, 0);
+            controlsGdi[1].Margin = new MarginF(-2, 8, 0, 0);
 
             controlsGdi[2] = new LcdGdiText("Play previous song", font2);
             controlsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
             controlsGdi[2].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            controlsGdi[2].Margin = new MarginF(-2, 20, 0, 0);
+            controlsGdi[2].Margin = new MarginF(-2, 16, 0, 0);
 
             controlsGdi[3] = new LcdGdiText("Stop playing", font2);
             controlsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
             controlsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            controlsGdi[3].Margin = new MarginF(-2, 30, 0, 0);
+            controlsGdi[3].Margin = new MarginF(-2, 24, 0, 0);
+
+            controlsGdi[4] = new LcdGdiText("Restart song", font2);
+            controlsGdi[4].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[4].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            controlsGdi[4].Margin = new MarginF(-2, 32, 0, 0);
 
             page[3].Children.Add(controlsGdi[0]);
             page[3].Children.Add(controlsGdi[1]);
             page[3].Children.Add(controlsGdi[2]);
             page[3].Children.Add(controlsGdi[3]);
+            page[3].Children.Add(controlsGdi[4]);
 
             device.CurrentPage = page[2];
 
@@ -947,7 +953,7 @@ namespace MusicBeePlugin
             pageNumber = 1;
 
             settingsGdi = new LcdGdiText[5];
-            controlsGdi = new LcdGdiText[4];
+            controlsGdi = new LcdGdiText[5];
 
             page[0].Children.Clear();
             page[0].Dispose();
@@ -1128,11 +1134,17 @@ namespace MusicBeePlugin
             controlsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
             controlsGdi[3].Margin = new MarginF(5, 80, 0, 0);
 
+            controlsGdi[4] = new LcdGdiText("Restart song", font3);
+            controlsGdi[4].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[4].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            controlsGdi[4].Margin = new MarginF(5, 105, 0, 0);
+
             page[2].Children.Add(backgroundGdi);
             page[2].Children.Add(controlsGdi[0]);
             page[2].Children.Add(controlsGdi[1]);
             page[2].Children.Add(controlsGdi[2]);
             page[2].Children.Add(controlsGdi[3]);
+            page[2].Children.Add(controlsGdi[4]);
 
             device.CurrentPage = page[1];
 

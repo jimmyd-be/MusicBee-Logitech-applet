@@ -247,6 +247,10 @@ namespace MusicBeePlugin
 
                 case 3: mbApiInterface.Player_Stop();
                     break;
+
+                case 4: mbApiInterface.Player_Stop();
+                        mbApiInterface.Player_PlayPause();
+                    break;
             }
         }
 
