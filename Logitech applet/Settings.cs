@@ -25,32 +25,39 @@ namespace MusicBeePlugin
         public void openSettings()
         {
             bool alwaysOnTop = true;
-            int volume = 1;
-           
-            string[] lines = File.ReadAllLines(settingsPath_ + "LogitechLCDSettings.ini");
+            int volume = 10;
 
-            if (lines.Length > 0)
+            try
             {
-                string alwaysOnTopString = lines[0].Replace("alwaysOnTop: ", "");
-                string volumeString = lines[1].Replace("volumeChanger: ", "");
+                string[] lines = File.ReadAllLines(settingsPath_ + "LogitechLCDSettings.ini");
 
-                try
+                if (lines.Length > 0)
                 {
-                    volume = Convert.ToInt32(volumeString);
-                }
-                catch (FormatException)
-                {
+                    string alwaysOnTopString = lines[0].Replace("alwaysOnTop: ", "");
+                    string volumeString = lines[1].Replace("volumeChanger: ", "");
 
-                }
+                    try
+                    {
+                        volume = Convert.ToInt32(volumeString);
+                    }
+                    catch (FormatException)
+                    {
 
-                try
-                {
-                    alwaysOnTop = Convert.ToBoolean(alwaysOnTopString);
+                    }
+
+                    try
+                    {
+                        alwaysOnTop = Convert.ToBoolean(alwaysOnTopString);
+                    }
+                    catch (FormatException)
+                    {
+
+                    }
                 }
-                catch (FormatException)
-                {
-                    
-                }
+            }
+            catch (Exception e)
+            {
+
             }
 
             if (alwaysOnTop)

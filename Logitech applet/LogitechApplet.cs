@@ -232,6 +232,24 @@ namespace MusicBeePlugin
             }
         }
 
+        public void changePlayState(int state)
+        {
+            switch (state)
+            {
+                case 0: mbApiInterface.Player_PlayPause();
+                    break;
+
+                case 1: mbApiInterface.Player_PlayNextTrack(); 
+                    break;
+
+                case 2: mbApiInterface.Player_PlayPreviousTrack();
+                    break;
+
+                case 3: mbApiInterface.Player_Stop();
+                    break;
+            }
+        }
+
         // return an array of lyric or artwork provider names this plugin supports
         // the providers will be iterated through one by one and passed to the RetrieveLyrics/ RetrieveArtwork function in order set by the user in the MusicBee Tags(2) preferences screen until a match is found
         public string[] GetProviders()

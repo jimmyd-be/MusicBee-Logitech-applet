@@ -36,8 +36,9 @@ namespace MusicBeePlugin
         private int position = 0;
         private int duration = 0;
         private int alwaysOnTopCounter = 0;
-        private int pageNumber = 1;
+        private int pageNumber = 0;
         private int settingSelected = 0;
+        private int controlSelected = 0;
         private int repeatSelected = 0;
 
         private bool firstTime = true;
@@ -87,6 +88,7 @@ namespace MusicBeePlugin
         //Equaliser 2
         //repeat 3
         private LcdGdiText[] settingsGdi = null;
+        private LcdGdiText[] controlsGdi = null;
 
         private LcdGdiScrollViewer albumScroll = null;
         private LcdGdiScrollViewer titleScroll = null;
@@ -155,8 +157,16 @@ namespace MusicBeePlugin
         {
             LcdAppletCapabilities appletCapabilities = LcdAppletCapabilities.Both;
             applet = new LcdApplet("MusicBee V2", appletCapabilities, false);
-            applet.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
-            applet.Connect();
+
+            try
+            {
+                applet.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
+                applet.Connect();
+            }
+            catch (Exception)
+            {
+
+            }
         }
 
         public void changeArtistTitle(string artist, string album, string title, string rating, string artwork, int duration, int position, bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat, float volume)
@@ -360,7 +370,7 @@ namespace MusicBeePlugin
 
             if (device.DeviceType == LcdDeviceType.Monochrome)
             {
-                page = new LcdGdiPage[3];
+                page = new LcdGdiPage[4];
                 page[0] = new LcdGdiPage(device);
                 Font font = new Font("Microsoft Sans Serif", 25);
 
@@ -376,7 +386,7 @@ namespace MusicBeePlugin
             }
             else if (device.DeviceType == LcdDeviceType.Qvga)
             {
-                page = new LcdGdiPage[2];
+                page = new LcdGdiPage[3];
                 page[0] = new LcdGdiPage(device);
 
                 backgroundImage = (Image)Resource.G19logo;
@@ -395,272 +405,14 @@ namespace MusicBeePlugin
             {
                 LcdDevice device = (LcdDevice)sender;
 
-                // First button is pressed, switch to page one
-                if (((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0) || (e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left)
+                if (device.DeviceType == LcdDeviceType.Monochrome)
                 {
-                    if (pageNumber == 0)
-                    {
-                        pageNumber = page.Length - 1;
-                        device.CurrentPage = page[pageNumber];
-                    }
-                    else
-                    {
-                        pageNumber -= 1;
-                        device.CurrentPage = page[pageNumber];
-                    }
+                    monochromeButtonPressed(device, e);
                 }
 
-                // Second button is pressed
-                else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1))
+                else if (device.DeviceType == LcdDeviceType.Qvga)
                 {
-                    if (device.CurrentPage == page[0])
-                    {
-                        volume -= volumeChanger;
-
-                        if (volume < 0)
-                        {
-                            volume = 0;
-                        }
-                    }
-                    else if (device.CurrentPage == page[1])
-                    {
-                        if (this.rating != 0)
-                        {
-                            this.rating -= 0.5f;
-                            musicBeePlugin.changeRating(this.rating);
-                        }
-                    }
-
-                    else if (device.CurrentPage == page[2])
-                    {
-                        if (settingSelected != 0)
-                        {
-                            settingSelected -= 1;
-                        }
-
-                        for (int i = 0; i < settingsGdi.Length; i++)
-                        {
-                            settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-                        }
-
-                        settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-                    }
-                }
-
-                //G19 up button pressed
-                else if ((e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up)
-                {
-                    if (device.CurrentPage == page[0])
-                    {
-                        if (this.rating != 5)
-                        {
-                            this.rating += 0.5f;
-                            musicBeePlugin.changeRating(this.rating);
-                        }
-                    }
-
-                    else if (device.CurrentPage == page[1])
-                    {
-                        if (volumeActive)
-                        {
-                            volume += volumeChanger;
-
-                            if (volume > 1)
-                            {
-                                volume = 1;
-                            }
-                        }
-                        else
-                        {
-                            if (settingSelected != 0)
-                            {
-                                settingSelected -= 1;
-                            }
-                        }
-                        for (int i = 0; i < settingsGdi.Length; i++)
-                        {
-                            settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-                        }
-
-                        settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-                    }
-                }
-
-                //G19 down button pressed
-                else if ((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down)
-                {
-                    if (device.CurrentPage == page[0])
-                    {
-                        if (this.rating != 0)
-                        {
-                            this.rating -= 0.5f;
-                            musicBeePlugin.changeRating(this.rating);
-                        }
-                    }
-
-                    else if (device.CurrentPage == page[1])
-                    {
-                        if (volumeActive)
-                        {
-                            volume -= volumeChanger;
-
-                            if (volume < 0)
-                            {
-                                volume = 0;
-                            }
-                        }
-                        else
-                        {
-                            if (settingSelected != settingsGdi.Length - 1)
-                            {
-                                settingSelected += 1;
-                            }
-                        }
-                        for (int i = 0; i < settingsGdi.Length; i++)
-                        {
-                            settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-                        }
-
-                        settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-                    }
-                }
-
-                // Third button is pressed
-                else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
-                {
-                    if (device.CurrentPage == page[0])
-                    {
-                        volume += volumeChanger;
-
-                        if(volume > 1)
-                        {
-                            volume = 1;
-                        }
-                    }
-                    else if (device.CurrentPage == page[1])
-                    {
-                        if (this.rating != 5)
-                        {
-                            this.rating += 0.5f;
-                            musicBeePlugin.changeRating(this.rating);
-                        }
-                    }
-
-                    else if (device.CurrentPage == page[2])
-                    {
-                        if (settingSelected != 3)
-                        {
-                            settingSelected += 1;
-                        }
-
-                        for (int i = 0; i < settingsGdi.Length; i++)
-                        {
-                            settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-                        }
-
-                        settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-                    }
-                }
-
-                else if ((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right)
-                {
-                    if (pageNumber == page.Length - 1)
-                    {
-                        pageNumber = 0;
-                    }
-
-                    else
-                    {
-                        pageNumber++;
-                    }
-                    device.CurrentPage = page[pageNumber];
-                }
-
-                else if ((e.SoftButtons & LcdSoftButtons.Ok) == LcdSoftButtons.Ok)
-                {
-                    if (pageNumber == page.Length - 1)
-                    {
-                        switch (settingSelected)
-                        {
-
-                            case 0:
-                                shuffle = !shuffle;
-                                settingsGdi[0].Text = "Shuffle: " + shuffle;
-                                break;
-
-                            case 1:
-                                autoDJ = !autoDJ;
-                                settingsGdi[1].Text = "Auto DJ: " + autoDJ;
-                                break;
-
-                            case 2:
-                                equaliser = !equaliser;
-                                settingsGdi[2].Text = "Equalizer: " + equaliser;
-                                break;
-
-                            case 3:
-
-                                if (repeatSelected == 2)
-                                {
-                                    repeatSelected = 0;
-                                }
-                                else
-                                {
-                                    repeatSelected++;
-                                }
-                                repeat = repeatArray[repeatSelected];
-                                settingsGdi[3].Text = "Repeat: " + repeat;
-                                break;
-                            case 4:
-                                volumeActive = !volumeActive;
-                                break;
-                        };
-                    }
-                }
-
-                // Fourth button is pressed
-                else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
-                {
-                    if (pageNumber == page.Length - 1)
-                    {
-                        switch (settingSelected)
-                        {
-
-                            case 0:
-                                shuffle = !shuffle;
-                                settingsGdi[0].Text = "Shuffle: " + shuffle;
-                                break;
-
-                            case 1:
-                                autoDJ = !autoDJ;
-                                settingsGdi[1].Text = "Auto DJ: " + autoDJ;
-                                break;
-
-                            case 2:
-                                equaliser = !equaliser;
-                                settingsGdi[2].Text = "Equalizer: " + equaliser;
-                                break;
-
-                            case 3:
-
-                                if (repeatSelected == 2)
-                                {
-                                    repeatSelected = 0;
-                                }
-                                else
-                                {
-                                    repeatSelected++;
-                                }
-                                repeat = repeatArray[repeatSelected];
-                                settingsGdi[3].Text = "Repeat: " + repeat;
-                                break;
-                        };
-                    }
-                    else
-                    {
-                        pageNumber += 1;
-                        device.CurrentPage = page[pageNumber];
-                    }
+                    colorButtonPressed(device, e);
                 }
 
                 musicBeePlugin.changeVolume(volume);
@@ -671,9 +423,366 @@ namespace MusicBeePlugin
 
         }
 
+        private void colorButtonPressed(LcdDevice device, LcdSoftButtonsEventArgs e)
+        {
+            if ((e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left)
+            {
+                if (pageNumber == 0)
+                {
+                    pageNumber = page.Length - 1;
+                    device.CurrentPage = page[pageNumber];
+                }
+                else
+                {
+                    pageNumber -= 1;
+                    device.CurrentPage = page[pageNumber];
+                }
+            }
+
+                //G19 up button pressed
+            else if ((e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up)
+            {
+                if (device.CurrentPage == page[0])
+                {
+                    if (volumeActive)
+                    {
+                        volume += volumeChanger;
+
+                        if (volume > 1)
+                        {
+                            volume = 1;
+                        }
+                    }
+                    else
+                    {
+                        if (settingSelected != 0)
+                        {
+                            settingSelected -= 1;
+                        }
+                    }
+                    for (int i = 0; i < settingsGdi.Length; i++)
+                    {
+                        settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+
+                else if (device.CurrentPage == page[1])
+                {
+                    if (this.rating != 5)
+                    {
+                        this.rating += 0.5f;
+                        musicBeePlugin.changeRating(this.rating);
+                    }
+                }
+
+                else if (device.CurrentPage == page[2])
+                {
+
+                    if (controlSelected != 0)
+                    {
+                        controlSelected -= 1;
+                    }
+
+                    for (int i = 0; i < controlsGdi.Length; i++)
+                    {
+                        controlsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    controlsGdi[controlSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+            }
+
+            //G19 down button pressed
+            else if ((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down)
+            {
+                if (device.CurrentPage == page[0])
+                {
+                    if (volumeActive)
+                    {
+                        volume -= volumeChanger;
+
+                        if (volume < 0)
+                        {
+                            volume = 0;
+                        }
+                    }
+                    else
+                    {
+                        if (settingSelected != settingsGdi.Length - 1)
+                        {
+                            settingSelected += 1;
+                        }
+                    }
+                    for (int i = 0; i < settingsGdi.Length; i++)
+                    {
+                        settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+
+                else if (device.CurrentPage == page[1])
+                {
+                    if (this.rating != 0)
+                    {
+                        this.rating -= 0.5f;
+                        musicBeePlugin.changeRating(this.rating);
+                    }
+                }
+
+                else if (device.CurrentPage == page[2])
+                {
+
+                    if (controlSelected != controlsGdi.Length - 1)
+                    {
+                        controlSelected += 1;
+                    }
+
+                    for (int i = 0; i < controlsGdi.Length; i++)
+                    {
+                        controlsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    controlsGdi[controlSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+            }
+
+                //G19 Right button
+            else if ((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right)
+            {
+                if (pageNumber == page.Length - 1)
+                {
+                    pageNumber = 0;
+                }
+
+                else
+                {
+                    pageNumber++;
+                }
+                device.CurrentPage = page[pageNumber];
+            }
+
+                //G19 Ok button
+            else if ((e.SoftButtons & LcdSoftButtons.Ok) == LcdSoftButtons.Ok)
+            {
+                if (device.CurrentPage == page[0])
+                {
+                    switch (settingSelected)
+                    {
+
+                        case 0:
+                            shuffle = !shuffle;
+                            settingsGdi[0].Text = "Shuffle: " + shuffle;
+                            break;
+
+                        case 1:
+                            autoDJ = !autoDJ;
+                            settingsGdi[1].Text = "Auto DJ: " + autoDJ;
+                            break;
+
+                        case 2:
+                            equaliser = !equaliser;
+                            settingsGdi[2].Text = "Equalizer: " + equaliser;
+                            break;
+
+                        case 3:
+
+                            if (repeatSelected == 2)
+                            {
+                                repeatSelected = 0;
+                            }
+                            else
+                            {
+                                repeatSelected++;
+                            }
+                            repeat = repeatArray[repeatSelected];
+                            settingsGdi[3].Text = "Repeat: " + repeat;
+                            break;
+                        case 4:
+                            volumeActive = !volumeActive;
+                            break;
+                    };
+                }
+
+                else if (device.CurrentPage == page[2])
+                {
+                    musicBeePlugin.changePlayState(controlSelected);
+                }
+            }
+        }
+
+        private void monochromeButtonPressed(LcdDevice device, LcdSoftButtonsEventArgs e)
+        {
+            // First button is pressed, switch to page one
+            if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
+            {
+                if (pageNumber == 0)
+                {
+                    switch (settingSelected)
+                    {
+
+                        case 0:
+                            shuffle = !shuffle;
+                            settingsGdi[0].Text = "Shuffle: " + shuffle;
+                            break;
+
+                        case 1:
+                            autoDJ = !autoDJ;
+                            settingsGdi[1].Text = "Auto DJ: " + autoDJ;
+                            break;
+
+                        case 2:
+                            equaliser = !equaliser;
+                            settingsGdi[2].Text = "Equalizer: " + equaliser;
+                            break;
+
+                        case 3:
+
+                            if (repeatSelected == 2)
+                            {
+                                repeatSelected = 0;
+                            }
+                            else
+                            {
+                                repeatSelected++;
+                            }
+                            repeat = repeatArray[repeatSelected];
+                            settingsGdi[3].Text = "Repeat: " + repeat;
+                            break;
+                    };
+                }
+                else
+                {
+                    pageNumber -= 1;
+                    device.CurrentPage = page[pageNumber];
+                }
+            }
+
+            // Second button is pressed
+            else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1))
+            {
+                if (device.CurrentPage == page[0])
+                {
+                    if (settingSelected != 0)
+                    {
+                        settingSelected -= 1;
+                    }
+
+                    for (int i = 0; i < settingsGdi.Length; i++)
+                    {
+                        settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+                else if (device.CurrentPage == page[1])
+                {
+                    volume -= volumeChanger;
+
+                    if (volume < 0)
+                    {
+                        volume = 0;
+                    }
+                }
+                else if (device.CurrentPage == page[2])
+                {
+                    if (this.rating != 0)
+                    {
+                        this.rating -= 0.5f;
+                        musicBeePlugin.changeRating(this.rating);
+                    }
+                }
+
+                else if (device.CurrentPage == page[3])
+                {
+                    if (controlSelected != 0)
+                    {
+                        controlSelected -= 1;
+                    }
+
+                    for (int i = 0; i < controlsGdi.Length; i++)
+                    {
+                        controlsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    controlsGdi[controlSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+
+            }
+
+                  // Third button is pressed
+            else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2)
+            {
+                if (device.CurrentPage == page[0])
+                {
+                    if (settingSelected != 3)
+                    {
+                        settingSelected += 1;
+                    }
+
+                    for (int i = 0; i < settingsGdi.Length; i++)
+                    {
+                        settingsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    settingsGdi[settingSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+                else if (device.CurrentPage == page[1])
+                {
+                    volume += volumeChanger;
+
+                    if (volume > 1)
+                    {
+                        volume = 1;
+                    }
+                }
+                else if (device.CurrentPage == page[2])
+                {
+                    if (this.rating != 5)
+                    {
+                        this.rating += 0.5f;
+                        musicBeePlugin.changeRating(this.rating);
+                    }
+                }
+                else if (device.CurrentPage == page[3])
+                {
+                    if (controlSelected != 3)
+                    {
+                        controlSelected += 1;
+                    }
+
+                    for (int i = 0; i < controlsGdi.Length; i++)
+                    {
+                        controlsGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+                    }
+
+                    controlsGdi[controlSelected].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+                }
+            }
+
+                 // Fourth button is pressed
+            else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
+            {
+                if (pageNumber == page.Length - 1)
+                {
+                    musicBeePlugin.changePlayState(controlSelected);
+                }
+                else
+                {
+                    pageNumber += 1;
+                    device.CurrentPage = page[pageNumber];
+                }
+            }
+        }
+
         private void createMonochrome()
         {
+            pageNumber = 2;
+
             settingsGdi = new LcdGdiText[4];
+            controlsGdi = new LcdGdiText[4];
 
             page[0].Children.Clear();
             page[0].Dispose();
@@ -682,6 +791,34 @@ namespace MusicBeePlugin
             page[0] = new LcdGdiPage(device);
             page[1] = new LcdGdiPage(device);
             page[2] = new LcdGdiPage(device);
+            page[3] = new LcdGdiPage(device);
+
+            /**
+ * Create first screen (settings)
+ * */
+            settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font2);
+            settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            settingsGdi[0].Margin = new MarginF(-2, 0, 0, 0);
+
+            settingsGdi[1] = new LcdGdiText("Auto DJ: " + autoDJ, font2);
+            settingsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[1].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            settingsGdi[1].Margin = new MarginF(-2, 10, 0, 0);
+
+            settingsGdi[2] = new LcdGdiText("Equalizer: " + equaliser, font2);
+            settingsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[2].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            settingsGdi[2].Margin = new MarginF(-2, 20, 0, 0);
+
+            settingsGdi[3] = new LcdGdiText("Repeat: " + repeat, font2);
+            settingsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            settingsGdi[3].Margin = new MarginF(-2, 30, 0, 0);
+
+            page[0].Children.Add(settingsGdi[0]);
+            page[0].Children.Add(settingsGdi[1]);
+            page[0].Children.Add(settingsGdi[2]);
+            page[0].Children.Add(settingsGdi[3]);
 
             /**
              * Create first window (volume)
@@ -691,7 +828,7 @@ namespace MusicBeePlugin
             volumeBarGdi.Margin = new MarginF(12, 38, 0, 0);
             volumeBarGdi.Minimum = 0;
             volumeBarGdi.Maximum = 100;
-            volumeBarGdi.Value = (int)(this.volume*100);
+            volumeBarGdi.Value = (int)(this.volume * 100);
 
             Icon icon = (Icon)Resource.lowVolume;
             icon = new Icon(icon, 16, 16);
@@ -704,9 +841,9 @@ namespace MusicBeePlugin
             highVolumeIcon = new LcdGdiIcon(icon);
             highVolumeIcon.Margin = new MarginF(134, 20, 0, 0);
 
-            page[0].Children.Add(volumeBarGdi);
-            page[0].Children.Add(highVolumeIcon);
-            page[0].Children.Add(lowVolumeIcon);
+            page[1].Children.Add(volumeBarGdi);
+            page[1].Children.Add(highVolumeIcon);
+            page[1].Children.Add(lowVolumeIcon);
 
             /**
              * Create second window (player)
@@ -761,43 +898,45 @@ namespace MusicBeePlugin
             artistScroll.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
             artistScroll.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
-            page[1].Children.Add(titleGdi);
-            page[1].Children.Add(artistGdi);
-            page[1].Children.Add(titleScroll);
-            page[1].Children.Add(artistScroll);
-            page[1].Children.Add(positionGdi);
-            page[1].Children.Add(ratingGdi);
-            page[1].Children.Add(durationGdi);
-            page[1].Children.Add(progressBarGdi);
+            page[2].Children.Add(titleGdi);
+            page[2].Children.Add(artistGdi);
+            page[2].Children.Add(titleScroll);
+            page[2].Children.Add(artistScroll);
+            page[2].Children.Add(positionGdi);
+            page[2].Children.Add(ratingGdi);
+            page[2].Children.Add(durationGdi);
+            page[2].Children.Add(progressBarGdi);
+
 
             /**
-             * Create thirth screen (settings)
-             * */
-            settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font2);
-            settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-            settingsGdi[0].Margin = new MarginF(-2, 0, 0, 0);
+             * Firth screen (Player controls)
+             **/
 
-            settingsGdi[1] = new LcdGdiText("Auto DJ: " + autoDJ, font2);
-            settingsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[1].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            settingsGdi[1].Margin = new MarginF(-2, 10, 0, 0);
+            controlsGdi[0] = new LcdGdiText("Start/Pauze", font2);
+            controlsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+            controlsGdi[0].Margin = new MarginF(-2, 0, 0, 0);
 
-            settingsGdi[2] = new LcdGdiText("Equalizer: " + equaliser, font2);
-            settingsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[2].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            settingsGdi[2].Margin = new MarginF(-2, 20, 0, 0);
+            controlsGdi[1] = new LcdGdiText("Play next song", font2);
+            controlsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[1].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            controlsGdi[1].Margin = new MarginF(-2, 10, 0, 0);
 
-            settingsGdi[3] = new LcdGdiText("Repeat: " + repeat, font2);
-            settingsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            settingsGdi[3].Margin = new MarginF(-2, 30, 0, 0);
+            controlsGdi[2] = new LcdGdiText("Play previous song", font2);
+            controlsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[2].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            controlsGdi[2].Margin = new MarginF(-2, 20, 0, 0);
 
-            page[2].Children.Add(settingsGdi[0]);
-            page[2].Children.Add(settingsGdi[1]);
-            page[2].Children.Add(settingsGdi[2]);
-            page[2].Children.Add(settingsGdi[3]);
+            controlsGdi[3] = new LcdGdiText("Stop playing", font2);
+            controlsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            controlsGdi[3].Margin = new MarginF(-2, 30, 0, 0);
 
-            device.CurrentPage = page[1];
+            page[3].Children.Add(controlsGdi[0]);
+            page[3].Children.Add(controlsGdi[1]);
+            page[3].Children.Add(controlsGdi[2]);
+            page[3].Children.Add(controlsGdi[3]);
+
+            device.CurrentPage = page[2];
 
             device.DoUpdateAndDraw();
             started = true;
@@ -805,7 +944,10 @@ namespace MusicBeePlugin
 
         private void createColor()
         {
+            pageNumber = 1;
+
             settingsGdi = new LcdGdiText[5];
+            controlsGdi = new LcdGdiText[4];
 
             page[0].Children.Clear();
             page[0].Dispose();
@@ -813,10 +955,53 @@ namespace MusicBeePlugin
 
             page[0] = new LcdGdiPage(device);
             page[1] = new LcdGdiPage(device);
+            page[2] = new LcdGdiPage(device);
 
             backgroundImage = (Image)Resource.G19Background;
             backgroundGdi = new LcdGdiImage(backgroundImage);
+
+            /**
+             * Create first screen (settings)
+             * */
+            settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font3);
+            settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[0].Margin = new MarginF(5, 5, 5, 0);
+
+            settingsGdi[1] = new LcdGdiText("Auto DJ: " + autoDJ, font3);
+            settingsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[1].Margin = new MarginF(5, 30, 5, 0);
+
+            settingsGdi[2] = new LcdGdiText("Equalizer: " + equaliser, font3);
+            settingsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[2].Margin = new MarginF(5, 55, 5, 0);
+
+            settingsGdi[3] = new LcdGdiText("Repeat: " + repeat, font3);
+            settingsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            settingsGdi[3].Margin = new MarginF(5, 80, 0, 0);
+
+            settingsGdi[4] = new LcdGdiText("Volume", font3);
+            settingsGdi[4].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            settingsGdi[4].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            settingsGdi[4].Margin = new MarginF(5, 105, 0, 0);
+
+            volumeBarGdi = new LcdGdiProgressBar();
+            volumeBarGdi.Minimum = 0;
+            volumeBarGdi.Maximum = 100;
+            volumeBarGdi.Size = new SizeF(310, 20);
+            volumeBarGdi.Margin = new MarginF(5, 150, 5, 0);
+
             page[0].Children.Add(backgroundGdi);
+            page[0].Children.Add(settingsGdi[0]);
+            page[0].Children.Add(settingsGdi[1]);
+            page[0].Children.Add(settingsGdi[2]);
+            page[0].Children.Add(settingsGdi[3]);
+            page[0].Children.Add(settingsGdi[4]);
+            page[0].Children.Add(volumeBarGdi);
+
+            /**
+             * Create second screen (Player)
+             * */
 
             artistGdi = new LcdGdiText(this.artist, font3);
             artistGdi.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
@@ -874,14 +1059,16 @@ namespace MusicBeePlugin
             halfStarImage = (Image)Resource.star_rating_half;
             emptyStarImage = (Image)Resource.star_rating_empty;
             emptyImage = (Image)Resource.empty;
-            page[0].Children.Add(titleGdi);
-            page[0].Children.Add(titleScroll);
-            page[0].Children.Add(artistGdi);
-            page[0].Children.Add(positionGdi);
-            page[0].Children.Add(durationGdi);
-            page[0].Children.Add(progressBarGdi);
-            page[0].Children.Add(albumGdi);
-            page[0].Children.Add(artworkGdi);
+
+            page[1].Children.Add(backgroundGdi);
+            page[1].Children.Add(titleGdi);
+            page[1].Children.Add(titleScroll);
+            page[1].Children.Add(artistGdi);
+            page[1].Children.Add(positionGdi);
+            page[1].Children.Add(durationGdi);
+            page[1].Children.Add(progressBarGdi);
+            page[1].Children.Add(albumGdi);
+            page[1].Children.Add(artworkGdi);
 
             ratingColorGdi = new LcdGdiImage[5];
 
@@ -914,49 +1101,40 @@ namespace MusicBeePlugin
                 }
                 ratingColorGdi[i].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
                 ratingColorGdi[i].Margin = new MarginF((18 * i) + 5, 215, 0, 0);
-                page[0].Children.Add(ratingColorGdi[i]);
+                page[1].Children.Add(ratingColorGdi[i]);
             }
 
             /**
-             * Create second screen (settings)
-             * */
-            settingsGdi[0] = new LcdGdiText("Shuffle: " + shuffle, font3);
-            settingsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[0].Margin = new MarginF(5, 5, 5, 0);
+            * Create Third screen (Player controls)
+            * */
 
-            settingsGdi[1] = new LcdGdiText("Auto DJ: " + autoDJ, font3);
-            settingsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[1].Margin = new MarginF(5, 30, 5, 0);
+            controlsGdi[0] = new LcdGdiText("Start/Pauze", font3);
+            // controlsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[0].Margin = new MarginF(5, 5, 5, 0);
 
-            settingsGdi[2] = new LcdGdiText("Equalizer: " + equaliser, font3);
-            settingsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[2].Margin = new MarginF(5, 55, 5, 0);
+            controlsGdi[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
 
-            settingsGdi[3] = new LcdGdiText("Repeat: " + repeat, font3);
-            settingsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            settingsGdi[3].Margin = new MarginF(5, 80, 0, 0);
 
-            settingsGdi[4] = new LcdGdiText("Volume", font3);
-            settingsGdi[4].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
-            settingsGdi[4].VerticalAlignment = LcdGdiVerticalAlignment.Top;
-            settingsGdi[4].Margin = new MarginF(5, 105, 0, 0);
+            controlsGdi[1] = new LcdGdiText("Play next song", font3);
+            controlsGdi[1].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[1].Margin = new MarginF(5, 30, 5, 0);
 
-            volumeBarGdi = new LcdGdiProgressBar();
-            volumeBarGdi.Minimum = 0;
-            volumeBarGdi.Maximum = 100;
-            volumeBarGdi.Size = new SizeF(310, 20);
-            volumeBarGdi.Margin = new MarginF(5, 150, 5, 0);
+            controlsGdi[2] = new LcdGdiText("Play previous song", font3);
+            controlsGdi[2].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[2].Margin = new MarginF(5, 55, 5, 0);
 
-            page[1].Children.Add(backgroundGdi);
-            page[1].Children.Add(settingsGdi[0]);
-            page[1].Children.Add(settingsGdi[1]);
-            page[1].Children.Add(settingsGdi[2]);
-            page[1].Children.Add(settingsGdi[3]);
-            page[1].Children.Add(settingsGdi[4]);
-            page[1].Children.Add(volumeBarGdi);
+            controlsGdi[3] = new LcdGdiText("Stop playing", font3);
+            controlsGdi[3].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+            controlsGdi[3].VerticalAlignment = LcdGdiVerticalAlignment.Top;
+            controlsGdi[3].Margin = new MarginF(5, 80, 0, 0);
 
-            device.CurrentPage = page[0];
+            page[2].Children.Add(backgroundGdi);
+            page[2].Children.Add(controlsGdi[0]);
+            page[2].Children.Add(controlsGdi[1]);
+            page[2].Children.Add(controlsGdi[2]);
+            page[2].Children.Add(controlsGdi[3]);
+
+            device.CurrentPage = page[1];
 
             device.DoUpdateAndDraw();
             started = true;
@@ -1054,10 +1232,17 @@ namespace MusicBeePlugin
 
         public void settingsChanged(bool alwaysOnTop_, int volume)
         {
-            this.volumeChanger = volume / 100f;
+            try
+            {
+                this.volumeChanger = volume / 100f;
 
-            this.alwaysOnTop = alwaysOnTop_;
-            device.SetAsForegroundApplet = alwaysOnTop;
+                this.alwaysOnTop = alwaysOnTop_;
+                device.SetAsForegroundApplet = alwaysOnTop;
+            }
+            catch (Exception)
+            {
+
+            }
         }
     }
 }
