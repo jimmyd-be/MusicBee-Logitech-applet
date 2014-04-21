@@ -99,6 +99,8 @@ namespace MusicBeePlugin
             File.WriteAllLines(settingsPath_ + "LogitechLCDSettings.ini", lines);
 
             logitech_.settingsChanged(alwaysOnTop, volume);
+
+            this.Hide();
         }
 
         private void radioButton2_CheckedChanged(object sender, EventArgs e)
