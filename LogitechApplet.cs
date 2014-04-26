@@ -7,17 +7,26 @@ using System.Collections;
 using GammaJul.LgLcd;
 using MusicBeePlugin.Screens;
 using System.IO;
+using System.Threading;
 
 namespace MusicBeePlugin
 {
   public partial class Plugin
   {
+    public static Plugin pluginObject_;
+    private bool eventHappened_ = true;
+    private int alwaysOnTopCounter_ = 0;
+    private long timerTime_ = 0;
+
     private MusicBeeApiInterface mbApiInterface_;
     private PluginInfo about_ = new PluginInfo();
     private List<Screen> lcdScreenList_ = new List<Screen>();
     private Settings settings_ = null;
     private LcdApplet applet_ = null;
     private LcdDevice device_ = null;
+
+    private AutoResetEvent autoEvent = null;
+    private System.Threading.Timer timer = null;
 
     private int currentPage_ = 0;
 
@@ -101,7 +110,21 @@ namespace MusicBeePlugin
             connectDevice();
 
             settings_.openSettings();
+            pluginObject_ = this;
+
+             //Create an event to signal the timeout count threshold in the 
+                  // timer callback.
+                  autoEvent = new AutoResetEvent(false);
+
+                  // Create an inferred delegate that invokes methods for the timer.
+                  TimerCallback tcb = refreshLoop;
+
+                  // Create a timer that signals the delegate to invoke  
+                  // CheckStatus after one second, and every 1/4 second  
+                  // thereafter.
+                  timer = new System.Threading.Timer(tcb, autoEvent, 1000, 500);
           }
+          eventHappened_ = true;
           break;
 
         case NotificationType.PlayStateChanged:
@@ -112,7 +135,10 @@ namespace MusicBeePlugin
           }
 
           stateChanged(mbApiInterface_.Player_GetPlayState());
-          songChanged();
+          getSongData();
+          getVolume();
+          eventHappened_ = true;
+          timerTime_ = mbApiInterface_.Player_GetPosition();
 
           break;
 
@@ -132,17 +158,64 @@ namespace MusicBeePlugin
             openScreens();
           }
 
-          songChanged();
+          getVolume();
+          getSongData();
+          eventHappened_ = true;
+          timerTime_ = mbApiInterface_.Player_GetPosition();
           break;
       }
+    }
+
+    public static void refreshLoop(Object state)
+    {
+      AutoResetEvent autoEvent = (AutoResetEvent)state;
+
+        if (!pluginObject_.settings_.alwaysOnTop_ && pluginObject_.eventHappened_)
+        {
+          pluginObject_.device_.SetAsForegroundApplet = true;
+          pluginObject_.alwaysOnTopCounter_ += 500;
+
+          if (pluginObject_.alwaysOnTopCounter_ >= 5000)
+          {
+            pluginObject_.eventHappened_ = false;
+            pluginObject_.alwaysOnTopCounter_ = 0;
+            pluginObject_.device_.SetAsForegroundApplet = false;
+          }
+        }
+
+        if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing)
+        {
+          pluginObject_.timerTime_ += 500;
+
+          pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged(Convert.ToInt32(pluginObject_.timerTime_) / 1000);
+        }
+
+        //Update progressbar and position time on the screen after 1 second of music.
+        //if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing && pluginObject_.timerTime_%1000 == 0)
+        //{
+        //  pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged((int)(pluginObject_.timerTime_ / 1000));
+        //}
+
+        try
+        {
+          pluginObject_.device_.DoUpdateAndDraw();
+        }
+        catch (System.InvalidOperationException)
+        {
+          //Noting to do
+        }
     }
 
     private void openScreens()
     {
       lcdScreenList_.Clear();
 
+      int index = -1;
+
       foreach (string screenString in settings_.screenList_)
       {
+        index++;
+
         Screen createdScreen = null;
 
         if (screenString == screenEnum.MainScreen.ToString())
@@ -171,6 +244,7 @@ namespace MusicBeePlugin
           if (screenString == settings_.startupScreen_.ToString())
           {
             device_.CurrentPage = createdScreen;
+            currentPage_ = index;
           }
         }
       }
@@ -244,35 +318,6 @@ namespace MusicBeePlugin
       mbApiInterface_.Player_SetVolume(volume);
     }
 
-    public float getVolume()
-    {
-      return mbApiInterface_.Player_GetVolume();
-    }
-
-    public void songChanged()
-    {
-      string artist = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.Artist);
-      string album = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.Album);
-      string title = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
-      string artwork = mbApiInterface_.NowPlaying_GetArtwork();
-      string ratingString = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.Rating);
-
-      float volume = mbApiInterface_.Player_GetVolume();
-
-      float rating = 0;
-
-      if (ratingString != "")
-      {
-        rating = Convert.ToSingle(ratingString);
-      }
-
-      foreach (Screen screen in lcdScreenList_)
-      {
-        screen.songChanged(artist, album, title, rating, artwork, mbApiInterface_.NowPlaying_GetDuration() / 1000, mbApiInterface_.Player_GetPosition() / 1000);
-      }
-    }
-
-
     public void changeSettings(bool autoDJ, bool equaliser, bool shuffle, RepeatMode repeat)
     {
       bool autoDJMusicbee = mbApiInterface_.Player_GetAutoDjEnabled();
@@ -341,6 +386,75 @@ namespace MusicBeePlugin
           break;
       }
     }
+
+
+    internal void goToPreviousPage()
+    {
+      currentPage_ -= 1;
+
+      if (currentPage_ < 0)
+      {
+        currentPage_ = lcdScreenList_.Count;
+      }
+
+      device_.CurrentPage = lcdScreenList_[currentPage_];
+    }
+
+    internal void goToNextPage()
+    {
+      currentPage_ += 1;
+
+      if (currentPage_ >= lcdScreenList_.Count)
+      {
+        currentPage_ = 0;
+      }
+
+      device_.CurrentPage = lcdScreenList_[currentPage_];
+    }
+
+    internal void settingsChanged()
+    {
+      openScreens();
+    }
+
+    #region Getters
+    internal void getSongData()
+    {
+      string artist = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.Artist);
+      string album = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.Album);
+      string title = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
+      string artwork = mbApiInterface_.NowPlaying_GetArtwork();
+      string ratingString = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.Rating);
+
+      float rating = 0;
+
+      if (ratingString != "")
+      {
+        rating = Convert.ToSingle(ratingString);
+      }
+
+      foreach (Screen screen in lcdScreenList_)
+      {
+        screen.songChanged(artist, album, title, rating, artwork, mbApiInterface_.NowPlaying_GetDuration() / 1000, mbApiInterface_.Player_GetPosition() / 1000);
+      }
+    }
+
+    public void getVolume()
+    {
+      foreach (Screen screen in lcdScreenList_)
+      {
+        screen.volumeChanged(mbApiInterface_.Player_GetVolume());
+      }
+    }
+
+    private void getPosition()
+    {
+      foreach (Screen screen in lcdScreenList_)
+      {
+        screen.positionChanged(mbApiInterface_.Player_GetPosition() / 1000);
+      }
+    }
+    #endregion
 
 
     #region MusicBee Funtions
@@ -461,36 +575,5 @@ namespace MusicBeePlugin
     }
 
     #endregion
-
-
-    internal void goToPreviousPage()
-    {
-      currentPage_ -= 1;
-
-      if (currentPage_ < 0)
-      {
-        currentPage_ = lcdScreenList_.Count;
-      }
-    }
-
-    internal void goToNextPage()
-    {
-      currentPage_ += 1;
-
-      if (currentPage_ >= lcdScreenList_.Count)
-      {
-        currentPage_ = 0;
-      }
-    }
-
-    internal void getSongData()
-    {
-      throw new NotImplementedException();
-    }
-
-    internal void settingsChanged()
-    {
-      openScreens();
-    }
   }
 }

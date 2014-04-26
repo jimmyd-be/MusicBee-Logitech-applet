@@ -114,9 +114,15 @@ namespace MusicBeePlugin.Screens
     {
     }
 
+    public override void positionChanged(int position)
+    {
+
+    }
+
     public override void volumeChanged(float volume)
     {
-      volumeBarGdi_.Value = (int)(volume * 100);
+      volume_ = volume;
+      volumeBarGdi_.Value = (int)volume_;
     }
 
     public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)

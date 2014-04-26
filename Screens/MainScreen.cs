@@ -239,6 +239,8 @@ namespace MusicBeePlugin.Screens
           rating_ -= 0.5f;
           plugin_.changeRating(rating_);
         }
+
+        plugin_.getSongData();
       }
 
             // Third button is pressed
@@ -249,6 +251,8 @@ namespace MusicBeePlugin.Screens
           rating_ += 0.5f;
           plugin_.changeRating(rating_);
         }
+
+        plugin_.getSongData();
       }
 
            // Fourth button is pressed
@@ -273,6 +277,8 @@ namespace MusicBeePlugin.Screens
           rating_ += 0.5f;
           plugin_.changeRating(rating_);
         }
+
+        plugin_.getSongData();
       }
 
       //G19 down button pressed
@@ -283,6 +289,8 @@ namespace MusicBeePlugin.Screens
           rating_ -= 0.5f;
           plugin_.changeRating(rating_);
         }
+
+        plugin_.getSongData();
       }
 
           //G19 Right button
@@ -295,6 +303,14 @@ namespace MusicBeePlugin.Screens
       else if ((e.SoftButtons & LcdSoftButtons.Ok) == LcdSoftButtons.Ok)
       {
       }
+    }
+
+    public override void positionChanged(int position)
+    {
+      position_ = position;
+      positionGdi_.Text = Conversions.timetoString(position);
+      int progresstime = (int)(((float)position / (float)duration_) * 100);
+      progressBarGdi_.Value = progresstime;
     }
 
     public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
@@ -364,7 +380,6 @@ namespace MusicBeePlugin.Screens
 
     public override void volumeChanged(float volume)
     {
-      throw new NotImplementedException();
     }
 
     public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)

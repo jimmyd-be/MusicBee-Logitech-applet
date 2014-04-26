@@ -77,6 +77,12 @@ namespace MusicBeePlugin.Screens
     {
 
     }
+
+    public override void positionChanged(int position)
+    {
+
+    }
+
     public override void songChanged()
     {
 

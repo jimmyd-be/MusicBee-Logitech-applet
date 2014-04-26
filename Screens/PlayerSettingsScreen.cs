@@ -300,6 +300,11 @@ namespace MusicBeePlugin.Screens
       }
     }
 
+    public override void positionChanged(int position)
+    {
+
+    }
+
     public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
     {
       
@@ -307,7 +312,10 @@ namespace MusicBeePlugin.Screens
 
     public override void volumeChanged(float volume)
     {
-      volumeBarGdi_.Value = (int)(volume * 100);
+      if (device_.DeviceType == LcdDeviceType.Qvga)
+      {
+        volumeBarGdi_.Value = (int)(volume * 100);
+      }
     }
 
     public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle_, MusicBeePlugin.Plugin.RepeatMode repeat)

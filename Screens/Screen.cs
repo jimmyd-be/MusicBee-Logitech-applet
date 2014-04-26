@@ -104,5 +104,10 @@ namespace MusicBeePlugin
     {
 
     }
+
+    public virtual void positionChanged(int position)
+    {
+      
+    }
   }
 }

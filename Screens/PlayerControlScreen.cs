@@ -153,6 +153,11 @@ namespace MusicBeePlugin.Screens
       }
     }
 
+    public override void positionChanged(int position)
+    {
+
+    }
+
     public override void buttonPressedColor(object sender, LcdSoftButtonsEventArgs e)
     {
       if ((e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left)
@@ -211,7 +216,6 @@ namespace MusicBeePlugin.Screens
 
     public override void volumeChanged(float volume)
     {
-      throw new NotImplementedException();
     }
 
     public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)
