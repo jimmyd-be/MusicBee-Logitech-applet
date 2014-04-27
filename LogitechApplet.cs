@@ -112,17 +112,17 @@ namespace MusicBeePlugin
             settings_.openSettings();
             pluginObject_ = this;
 
-             //Create an event to signal the timeout count threshold in the 
-                  // timer callback.
-                  autoEvent = new AutoResetEvent(false);
+            //Create an event to signal the timeout count threshold in the 
+            // timer callback.
+            autoEvent = new AutoResetEvent(false);
 
-                  // Create an inferred delegate that invokes methods for the timer.
-                  TimerCallback tcb = refreshLoop;
+            // Create an inferred delegate that invokes methods for the timer.
+            TimerCallback tcb = refreshLoop;
 
-                  // Create a timer that signals the delegate to invoke  
-                  // CheckStatus after one second, and every 1/4 second  
-                  // thereafter.
-                  timer = new System.Threading.Timer(tcb, autoEvent, 1000, 500);
+            // Create a timer that signals the delegate to invoke  
+            // CheckStatus after one second, and every 1/4 second  
+            // thereafter.
+            timer = new System.Threading.Timer(tcb, autoEvent, 1000, 500);
           }
           eventHappened_ = true;
           break;
@@ -170,40 +170,40 @@ namespace MusicBeePlugin
     {
       AutoResetEvent autoEvent = (AutoResetEvent)state;
 
-        if (!pluginObject_.settings_.alwaysOnTop_ && pluginObject_.eventHappened_)
+      if (!pluginObject_.settings_.alwaysOnTop_ && pluginObject_.eventHappened_)
+      {
+        pluginObject_.device_.SetAsForegroundApplet = true;
+        pluginObject_.alwaysOnTopCounter_ += 500;
+
+        if (pluginObject_.alwaysOnTopCounter_ >= 5000)
         {
-          pluginObject_.device_.SetAsForegroundApplet = true;
-          pluginObject_.alwaysOnTopCounter_ += 500;
-
-          if (pluginObject_.alwaysOnTopCounter_ >= 5000)
-          {
-            pluginObject_.eventHappened_ = false;
-            pluginObject_.alwaysOnTopCounter_ = 0;
-            pluginObject_.device_.SetAsForegroundApplet = false;
-          }
+          pluginObject_.eventHappened_ = false;
+          pluginObject_.alwaysOnTopCounter_ = 0;
+          pluginObject_.device_.SetAsForegroundApplet = false;
         }
+      }
 
-        if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing)
-        {
-          pluginObject_.timerTime_ += 500;
+      if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing)
+      {
+        pluginObject_.timerTime_ += 500;
 
-          pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged(Convert.ToInt32(pluginObject_.timerTime_) / 1000);
-        }
+        pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged(Convert.ToInt32(pluginObject_.timerTime_) / 1000);
+      }
 
-        //Update progressbar and position time on the screen after 1 second of music.
-        //if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing && pluginObject_.timerTime_%1000 == 0)
-        //{
-        //  pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged((int)(pluginObject_.timerTime_ / 1000));
-        //}
+      //Update progressbar and position time on the screen after 1 second of music.
+      //if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing && pluginObject_.timerTime_%1000 == 0)
+      //{
+      //  pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged((int)(pluginObject_.timerTime_ / 1000));
+      //}
 
-        try
-        {
-          pluginObject_.device_.DoUpdateAndDraw();
-        }
-        catch (System.InvalidOperationException)
-        {
-          //Noting to do
-        }
+      try
+      {
+        pluginObject_.device_.DoUpdateAndDraw();
+      }
+      catch (System.InvalidOperationException)
+      {
+        //Noting to do
+      }
     }
 
     private void openScreens()
@@ -220,21 +220,21 @@ namespace MusicBeePlugin
 
         if (screenString == screenEnum.MainScreen.ToString())
         {
-          createdScreen = new MainScreen(device_, device_.DeviceType, settings_.backgroundImage_, this);
+          createdScreen = new MainScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
         }
 
         else if (screenString == screenEnum.SettingsScreen.ToString())
         {
-          createdScreen = new PlayerSettingsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this);
+          createdScreen = new PlayerSettingsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
         }
         else if (screenString == screenEnum.VolumeScreen.ToString() && device_.DeviceType == LcdDeviceType.Monochrome)
         {
-          createdScreen = new VolumeScreen(device_, device_.DeviceType, settings_.backgroundImage_, this);
+          createdScreen = new VolumeScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
         }
 
         else if (screenString == screenEnum.ControlScreen.ToString())
         {
-          createdScreen = new PlayerControlScreen(device_, device_.DeviceType, settings_.backgroundImage_, this);
+          createdScreen = new PlayerControlScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
         }
 
         if (createdScreen != null)
@@ -247,14 +247,6 @@ namespace MusicBeePlugin
             currentPage_ = index;
           }
         }
-      }
-    }
-
-    private void stateChanged(PlayState state)
-    {
-      foreach (Screen screen in lcdScreenList_)
-      {
-        screen.playerStatusChanged(state);
       }
     }
 
@@ -281,7 +273,7 @@ namespace MusicBeePlugin
 
       device_.SetAsForegroundApplet = settings_.alwaysOnTop_;
 
-      Screen startupScreen = new StartupScreen(device_, device_.DeviceType, null, this);
+      Screen startupScreen = new StartupScreen(device_, device_.DeviceType, null, this, 0);
       lcdScreenList_.Add(startupScreen);
 
       device_.CurrentPage = startupScreen;
@@ -302,6 +294,37 @@ namespace MusicBeePlugin
       {
         lcdScreenList_[currentPage_].buttonPressedColor(sender, e);
       }
+    }
+
+    internal void goToPreviousPage()
+    {
+      currentPage_ -= 1;
+
+      if (currentPage_ < 0)
+      {
+        currentPage_ = lcdScreenList_.Count;
+      }
+
+      device_.CurrentPage = lcdScreenList_[currentPage_];
+    }
+
+    internal void goToNextPage()
+    {
+      currentPage_ += 1;
+
+      if (currentPage_ >= lcdScreenList_.Count)
+      {
+        currentPage_ = 0;
+      }
+
+      device_.CurrentPage = lcdScreenList_[currentPage_];
+    }
+
+    #region Changers
+
+    internal void settingsChanged()
+    {
+      openScreens();
     }
 
     public void changeRating(float number)
@@ -350,19 +373,6 @@ namespace MusicBeePlugin
       {
         mbApiInterface_.Player_SetShuffle(shuffle);
       }
-
-    }
-
-    public string getTrackName(String url)
-    {
-      if (url.Length > 0)
-      {
-        return mbApiInterface_.Library_GetFileTag(url, MetaDataType.TrackTitle);
-      }
-      else
-      {
-        return "";
-      }
     }
 
     public void changePlayState(int state)
@@ -387,35 +397,7 @@ namespace MusicBeePlugin
       }
     }
 
-
-    internal void goToPreviousPage()
-    {
-      currentPage_ -= 1;
-
-      if (currentPage_ < 0)
-      {
-        currentPage_ = lcdScreenList_.Count;
-      }
-
-      device_.CurrentPage = lcdScreenList_[currentPage_];
-    }
-
-    internal void goToNextPage()
-    {
-      currentPage_ += 1;
-
-      if (currentPage_ >= lcdScreenList_.Count)
-      {
-        currentPage_ = 0;
-      }
-
-      device_.CurrentPage = lcdScreenList_[currentPage_];
-    }
-
-    internal void settingsChanged()
-    {
-      openScreens();
-    }
+    #endregion
 
     #region Getters
     internal void getSongData()
@@ -452,6 +434,14 @@ namespace MusicBeePlugin
       foreach (Screen screen in lcdScreenList_)
       {
         screen.positionChanged(mbApiInterface_.Player_GetPosition() / 1000);
+      }
+    }
+
+    private void stateChanged(PlayState state)
+    {
+      foreach (Screen screen in lcdScreenList_)
+      {
+        screen.playerStatusChanged(state);
       }
     }
     #endregion

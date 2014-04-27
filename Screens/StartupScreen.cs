@@ -11,8 +11,8 @@ namespace MusicBeePlugin.Screens
   {
     private Font font = new Font("Microsoft Sans Serif", 25);
 
-    public StartupScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin)
-      : base(device, type, backgroundGdi, plugin)
+    public StartupScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
+      : base(device, type, backgroundGdi, plugin, index)
     {
       screenName_ = "StartupScreen";
 

@@ -41,8 +41,8 @@ namespace MusicBeePlugin.Screens
     private int position_ = 0;
     private int duration_ = 0;
 
-    public MainScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin)
-      : base(device, type, backgroundGdi, plugin)
+    public MainScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
+      : base(device, type, backgroundGdi, plugin, index)
     {
       plugin_.getSongData();
 

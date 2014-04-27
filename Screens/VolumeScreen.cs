@@ -17,8 +17,8 @@ namespace MusicBeePlugin.Screens
     private float volume_ = 1;
     private float volumeChanger_ = 0.1f;
 
-    public VolumeScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin)
-      : base(device, type, backgroundGdi, plugin)
+    public VolumeScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
+      : base(device, type, backgroundGdi, plugin, index)
     {
       screenName_ = "VolumeScreen";
       plugin_.getSongData();
@@ -122,7 +122,7 @@ namespace MusicBeePlugin.Screens
     public override void volumeChanged(float volume)
     {
       volume_ = volume;
-      volumeBarGdi_.Value = (int)volume_;
+      volumeBarGdi_.Value = (int)(volume_ * 100f);
     }
 
     public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)

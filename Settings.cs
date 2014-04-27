@@ -73,6 +73,8 @@ namespace MusicBeePlugin
 
     public void openSettings()
     {
+      screenList_.Clear();
+
       bool alwaysOnTop = true;
       int volume = 10;
 

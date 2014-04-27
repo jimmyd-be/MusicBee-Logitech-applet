@@ -13,8 +13,8 @@ namespace MusicBeePlugin.Screens
 
     private int controlSelected_ = 0;
 
-    public PlayerControlScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin)
-      : base(device, type, backgroundGdi, plugin)
+    public PlayerControlScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
+      : base(device, type, backgroundGdi, plugin, index)
     {
       screenName_ = "ControlScreen";
 
@@ -107,7 +107,14 @@ namespace MusicBeePlugin.Screens
       // First button is pressed, switch to page one
       if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
       {
-        plugin_.goToPreviousPage();
+        if (index_ != 0)
+        {
+          plugin_.goToPreviousPage();
+        }
+        else
+        {
+          plugin_.changePlayState(controlSelected_);
+        }
       }
 
       // Second button is pressed
@@ -124,8 +131,6 @@ namespace MusicBeePlugin.Screens
         }
 
         controlsGdi_[controlSelected_].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-
-        plugin_.changePlayState(controlSelected_);
       }
 
             // Third button is pressed
@@ -142,14 +147,19 @@ namespace MusicBeePlugin.Screens
         }
 
         controlsGdi_[controlSelected_].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-
-        plugin_.changePlayState(controlSelected_);
       }
 
            // Fourth button is pressed
       else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
       {
-        plugin_.goToNextPage();
+        if (index_ == 0)
+        {
+          plugin_.goToNextPage();
+        }
+        else
+        {
+          plugin_.changePlayState(controlSelected_);
+        }
       }
     }
 

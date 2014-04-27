@@ -26,8 +26,8 @@ namespace MusicBeePlugin.Screens
 
     private LcdGdiProgressBar volumeBarGdi_ = null;
 
-    public PlayerSettingsScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin)
-      : base(device, type, backgroundGdi, plugin)
+    public PlayerSettingsScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
+      : base(device, type, backgroundGdi, plugin, index)
     {
       screenName_ = "SettingsScreen";
 
@@ -119,37 +119,45 @@ namespace MusicBeePlugin.Screens
     {
       if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
       {
-        switch (settingSelected_)
+        if (index_ == 0)
         {
-          case 0:
-            shuffle_ = !shuffle_;
-            this.settingsGdi_[0].Text = "shuffle_: " + shuffle_;
-            break;
+          switch (settingSelected_)
+          {
+            case 0:
+              shuffle_ = !shuffle_;
+              this.settingsGdi_[0].Text = "shuffle_: " + shuffle_;
+              break;
 
-          case 1:
-            autoDJ_ = !autoDJ_;
-            this.settingsGdi_[1].Text = "Auto DJ: " + autoDJ_;
-            break;
+            case 1:
+              autoDJ_ = !autoDJ_;
+              this.settingsGdi_[1].Text = "Auto DJ: " + autoDJ_;
+              break;
 
-          case 2:
-            equaliser_ = !equaliser_;
-            settingsGdi_[2].Text = "Equalizer: " + equaliser_;
-            break;
+            case 2:
+              equaliser_ = !equaliser_;
+              settingsGdi_[2].Text = "Equalizer: " + equaliser_;
+              break;
 
-          case 3:
+            case 3:
 
-            if (repeatSelected_ == 2)
-            {
-              repeatSelected_ = 0;
-            }
-            else
-            {
-              repeatSelected_++;
-            }
-            repeat_ = repeatArray_[repeatSelected_];
-            settingsGdi_[3].Text = "Repeat: " + repeat_;
-            break;
-        };
+              if (repeatSelected_ == 2)
+              {
+                repeatSelected_ = 0;
+              }
+              else
+              {
+                repeatSelected_++;
+              }
+              repeat_ = repeatArray_[repeatSelected_];
+              settingsGdi_[3].Text = "Repeat: " + repeat_;
+              break;
+          };
+          plugin_.changeSettings(autoDJ_, equaliser_, shuffle_, repeat_);
+        }
+        else
+        {
+          plugin_.goToPreviousPage();
+        }
       }
 
       else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1))
@@ -186,7 +194,46 @@ namespace MusicBeePlugin.Screens
 
       else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
       {
-        plugin_.goToNextPage();
+        if (index_ != 0)
+        {
+          switch (settingSelected_)
+          {
+            case 0:
+              shuffle_ = !shuffle_;
+              this.settingsGdi_[0].Text = "shuffle_: " + shuffle_;
+              break;
+
+            case 1:
+              autoDJ_ = !autoDJ_;
+              this.settingsGdi_[1].Text = "Auto DJ: " + autoDJ_;
+              break;
+
+            case 2:
+              equaliser_ = !equaliser_;
+              settingsGdi_[2].Text = "Equalizer: " + equaliser_;
+              break;
+
+            case 3:
+
+              if (repeatSelected_ == 2)
+              {
+                repeatSelected_ = 0;
+              }
+              else
+              {
+                repeatSelected_++;
+              }
+              repeat_ = repeatArray_[repeatSelected_];
+              settingsGdi_[3].Text = "Repeat: " + repeat_;
+              break;
+          };
+
+          plugin_.changeSettings(autoDJ_, equaliser_, shuffle_, repeat_);
+        }
+        else
+        {
+          plugin_.goToNextPage();
+        }
       }
     }
 

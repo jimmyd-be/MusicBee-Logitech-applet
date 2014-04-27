@@ -12,6 +12,7 @@ namespace MusicBeePlugin
     protected LcdDeviceType type_;
 
     protected string screenName_ = "";
+    protected int index_ = -1;
 
     protected LcdGdiImage backgroundGdi_ = null;
     protected Image backgroundImage_ = null;
@@ -25,13 +26,14 @@ namespace MusicBeePlugin
 
     protected LcdDevice device_;
 
-    public Screen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin musicBeePlugin)
+    public Screen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin musicBeePlugin, int index)
       : base(device)
     {
       plugin_ = musicBeePlugin;
       //backgroundGdi_ = backgroundGdi;
       type_ = type;
       device_ = device;
+      index_ = index;
 
       if(device.DeviceType == LcdDeviceType.Qvga)
       {
