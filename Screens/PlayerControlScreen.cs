@@ -101,7 +101,6 @@ namespace MusicBeePlugin.Screens
       this.Children.Add(controlsGdi_[4]);
     }
 
-
     public override void buttonPressedMonochrome(object sender, LcdSoftButtonsEventArgs e)
     {
       // First button is pressed, switch to page one
@@ -163,11 +162,6 @@ namespace MusicBeePlugin.Screens
       }
     }
 
-    public override void positionChanged(int position)
-    {
-
-    }
-
     public override void buttonPressedColor(object sender, LcdSoftButtonsEventArgs e)
     {
       if ((e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left)
@@ -218,19 +212,6 @@ namespace MusicBeePlugin.Screens
       {
         plugin_.changePlayState(controlSelected_);
       }
-    }
-
-    public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
-    {
-    }
-
-    public override void volumeChanged(float volume)
-    {
-    }
-
-    public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)
-    {
-      throw new NotImplementedException();
     }
   }
 }

@@ -26,10 +26,12 @@ namespace MusicBeePlugin.Screens
 
     private LcdGdiProgressBar volumeBarGdi_ = null;
 
-    public PlayerSettingsScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
+    public PlayerSettingsScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index, int volume)
       : base(device, type, backgroundGdi, plugin, index)
     {
       screenName_ = "SettingsScreen";
+
+      volumeChanger_ = volume / 100f;
 
       plugin_.getSongData();
 
@@ -51,7 +53,7 @@ namespace MusicBeePlugin.Screens
 
     private void createMono()
     {
-      settingsGdi_[0] = new LcdGdiText("shuffle_: " + shuffle_, font2_);
+      settingsGdi_[0] = new LcdGdiText("shuffle: " + shuffle_, font2_);
       settingsGdi_[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
       settingsGdi_[0].Margin = new MarginF(-2, 0, 0, 0);
 
@@ -78,8 +80,8 @@ namespace MusicBeePlugin.Screens
 
     private void createColor()
     {
-      settingsGdi_[0] = new LcdGdiText("shuffle_: " + shuffle_, font3_);
-      settingsGdi_[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+      settingsGdi_[0] = new LcdGdiText("shuffle: " + shuffle_, font3_);
+      settingsGdi_[0].HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
       settingsGdi_[0].Margin = new MarginF(5, 5, 5, 0);
 
       settingsGdi_[1] = new LcdGdiText("Auto DJ: " + autoDJ_, font3_);

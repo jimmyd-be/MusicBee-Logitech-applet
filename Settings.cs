@@ -32,8 +32,6 @@ namespace MusicBeePlugin
 
       plugin_ = plugin;
 
-      disabledScreensList.Items.AddRange(typeof(MusicBeePlugin.Plugin.screenEnum).GetEnumNames());
-
       defaultScreencomboBox.DropDownStyle = ComboBoxStyle.DropDownList;
 
       AlwaysOnTopRadioButton.Checked = true;
@@ -67,6 +65,9 @@ namespace MusicBeePlugin
           BackgroundDefaultButton.Visible = true;
           BackgroundCustomButton.Visible = true;
           browseButton.Visible = true;
+
+          enabledScreensList.Items.Remove(MusicBeePlugin.Plugin.screenEnum.VolumeScreen.ToString());
+          disabledScreensList.Items.Remove(MusicBeePlugin.Plugin.screenEnum.VolumeScreen.ToString());
         }
       }
     }
@@ -101,14 +102,22 @@ namespace MusicBeePlugin
           while (pagesString.Length != 0)
           {
             string temp = pagesString.Substring(0, pagesString.IndexOf(";"));
-            pagesString = pagesString.Remove(0, pagesString.IndexOf(";")+1);
+            pagesString = pagesString.Remove(0, pagesString.IndexOf(";") + 1);
 
             temp = temp.Replace(";", "");
 
-            screenList_.Add(temp);
+              screenList_.Add(temp);
+
+              disabledScreensList.Items.Remove(temp);
+              enabledScreensList.Items.Remove(temp);
+              enabledScreensList.Items.Add(temp);
+              defaultScreencomboBox.Items.Remove(temp);
+              defaultScreencomboBox.Items.Add(temp);
           }
 
           startupScreen_ = (MusicBeePlugin.Plugin.screenEnum)Enum.Parse(typeof(MusicBeePlugin.Plugin.screenEnum), startupScreen);
+
+          defaultScreencomboBox.SelectedIndex = defaultScreencomboBox.Items.IndexOf(startupScreen_.ToString());
 
         }
         if (alwaysOnTop)
@@ -127,6 +136,7 @@ namespace MusicBeePlugin
         else
         {
           BackgroundDefaultButton.Checked = false;
+          browseButton.Enabled = true;
         }
 
         this.volumeChangerSpinBox.Value = volume;
@@ -242,8 +252,6 @@ namespace MusicBeePlugin
 
     private void BackgroundCustomButton_CheckedChanged(object sender, EventArgs e)
     {
-      //BackgroundDefaultButton.Checked = false;
-      //BackgroundCustomButton.Checked = true;
       browseButton.Enabled = true;
 
       useDefaultBackground_ = false;

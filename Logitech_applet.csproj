@@ -78,7 +78,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Conversion.cs" />
-    <Compile Include="Logitech.cs" />
     <Compile Include="MusicBeeInterface.cs" />
     <Compile Include="LogitechApplet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -191,6 +190,8 @@
     <Content Include="res\empty.png" />
     <None Include="res\highVolume.ico" />
     <None Include="res\lowVolume.ico" />
+    <Content Include="res\highVolumeG19.png" />
+    <Content Include="res\lowVolumeG19.png" />
     <Content Include="res\star_rating_empty.png" />
     <Content Include="res\star_rating_full.png" />
     <Content Include="res\star_rating_half.png" />

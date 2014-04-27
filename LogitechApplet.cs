@@ -122,7 +122,7 @@ namespace MusicBeePlugin
             // Create a timer that signals the delegate to invoke  
             // CheckStatus after one second, and every 1/4 second  
             // thereafter.
-            timer = new System.Threading.Timer(tcb, autoEvent, 1000, 500);
+            timer = new System.Threading.Timer(tcb, autoEvent, 1000, 100);
           }
           eventHappened_ = true;
           break;
@@ -137,6 +137,7 @@ namespace MusicBeePlugin
           stateChanged(mbApiInterface_.Player_GetPlayState());
           getSongData();
           getVolume();
+          getSettings();
           eventHappened_ = true;
           timerTime_ = mbApiInterface_.Player_GetPosition();
 
@@ -160,6 +161,7 @@ namespace MusicBeePlugin
 
           getVolume();
           getSongData();
+          getSettings();
           eventHappened_ = true;
           timerTime_ = mbApiInterface_.Player_GetPosition();
           break;
@@ -173,7 +175,7 @@ namespace MusicBeePlugin
       if (!pluginObject_.settings_.alwaysOnTop_ && pluginObject_.eventHappened_)
       {
         pluginObject_.device_.SetAsForegroundApplet = true;
-        pluginObject_.alwaysOnTopCounter_ += 500;
+        pluginObject_.alwaysOnTopCounter_ += 100;
 
         if (pluginObject_.alwaysOnTopCounter_ >= 5000)
         {
@@ -185,16 +187,18 @@ namespace MusicBeePlugin
 
       if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing)
       {
-        pluginObject_.timerTime_ += 500;
+        pluginObject_.timerTime_ += 100;
 
-        pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged(Convert.ToInt32(pluginObject_.timerTime_) / 1000);
+        if ((pluginObject_.timerTime_/1000)%30 == 0)
+        {
+          pluginObject_.timerTime_ = pluginObject_.mbApiInterface_.Player_GetPosition();
+        }
+
+        if (pluginObject_.currentPage_ > -1 && pluginObject_.currentPage_ < pluginObject_.lcdScreenList_.Count)
+        {
+          pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged(Convert.ToInt32(pluginObject_.timerTime_) / 1000);
+        }
       }
-
-      //Update progressbar and position time on the screen after 1 second of music.
-      //if (pluginObject_.mbApiInterface_.Player_GetPlayState() == MusicBeePlugin.Plugin.PlayState.Playing && pluginObject_.timerTime_%1000 == 0)
-      //{
-      //  pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged((int)(pluginObject_.timerTime_ / 1000));
-      //}
 
       try
       {
@@ -225,11 +229,11 @@ namespace MusicBeePlugin
 
         else if (screenString == screenEnum.SettingsScreen.ToString())
         {
-          createdScreen = new PlayerSettingsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
+          createdScreen = new PlayerSettingsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index, settings_.volumeChanger_);
         }
-        else if (screenString == screenEnum.VolumeScreen.ToString() && device_.DeviceType == LcdDeviceType.Monochrome)
+        else if (screenString == screenEnum.VolumeScreen.ToString())
         {
-          createdScreen = new VolumeScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
+          createdScreen = new VolumeScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index, settings_.volumeChanger_);
         }
 
         else if (screenString == screenEnum.ControlScreen.ToString())
@@ -271,6 +275,7 @@ namespace MusicBeePlugin
       device_ = applet_.OpenDeviceByType(e.DeviceType);
       device_.SoftButtonsChanged += new EventHandler<LcdSoftButtonsEventArgs>(buttonPressed);
 
+      settings_.setDevice(device_);
       device_.SetAsForegroundApplet = settings_.alwaysOnTop_;
 
       Screen startupScreen = new StartupScreen(device_, device_.DeviceType, null, this, 0);
@@ -302,7 +307,7 @@ namespace MusicBeePlugin
 
       if (currentPage_ < 0)
       {
-        currentPage_ = lcdScreenList_.Count;
+        currentPage_ = 0;
       }
 
       device_.CurrentPage = lcdScreenList_[currentPage_];
@@ -314,7 +319,7 @@ namespace MusicBeePlugin
 
       if (currentPage_ >= lcdScreenList_.Count)
       {
-        currentPage_ = 0;
+        currentPage_ = lcdScreenList_.Count -1 ;
       }
 
       device_.CurrentPage = lcdScreenList_[currentPage_];
@@ -325,6 +330,10 @@ namespace MusicBeePlugin
     internal void settingsChanged()
     {
       openScreens();
+
+      getVolume();
+      getSongData();
+      getSettings();
     }
 
     public void changeRating(float number)
@@ -442,6 +451,19 @@ namespace MusicBeePlugin
       foreach (Screen screen in lcdScreenList_)
       {
         screen.playerStatusChanged(state);
+      }
+    }
+
+    private void getSettings()
+    {
+      bool autoDJMusicbee = mbApiInterface_.Player_GetAutoDjEnabled();
+      bool equaliserMusicbee = mbApiInterface_.Player_GetEqualiserEnabled();
+      RepeatMode repeatMusicbee = mbApiInterface_.Player_GetRepeat();
+      bool shuffleMusicbee = mbApiInterface_.Player_GetShuffle();
+
+      foreach (Screen screen in lcdScreenList_)
+      {
+        screen.playerSettingsChanged(autoDJMusicbee, equaliserMusicbee, shuffleMusicbee, repeatMusicbee);
       }
     }
     #endregion

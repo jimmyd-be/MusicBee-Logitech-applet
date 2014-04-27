@@ -30,16 +30,19 @@ namespace MusicBeePlugin
       : base(device)
     {
       plugin_ = musicBeePlugin;
-      //backgroundGdi_ = backgroundGdi;
       type_ = type;
       device_ = device;
       index_ = index;
 
-      if(device.DeviceType == LcdDeviceType.Qvga)
+      if (device.DeviceType == LcdDeviceType.Qvga && backgroundGdi == "")
       {
-        backgroundImage_ = (Image)Resource.G19logo;
+        backgroundImage_ = (Image)Resource.G19Background;
         backgroundGdi_ = new LcdGdiImage(backgroundImage_);
         this.Children.Add(backgroundGdi_);
+      }
+      else if(device.DeviceType == LcdDeviceType.Qvga && backgroundGdi != "")
+      {
+
       }
     }
 

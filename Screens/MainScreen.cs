@@ -377,15 +377,5 @@ namespace MusicBeePlugin.Screens
         }
       }
     }
-
-    public override void volumeChanged(float volume)
-    {
-    }
-
-    public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)
-    {
-      throw new NotImplementedException();
-    }
-
   }
 }

@@ -12,22 +12,30 @@ namespace MusicBeePlugin.Screens
     private LcdGdiIcon lowVolumeIcon_;
     private LcdGdiIcon highVolumeIcon_;
 
+    private LcdGdiImage lowVolumeImageGdi_;
+    private LcdGdiImage highVolumeImageGdi_;
+
+    private Image lowVolumeImage_ = null;
+    private Image highVolumeImage_ = null;
+
     private LcdGdiProgressBar volumeBarGdi_ = null;
 
     private float volume_ = 1;
     private float volumeChanger_ = 0.1f;
 
-    public VolumeScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
+    public VolumeScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index, int volume)
       : base(device, type, backgroundGdi, plugin, index)
     {
       screenName_ = "VolumeScreen";
       plugin_.getSongData();
 
+      volumeChanger_ = volume / 100f;
+
       if (type == LcdDeviceType.Monochrome)
       {
         createMono();
       }
-      else if (type == LcdDeviceType.Qvga)
+      else if(type == LcdDeviceType.Qvga)
       {
         createColor();
       }
@@ -60,9 +68,27 @@ namespace MusicBeePlugin.Screens
 
     private void createColor()
     {
+      volumeBarGdi_ = new LcdGdiProgressBar();
+      volumeBarGdi_.Minimum = 0;
+      volumeBarGdi_.Maximum = 100;
+      volumeBarGdi_.Size = new SizeF(310, 20);
+      volumeBarGdi_.Margin = new MarginF(5, 150, 5, 0);
 
+      highVolumeImage_ = (Image)Resource.highVolumeG19;
+      highVolumeImageGdi_ = new LcdGdiImage(highVolumeImage_);
+      highVolumeImageGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Right;
+      highVolumeImageGdi_.Margin = new MarginF(0, 90, 5, 0);
+
+      lowVolumeImage_ = (Image)Resource.lowVolumeG19;
+      lowVolumeImageGdi_ = new LcdGdiImage(lowVolumeImage_);
+      lowVolumeImageGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Left;
+      lowVolumeImageGdi_.Margin = new MarginF(5, 90, 5, 0);
+
+      this.Children.Add(backgroundGdi_);
+      this.Children.Add(highVolumeImageGdi_);
+      this.Children.Add(lowVolumeImageGdi_);
+      this.Children.Add(volumeBarGdi_);
     }
-
 
     public override void buttonPressedMonochrome(object sender, LcdSoftButtonsEventArgs e)
     {
@@ -98,7 +124,7 @@ namespace MusicBeePlugin.Screens
         plugin_.changeVolume(volume_);
       }
 
-           // Fourth button is pressed
+      // Fourth button is pressed
       else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
       {
         plugin_.goToNextPage();
@@ -107,27 +133,53 @@ namespace MusicBeePlugin.Screens
 
     public override void buttonPressedColor(object sender, LcdSoftButtonsEventArgs e)
     {
+      if ((e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left)
+      {
+        plugin_.goToPreviousPage();
+      }
 
-    }
+          //G19 up button pressed
+      else if ((e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up)
+      {
+        volume_ += volumeChanger_;
 
-    public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
-    {
-    }
+        if (volume_ > 1)
+        {
+          volume_ = 1;
+        }
 
-    public override void positionChanged(int position)
-    {
+        plugin_.changeVolume(volume_);
+      }
 
+      //G19 down button pressed
+      else if ((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down)
+      {
+        volume_ -= volumeChanger_;
+
+        if (volume_ < 0)
+        {
+          volume_ = 0;
+        }
+
+        plugin_.changeVolume(volume_);
+      }
+
+          //G19 Right button
+      else if ((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right)
+      {
+        plugin_.goToNextPage();
+      }
+
+          //G19 Ok button
+      else if ((e.SoftButtons & LcdSoftButtons.Ok) == LcdSoftButtons.Ok)
+      {
+      }
     }
 
     public override void volumeChanged(float volume)
     {
       volume_ = volume;
       volumeBarGdi_.Value = (int)(volume_ * 100f);
-    }
-
-    public override void playerSettingsChanged(bool autoDJ, bool equaliser, bool shuffle, MusicBeePlugin.Plugin.RepeatMode repeat)
-    {
-      throw new NotImplementedException();
     }
   }
 }

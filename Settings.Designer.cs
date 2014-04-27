@@ -46,9 +46,9 @@
       this.BackgroundCustomButton = new System.Windows.Forms.RadioButton();
       this.browseButton = new System.Windows.Forms.Button();
       this.label4 = new System.Windows.Forms.Label();
-      this.defaultScreencomboBox = new System.Windows.Forms.ComboBox();
       this.panel1 = new System.Windows.Forms.Panel();
       this.logitechLabel = new System.Windows.Forms.Label();
+      this.defaultScreencomboBox = new System.Windows.Forms.ComboBox();
       ((System.ComponentModel.ISupportInitialize)(this.volumeChangerSpinBox)).BeginInit();
       this.panel1.SuspendLayout();
       this.SuspendLayout();
@@ -249,15 +249,6 @@
       this.label4.TabIndex = 18;
       this.label4.Text = "Start screen:";
       // 
-      // defaultScreencomboBox
-      // 
-      this.defaultScreencomboBox.FormattingEnabled = true;
-      this.defaultScreencomboBox.Location = new System.Drawing.Point(119, 316);
-      this.defaultScreencomboBox.Name = "defaultScreencomboBox";
-      this.defaultScreencomboBox.Size = new System.Drawing.Size(120, 21);
-      this.defaultScreencomboBox.TabIndex = 19;
-      this.defaultScreencomboBox.SelectedIndexChanged += new System.EventHandler(this.defaultScreencomboBox_SelectedIndexChanged);
-      // 
       // panel1
       // 
       this.panel1.Controls.Add(this.AlwaysOnTopRadioButton);
@@ -275,6 +266,15 @@
       this.logitechLabel.Size = new System.Drawing.Size(159, 13);
       this.logitechLabel.TabIndex = 22;
       this.logitechLabel.Text = "No Logitech device found so far";
+      // 
+      // defaultScreencomboBox
+      // 
+      this.defaultScreencomboBox.FormattingEnabled = true;
+      this.defaultScreencomboBox.Location = new System.Drawing.Point(119, 316);
+      this.defaultScreencomboBox.Name = "defaultScreencomboBox";
+      this.defaultScreencomboBox.Size = new System.Drawing.Size(120, 21);
+      this.defaultScreencomboBox.TabIndex = 19;
+      this.defaultScreencomboBox.SelectedIndexChanged += new System.EventHandler(this.defaultScreencomboBox_SelectedIndexChanged);
       // 
       // Settings
       // 
@@ -333,9 +333,9 @@
         private System.Windows.Forms.RadioButton BackgroundCustomButton;
         private System.Windows.Forms.Button browseButton;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.ComboBox defaultScreencomboBox;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label logitechLabel;
+        private System.Windows.Forms.ComboBox defaultScreencomboBox;
 
     }
 }
