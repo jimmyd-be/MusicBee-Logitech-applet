@@ -34,7 +34,7 @@ namespace MusicBeePlugin
       device_ = device;
       index_ = index;
 
-      if (device.DeviceType == LcdDeviceType.Qvga && backgroundGdi == "")
+      if (device.DeviceType == LcdDeviceType.Qvga && String.IsNullOrEmpty(backgroundGdi))
       {
         backgroundImage_ = (Image)Resource.G19Background;
         backgroundGdi_ = new LcdGdiImage(backgroundImage_);
@@ -42,7 +42,9 @@ namespace MusicBeePlugin
       }
       else if(device.DeviceType == LcdDeviceType.Qvga && backgroundGdi != "")
       {
-
+        backgroundImage_ = Image.FromFile(backgroundGdi, true);
+        backgroundGdi_ = new LcdGdiImage(backgroundImage_);
+        this.Children.Add(backgroundGdi_);
       }
     }
 
