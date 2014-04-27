@@ -26,7 +26,7 @@ namespace MusicBeePlugin
     private LcdDevice device_ = null;
 
     private AutoResetEvent autoEvent = null;
-    private System.Threading.Timer timer = null;
+    private System.Threading.Timer timer_ = null;
 
     private int currentPage_ = 0;
 
@@ -62,9 +62,15 @@ namespace MusicBeePlugin
     // MusicBee is closing the plugin (plugin is being disabled by user or MusicBee is shutting down)
     public void Close(PluginCloseReason reason)
     {
+      if(timer_ != null)
+      {
+        timer_.Dispose();
+        timer_ = null;
+      }
+
       if (settings_ != null)
       {
-        settings_.Close();
+        settings_.Dispose();
         settings_ = null;
       }
 
@@ -122,7 +128,7 @@ namespace MusicBeePlugin
             // Create a timer that signals the delegate to invoke  
             // CheckStatus after one second, and every 1/4 second  
             // thereafter.
-            timer = new System.Threading.Timer(tcb, autoEvent, 1000, 100);
+            timer_ = new System.Threading.Timer(tcb, autoEvent, 1000, 100);
           }
           eventHappened_ = true;
           break;

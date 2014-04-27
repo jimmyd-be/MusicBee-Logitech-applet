@@ -37,6 +37,8 @@ namespace MusicBeePlugin
       AlwaysOnTopRadioButton.Checked = true;
       BackgroundDefaultButton.Checked = true;
 
+      disabledScreensList.Items.AddRange(typeof(MusicBeePlugin.Plugin.screenEnum).GetEnumNames());
+
       openSettings();
     }
 
@@ -65,9 +67,6 @@ namespace MusicBeePlugin
           BackgroundDefaultButton.Visible = true;
           BackgroundCustomButton.Visible = true;
           browseButton.Visible = true;
-
-          enabledScreensList.Items.Remove(MusicBeePlugin.Plugin.screenEnum.VolumeScreen.ToString());
-          disabledScreensList.Items.Remove(MusicBeePlugin.Plugin.screenEnum.VolumeScreen.ToString());
         }
       }
     }
