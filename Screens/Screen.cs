@@ -24,7 +24,7 @@ namespace MusicBeePlugin
 
     protected Plugin plugin_ = null;
 
-    protected LcdDevice device_;
+    protected LcdDevice device_ = null;
 
     public Screen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin musicBeePlugin, int index)
       : base(device)
@@ -48,6 +48,15 @@ namespace MusicBeePlugin
       }
     }
 
+
+    public virtual void close()
+    {
+      if (backgroundImage_ != null)
+      {
+        backgroundImage_.Dispose();
+      }
+    }
+    
     public virtual void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
     {
 

@@ -218,6 +218,8 @@ namespace MusicBeePlugin
 
     private void openScreens()
     {
+
+      closeScreens();
       lcdScreenList_.Clear();
 
       int index = -1;
@@ -258,6 +260,16 @@ namespace MusicBeePlugin
           }
         }
       }
+    }
+
+    public void closeScreens()
+    {
+      foreach (Screen screen in lcdScreenList_)
+      {
+        screen.close();
+      }
+
+      lcdScreenList_.Clear();
     }
 
     public void connectDevice()

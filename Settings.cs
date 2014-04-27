@@ -131,10 +131,11 @@ namespace MusicBeePlugin
         if (useDefaultBackground_)
         {
           BackgroundDefaultButton.Checked = true;
+          backgroundImage_ = "";
         }
         else
         {
-          BackgroundDefaultButton.Checked = false;
+          BackgroundCustomButton.Checked = true;
           browseButton.Enabled = true;
         }
 
@@ -198,6 +199,7 @@ namespace MusicBeePlugin
 
       if (errorMessage.Length == 0)
       {
+        plugin_.closeScreens();
         screenList_.Clear();
 
         string screenSave = "";
@@ -209,7 +211,24 @@ namespace MusicBeePlugin
           screenList_.Add(enabledScreensList.Items[i].ToString());
         }
 
-        string[] lines = { "alwaysOnTop: " + alwaysOnTop_, "volumeChanger: " + volumeChanger_, "DefaultBackground: " + BackgroundCustomButton.Checked,
+        if (BackgroundDefaultButton.Checked)
+        {
+          try
+          {
+            if (File.Exists(backgroundImage_))
+            {
+              File.Delete(backgroundImage_);
+            }
+          }
+          catch (Exception)
+          {
+
+          }
+
+          backgroundImage_ = "";
+        }
+
+        string[] lines = { "alwaysOnTop: " + alwaysOnTop_, "volumeChanger: " + volumeChanger_, "DefaultBackground: " + BackgroundDefaultButton.Checked,
                          "Background: " + backgroundImage_, "PageCounter: " + enabledScreensList.Items.Count, "Pages: " + screenSave, "StartScreen: " + defaultScreencomboBox.Items[defaultScreencomboBox.SelectedIndex].ToString()};
         File.WriteAllLines(settingsPath_ + "LogitechLCDSettings.ini", lines);
 
@@ -259,14 +278,30 @@ namespace MusicBeePlugin
     private void browseButton_Click(object sender, EventArgs e)
     {
       OpenFileDialog dialog = new OpenFileDialog();
-      dialog.Filter = "Image Files (*.jpg)|*.jpg";
+      dialog.Filter = "Image Files (*.bmp, *.jpg, *.png, *.gif)|*.bmp;*.jpg;*.png;*.gif";
       DialogResult result = dialog.ShowDialog(this);
 
       if (result == System.Windows.Forms.DialogResult.OK)
       {
-        File.Copy(dialog.FileName, settingsPath_ + "background.jpg");
+        Image FromFile = Image.FromFile(dialog.FileName, true);
 
-        backgroundImage_ = "background.jpg";
+        if (FromFile.Size.Height == 240 && FromFile.Size.Width == 320)
+        {
+          string file = settingsPath_ + "background" + Path.GetExtension(dialog.FileName);
+          if (File.Exists(file))
+          {
+            File.Delete(file);
+          }
+          File.Copy(dialog.FileName, file);
+
+          backgroundImage_ = file;
+        }
+        else
+        {
+          MessageBox.Show("Backgroud image must be 320 x 240 px!!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        FromFile.Dispose();
       }
     }
 
