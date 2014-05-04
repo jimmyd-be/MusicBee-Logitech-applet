@@ -349,16 +349,6 @@ namespace MusicBeePlugin.Screens
       }
     }
 
-    public override void positionChanged(int position)
-    {
-
-    }
-
-    public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
-    {
-      
-    }
-
     public override void volumeChanged(float volume)
     {
       if (device_.DeviceType == LcdDeviceType.Qvga)

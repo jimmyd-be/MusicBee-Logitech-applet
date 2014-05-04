@@ -30,7 +30,7 @@ namespace MusicBeePlugin
 
     private int currentPage_ = 0;
 
-    public enum screenEnum { MainScreen, SettingsScreen, VolumeScreen, ControlScreen };
+    public enum screenEnum { MainScreen, SettingsScreen, VolumeScreen, ControlScreen, LyricsScreen };
     public enum ScreenUseAllButtons { SettingsScreen, ControlScreen };
 
     public PluginInfo Initialise(IntPtr apiInterfacePtr)
@@ -62,7 +62,7 @@ namespace MusicBeePlugin
     // MusicBee is closing the plugin (plugin is being disabled by user or MusicBee is shutting down)
     public void Close(PluginCloseReason reason)
     {
-      if(timer_ != null)
+      if (timer_ != null)
       {
         timer_.Dispose();
         timer_ = null;
@@ -195,14 +195,14 @@ namespace MusicBeePlugin
       {
         pluginObject_.timerTime_ += 100;
 
-        if ((pluginObject_.timerTime_/1000)%30 == 0)
+        if ((pluginObject_.timerTime_ / 1000) % 5 == 0)
         {
           pluginObject_.timerTime_ = pluginObject_.mbApiInterface_.Player_GetPosition();
         }
 
         if (pluginObject_.currentPage_ > -1 && pluginObject_.currentPage_ < pluginObject_.lcdScreenList_.Count)
         {
-          pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged(Convert.ToInt32(pluginObject_.timerTime_) / 1000);
+          pluginObject_.lcdScreenList_[pluginObject_.currentPage_].positionChanged(Convert.ToInt32(pluginObject_.timerTime_));
         }
       }
 
@@ -216,62 +216,7 @@ namespace MusicBeePlugin
       }
     }
 
-    private void openScreens()
-    {
-
-      closeScreens();
-      lcdScreenList_.Clear();
-
-      int index = -1;
-
-      foreach (string screenString in settings_.screenList_)
-      {
-        index++;
-
-        Screen createdScreen = null;
-
-        if (screenString == screenEnum.MainScreen.ToString())
-        {
-          createdScreen = new MainScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
-        }
-
-        else if (screenString == screenEnum.SettingsScreen.ToString())
-        {
-          createdScreen = new PlayerSettingsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index, settings_.volumeChanger_);
-        }
-        else if (screenString == screenEnum.VolumeScreen.ToString())
-        {
-          createdScreen = new VolumeScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index, settings_.volumeChanger_);
-        }
-
-        else if (screenString == screenEnum.ControlScreen.ToString())
-        {
-          createdScreen = new PlayerControlScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
-        }
-
-        if (createdScreen != null)
-        {
-          lcdScreenList_.Add(createdScreen);
-
-          if (screenString == settings_.startupScreen_.ToString())
-          {
-            device_.CurrentPage = createdScreen;
-            currentPage_ = index;
-          }
-        }
-      }
-    }
-
-    public void closeScreens()
-    {
-      foreach (Screen screen in lcdScreenList_)
-      {
-        screen.close();
-      }
-
-      lcdScreenList_.Clear();
-    }
-
+    #region Logitech methods
     public void connectDevice()
     {
       LcdAppletCapabilities appletCapabilities = LcdAppletCapabilities.Both;
@@ -319,6 +264,71 @@ namespace MusicBeePlugin
       }
     }
 
+    #endregion
+
+    #region screen funtions
+
+    private void openScreens()
+    {
+
+      closeScreens();
+      lcdScreenList_.Clear();
+
+      int index = -1;
+
+      foreach (string screenString in settings_.screenList_)
+      {
+        index++;
+
+        Screen createdScreen = null;
+
+        if (screenString == screenEnum.MainScreen.ToString())
+        {
+          createdScreen = new MainScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
+        }
+
+        else if (screenString == screenEnum.SettingsScreen.ToString())
+        {
+          createdScreen = new PlayerSettingsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index, settings_.volumeChanger_);
+        }
+        else if (screenString == screenEnum.VolumeScreen.ToString())
+        {
+          createdScreen = new VolumeScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index, settings_.volumeChanger_);
+        }
+
+        else if (screenString == screenEnum.ControlScreen.ToString())
+        {
+          createdScreen = new PlayerControlScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
+        }
+
+        else if( screenString == screenEnum.LyricsScreen.ToString())
+        {
+          createdScreen = new LyricsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
+        }
+
+        if (createdScreen != null)
+        {
+          lcdScreenList_.Add(createdScreen);
+
+          if (screenString == settings_.startupScreen_.ToString())
+          {
+            device_.CurrentPage = createdScreen;
+            currentPage_ = index;
+          }
+        }
+      }
+    }
+
+    public void closeScreens()
+    {
+      foreach (Screen screen in lcdScreenList_)
+      {
+        screen.close();
+      }
+
+      lcdScreenList_.Clear();
+    }
+
     internal void goToPreviousPage()
     {
       currentPage_ -= 1;
@@ -337,11 +347,12 @@ namespace MusicBeePlugin
 
       if (currentPage_ >= lcdScreenList_.Count)
       {
-        currentPage_ = lcdScreenList_.Count -1 ;
+        currentPage_ = lcdScreenList_.Count - 1;
       }
 
       device_.CurrentPage = lcdScreenList_[currentPage_];
     }
+    #endregion
 
     #region Changers
 
@@ -434,6 +445,7 @@ namespace MusicBeePlugin
       string title = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.TrackTitle);
       string artwork = mbApiInterface_.NowPlaying_GetArtwork();
       string ratingString = mbApiInterface_.NowPlaying_GetFileTag(MetaDataType.Rating);
+      string lyrics = mbApiInterface_.NowPlaying_GetLyrics();
 
       float rating = 0;
 
@@ -444,7 +456,7 @@ namespace MusicBeePlugin
 
       foreach (Screen screen in lcdScreenList_)
       {
-        screen.songChanged(artist, album, title, rating, artwork, mbApiInterface_.NowPlaying_GetDuration() / 1000, mbApiInterface_.Player_GetPosition() / 1000);
+        screen.songChanged(artist, album, title, rating, artwork, mbApiInterface_.NowPlaying_GetDuration(), mbApiInterface_.Player_GetPosition(), lyrics);
       }
     }
 
@@ -460,7 +472,7 @@ namespace MusicBeePlugin
     {
       foreach (Screen screen in lcdScreenList_)
       {
-        screen.positionChanged(mbApiInterface_.Player_GetPosition() / 1000);
+        screen.positionChanged(mbApiInterface_.Player_GetPosition());
       }
     }
 

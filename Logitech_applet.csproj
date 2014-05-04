@@ -91,6 +91,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource.resx</DependentUpon>
     </Compile>
+    <Compile Include="Screens\LyricsScreen.cs" />
     <Compile Include="Screens\MainScreen.cs" />
     <Compile Include="Screens\PlayerControlScreen.cs" />
     <Compile Include="Screens\PlayerSettingsScreen.cs" />

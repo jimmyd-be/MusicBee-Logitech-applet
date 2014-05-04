@@ -57,7 +57,7 @@ namespace MusicBeePlugin
       }
     }
     
-    public virtual void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
+    public virtual void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position, string lyrics)
     {
 
     }

@@ -44,6 +44,7 @@ namespace MusicBeePlugin.Screens
     public MainScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
       : base(device, type, backgroundGdi, plugin, index)
     {
+      screenName_ = "MainScreen";
       plugin_.getSongData();
 
       if (type == LcdDeviceType.Monochrome)
@@ -307,27 +308,27 @@ namespace MusicBeePlugin.Screens
 
     public override void positionChanged(int position)
     {
-      position_ = position;
-      positionGdi_.Text = Conversions.timetoString(position);
-      int progresstime = (int)(((float)position / (float)duration_) * 100);
+      position_ = position/1000;
+      positionGdi_.Text = Conversions.timetoString(position_);
+      int progresstime = (int)(((float)position_ / (float)duration_) * 100);
       progressBarGdi_.Value = progresstime;
     }
 
-    public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position)
+    public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position, string lyrics)
     {
       artist_ = artist;
       album_ = album;
       title_ = title;
       rating_ = rating;
       artwork_ = artwork;
-      duration_ = duration;
-      position_ = position;
+      duration_ = duration /1000;
+      position_ = position /1000;
 
       titleGdi_.Text = title;
       artistGdi_.Text = artist;
-      positionGdi_.Text = Conversions.timetoString(position);
-      durationGdi_.Text = Conversions.timetoString(duration);
-      int progresstime = (int)(((float)position / (float)duration) * 100);
+      positionGdi_.Text = Conversions.timetoString(position_);
+      durationGdi_.Text = Conversions.timetoString(duration_);
+      int progresstime = (int)(((float)position_ / (float)duration_) * 100);
       progressBarGdi_.Value = progresstime;
 
       if (LcdDeviceType.Qvga == device_.DeviceType)
