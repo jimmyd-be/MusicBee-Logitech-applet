@@ -300,8 +300,8 @@ namespace MusicBeePlugin
         {
           createdScreen = new PlayerControlScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
         }
-
-        else if( screenString == screenEnum.LyricsScreen.ToString())
+        
+        else if (screenString == screenEnum.LyricsScreen.ToString())
         {
           createdScreen = new LyricsScreen(device_, device_.DeviceType, settings_.backgroundImage_, this, index);
         }

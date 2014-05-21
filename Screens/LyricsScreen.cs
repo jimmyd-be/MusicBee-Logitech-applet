@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -15,15 +16,17 @@ namespace MusicBeePlugin.Screens
       public string text;
     }
 
-    private LyricsText[] lyrics_;
+    private List<LyricsText> lyrics_ = null;
 
     private bool synchronized_ = false;
 
     private LcdGdiText mainTextGdi_ = null;
     private LcdGdiText secondTextGdi_ = null;
+    private LcdGdiText thirdTextGdi_ = null;
 
-    private LcdGdiScrollViewer secondTextScroll_ = null;
+    protected  Font mainTextFont_ = new Font("Arial", 10);
 
+    private int maximumTextSize_ = 0;
     private int lyricsPosition_ = 0;
 
     public LyricsScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
@@ -35,39 +38,44 @@ namespace MusicBeePlugin.Screens
 
       if (type == LcdDeviceType.Monochrome)
       {
+        maximumTextSize_ = 40;
         createMono();
       }
       else if (type == LcdDeviceType.Qvga)
       {
+        mainTextFont_ = new Font(mainTextFont_, FontStyle.Bold);
+        maximumTextSize_ = 55;
         createColor();
       }
+
     }
 
     private void createMono()
     {
-      mainTextGdi_ = new LcdGdiText("", font_);
+      mainTextGdi_ = new LcdGdiText("", font2_);
       mainTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
       mainTextGdi_.Margin = new MarginF(-2, -1, 0, 0);
 
-      secondTextGdi_ = new LcdGdiText("", font2_);
-      secondTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-      secondTextGdi_.Margin = new MarginF(0, 30, 0, 0);
-
-      secondTextScroll_ = new LcdGdiScrollViewer(secondTextGdi_);
-      secondTextScroll_.AutoScrollX = true;
-      secondTextScroll_.AutoScrollY = false;
-      secondTextScroll_.AutoScrollSpeedX = 5;
-      secondTextScroll_.AutoScrollSpeedY = 0;
-      secondTextScroll_.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
-
       this.Children.Add(mainTextGdi_);
-      this.Children.Add(secondTextGdi_);
-      this.Children.Add(secondTextScroll_);
     }
 
     private void createColor()
     {
+      mainTextGdi_ = new LcdGdiText("", mainTextFont_);
+      mainTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+      mainTextGdi_.Margin = new MarginF(5, 5, 5, 0);
 
+      secondTextGdi_ = new LcdGdiText("", font4_);
+      secondTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+      secondTextGdi_.Margin = new MarginF(5, 60, 5, 0);
+
+      thirdTextGdi_ = new LcdGdiText("", font4_);
+      thirdTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
+      thirdTextGdi_.Margin = new MarginF(5, 100, 5, 0);
+
+      this.Children.Add(mainTextGdi_);
+      this.Children.Add(secondTextGdi_);
+      this.Children.Add(thirdTextGdi_);
     }
 
     public override void buttonPressedMonochrome(object sender, LcdSoftButtonsEventArgs e)
@@ -81,13 +89,19 @@ namespace MusicBeePlugin.Screens
       // Second button is pressed
       else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1) && !synchronized_)
       {
-
+        if (lyricsPosition_ > 0)
+        {
+          lyricsPosition_--;
+        }
       }
 
       // Third button is pressed
       else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2 && !synchronized_)
       {
-
+        if (lyricsPosition_ < lyrics_.Count)
+        {
+          lyricsPosition_++;
+        }
       }
 
            // Fourth button is pressed
@@ -104,25 +118,31 @@ namespace MusicBeePlugin.Screens
         plugin_.goToPreviousPage();
       }
 
-          //G19 up button pressed
+       //G19 up button pressed
       else if ((e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up && !synchronized_)
       {
-
+        if (lyricsPosition_ > 0)
+        {
+          lyricsPosition_--;
+        }
       }
 
       //G19 down button pressed
       else if ((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down && !synchronized_)
       {
-
+        if (lyricsPosition_ < lyrics_.Count)
+        {
+          lyricsPosition_++;
+        }
       }
 
-          //G19 Right button
+       //G19 Right button
       else if ((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right)
       {
         plugin_.goToNextPage();
       }
 
-          //G19 Ok button
+       //G19 Ok button
       else if ((e.SoftButtons & LcdSoftButtons.Ok) == LcdSoftButtons.Ok)
       {
       }
@@ -131,14 +151,32 @@ namespace MusicBeePlugin.Screens
     public override void positionChanged(int position)
     {
       int textLine = searchLine(position);
-      mainTextGdi_.Text = WordWrap(lyrics_[textLine].text.Replace("\r\n", "\n").Replace("\r", "\n"), 30);
-      secondTextGdi_.Text = lyrics_[textLine + 1].text.Replace("\r\n", "\n").Replace("\r", "\n");
+
+      if (lyrics_ != null && (textLine < lyrics_.Count) && (lyrics_.Count > -1))
+      {
+        mainTextGdi_.Text = WordWrap(lyrics_[textLine].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
+
+        if (device_.DeviceType == LcdDeviceType.Qvga)
+        {
+          secondTextGdi_.Text = WordWrap(lyrics_[textLine + 1].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
+          thirdTextGdi_.Text = WordWrap(lyrics_[textLine + 2].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
+        }
+      }
     }
 
     public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position, string lyrics)
     {
-      parseLyrics(lyrics);
+      lyrics_ = null;
       lyricsPosition_ = 0;
+
+      if (lyrics != null && lyrics.Length != 0)
+      {
+        parseLyrics(lyrics);
+      }
+      else
+      {
+        mainTextGdi_.Text = "No lyrics found";
+      }
     }
 
     public static string WordWrap(string text, int width)
@@ -203,47 +241,62 @@ namespace MusicBeePlugin.Screens
 
     private int searchLine(int position)
     {
-      for (int i = lyricsPosition_; i < lyrics_.Length-1; i++ )
+      if (synchronized_)
       {
-        if (lyrics_[i+1].time >= (float)position)
+        for (int i = lyricsPosition_; i < lyrics_.Count - 1; i++)
         {
-          lyricsPosition_ = i;
-          return i;
+          if (lyrics_[i + 1].time >= (float)position)
+          {
+            lyricsPosition_ = i;
+            return i;
+          }
         }
       }
+
       return lyricsPosition_;
     }
 
     private void parseLyrics(string lyrics)
     {
-      if (lyrics != null && lyrics.Length != 0)
-      {
-        string[] lrc_1 = lyrics.Split(new char[] { '[', ']' });
+      lyrics_ = new List<LyricsText>();
 
-        format_1(lrc_1);
-        format_2(lrc_1);
-        format_3();
-      }
-    }
+      lyrics = lyrics.Replace("\r\n", "\n").Replace("\r", "\n");
 
-    private void format_1(string[] lrc_1)
-    {
-      for (int i = 2, j = 0; i < lrc_1.Length; i += 2, j = i)
-      {
-        while (lrc_1[j] == string.Empty)
-        {
-          lrc_1[i] = lrc_1[j += 2];
+      int position = lyrics.IndexOf("\n");
+      while (position != -1) {
+        LyricsText textObject = new LyricsText();
+        string temp = lyrics.Substring(0, position);
+        lyrics = lyrics.Remove(0, position + 1);
+
+        int timepos = temp.IndexOf("[");
+        int timepos2 = temp.IndexOf("]");
+
+        if (timepos != -1 && timepos2 != -1) {
+          int timeInt = 0;
+          string time = temp.Substring(timepos+1, timepos2 - timepos - 1);
+
+          int doublePointPos =  time.IndexOf(":");
+          timeInt += Convert.ToInt32(time.Substring(0, doublePointPos))* 60000;
+          time = time.Remove(0, doublePointPos + 1);
+
+          doublePointPos = time.IndexOf(".");
+          timeInt += Convert.ToInt32(time.Substring(0, doublePointPos)) * 1000;
+          time = time.Remove(0, doublePointPos + 1);
+
+          timeInt += Convert.ToInt32(time);
+          
+          textObject.text = temp.Remove(0, timepos2 + 1);
+          textObject.time = timeInt;
+
+          synchronized_ = true;
+        } else {
+          synchronized_ = false;
+
         }
-      }
-    }
 
-    private void format_2(string[] lrc_1)
-    {
-      lyrics_ = new LyricsText[lrc_1.Length / 2];
-      for (int i = 1, j = 0; i < lrc_1.Length; i++, j++)
-      {
-        lyrics_[j].time = timeToMs(lrc_1[i]);
-        lyrics_[j].text = lrc_1[++i];
+        lyrics_.Add(textObject);
+
+        position = lyrics.IndexOf("\n");
       }
     }
 
@@ -263,26 +316,6 @@ namespace MusicBeePlugin.Screens
       float.TryParse(lrc_t_1[1].Replace(".", ","), out s);
       ms = m * 60000 + s * 1000;
       return (int)ms;
-    }
-
-    private void format_3()
-    {
-      LyricsText tlrc_temp;
-      bool b = true;
-      for (int i = 0; i < lyrics_.Length - 1; i++, b = true)
-      {
-        for (int j = 0; j < lyrics_.Length - i - 1; j++)
-        {
-          if (lyrics_[j].time > lyrics_[j + 1].time)
-          {
-            tlrc_temp = lyrics_[j];
-            lyrics_[j] = lyrics_[j + 1];
-            lyrics_[j + 1] = tlrc_temp;
-            b = false;
-          }
-        }
-        if (b) break;
-      }
     }
   }
 }
