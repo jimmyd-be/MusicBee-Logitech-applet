@@ -160,6 +160,7 @@ namespace MusicBeePlugin
         case NotificationType.TrackChanged:
         case NotificationType.VolumeLevelChanged:
         case NotificationType.VolumeMuteChanged:
+        case NotificationType.NowPlayingLyricsReady:
           if (lcdScreenList_.Count > 0 && lcdScreenList_[0].getName() == "StartupScreen")
           {
             openScreens();

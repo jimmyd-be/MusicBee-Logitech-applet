@@ -251,7 +251,7 @@ namespace MusicBeePlugin.Screens
             return i;
           }
         }
-      }
+      } 
 
       return lyricsPosition_;
     }
@@ -292,9 +292,13 @@ namespace MusicBeePlugin.Screens
         } else {
           synchronized_ = false;
 
+          textObject.text = temp;
+          textObject.time = 0;
         }
 
-        lyrics_.Add(textObject);
+        if (textObject.text != "" && textObject.text != null) {
+          lyrics_.Add(textObject);
+        }
 
         position = lyrics.IndexOf("\n");
       }
