@@ -280,11 +280,13 @@ namespace MusicBeePlugin.Screens
           time = time.Remove(0, doublePointPos + 1);
 
           doublePointPos = time.IndexOf(".");
-          timeInt += Convert.ToInt32(time.Substring(0, doublePointPos)) * 1000;
-          time = time.Remove(0, doublePointPos + 1);
+          if (doublePointPos != -1) {
+            timeInt += Convert.ToInt32(time.Substring(0, doublePointPos)) * 1000;
+            time = time.Remove(0, doublePointPos + 1);
+          }
 
           timeInt += Convert.ToInt32(time);
-          
+
           textObject.text = temp.Remove(0, timepos2 + 1);
           textObject.time = timeInt;
 
