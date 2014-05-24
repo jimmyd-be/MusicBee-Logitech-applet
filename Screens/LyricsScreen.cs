@@ -6,12 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 
-namespace MusicBeePlugin.Screens
-{
-  class LyricsScreen : Screen
-  {
-    public struct LyricsText
-    {
+namespace MusicBeePlugin.Screens {
+  class LyricsScreen : Screen {
+    public struct LyricsText {
       public int time;
       public string text;
     }
@@ -24,34 +21,28 @@ namespace MusicBeePlugin.Screens
     private LcdGdiText secondTextGdi_ = null;
     private LcdGdiText thirdTextGdi_ = null;
 
-    protected  Font mainTextFont_ = new Font("Arial", 10);
+    protected Font mainTextFont_ = new Font("Arial", 10);
 
     private int maximumTextSize_ = 0;
     private int lyricsPosition_ = 0;
 
     public LyricsScreen(LcdDevice device, LcdDeviceType type, string backgroundGdi, Plugin plugin, int index)
-      : base(device, type, backgroundGdi, plugin, index)
-    {
+      : base(device, type, backgroundGdi, plugin, index) {
       screenName_ = "LyricsScreen";
 
       plugin_.getSongData();
 
-      if (type == LcdDeviceType.Monochrome)
-      {
+      if (type == LcdDeviceType.Monochrome) {
         maximumTextSize_ = 40;
         createMono();
-      }
-      else if (type == LcdDeviceType.Qvga)
-      {
+      } else if (type == LcdDeviceType.Qvga) {
         mainTextFont_ = new Font(mainTextFont_, FontStyle.Bold);
-        maximumTextSize_ = 55;
+        maximumTextSize_ = 50;
         createColor();
       }
-
     }
 
-    private void createMono()
-    {
+    private void createMono() {
       mainTextGdi_ = new LcdGdiText("", font2_);
       mainTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
       mainTextGdi_.Margin = new MarginF(-2, -1, 0, 0);
@@ -59,128 +50,113 @@ namespace MusicBeePlugin.Screens
       this.Children.Add(mainTextGdi_);
     }
 
-    private void createColor()
-    {
+    private void createColor() {
       mainTextGdi_ = new LcdGdiText("", mainTextFont_);
       mainTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-      mainTextGdi_.Margin = new MarginF(5, 5, 5, 0);
+      mainTextGdi_.Margin = new MarginF(5, 10, 5, 0);
 
       secondTextGdi_ = new LcdGdiText("", font4_);
       secondTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-      secondTextGdi_.Margin = new MarginF(5, 60, 5, 0);
+      secondTextGdi_.Margin = new MarginF(5, 70, 5, 0);
 
       thirdTextGdi_ = new LcdGdiText("", font4_);
       thirdTextGdi_.HorizontalAlignment = LcdGdiHorizontalAlignment.Center;
-      thirdTextGdi_.Margin = new MarginF(5, 100, 5, 0);
+      thirdTextGdi_.Margin = new MarginF(5, 125, 5, 0);
 
       this.Children.Add(mainTextGdi_);
       this.Children.Add(secondTextGdi_);
       this.Children.Add(thirdTextGdi_);
     }
 
-    public override void buttonPressedMonochrome(object sender, LcdSoftButtonsEventArgs e)
-    {
+    public override void buttonPressedMonochrome(object sender, LcdSoftButtonsEventArgs e) {
       // First button is pressed, switch to page one
-      if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0)
-      {
+      if ((e.SoftButtons & LcdSoftButtons.Button0) == LcdSoftButtons.Button0) {
         plugin_.goToPreviousPage();
       }
 
       // Second button is pressed
-      else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1) && !synchronized_)
-      {
-        if (lyricsPosition_ > 0)
-        {
+      else if (((e.SoftButtons & LcdSoftButtons.Button1) == LcdSoftButtons.Button1) && !synchronized_) {
+        if (lyricsPosition_ > 0) {
           lyricsPosition_--;
         }
       }
 
       // Third button is pressed
-      else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2 && !synchronized_)
-      {
-        if (lyricsPosition_ < lyrics_.Count)
-        {
+      else if ((e.SoftButtons & LcdSoftButtons.Button2) == LcdSoftButtons.Button2 && !synchronized_) {
+        if (lyricsPosition_ < lyrics_.Count) {
           lyricsPosition_++;
         }
       }
 
            // Fourth button is pressed
-      else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3)
-      {
+      else if ((e.SoftButtons & LcdSoftButtons.Button3) == LcdSoftButtons.Button3) {
         plugin_.goToNextPage();
       }
     }
 
-    public override void buttonPressedColor(object sender, LcdSoftButtonsEventArgs e)
-    {
-      if ((e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left)
-      {
+    public override void buttonPressedColor(object sender, LcdSoftButtonsEventArgs e) {
+      if ((e.SoftButtons & LcdSoftButtons.Left) == LcdSoftButtons.Left) {
         plugin_.goToPreviousPage();
       }
 
        //G19 up button pressed
-      else if ((e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up && !synchronized_)
-      {
-        if (lyricsPosition_ > 0)
-        {
+      else if ((e.SoftButtons & LcdSoftButtons.Up) == LcdSoftButtons.Up && !synchronized_) {
+        if (lyricsPosition_ > 0) {
           lyricsPosition_--;
         }
       }
 
       //G19 down button pressed
-      else if ((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down && !synchronized_)
-      {
-        if (lyricsPosition_ < lyrics_.Count)
-        {
+      else if ((e.SoftButtons & LcdSoftButtons.Down) == LcdSoftButtons.Down && !synchronized_) {
+        if (lyricsPosition_ < lyrics_.Count) {
           lyricsPosition_++;
         }
       }
 
        //G19 Right button
-      else if ((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right)
-      {
+      else if ((e.SoftButtons & LcdSoftButtons.Right) == LcdSoftButtons.Right) {
         plugin_.goToNextPage();
       }
 
        //G19 Ok button
-      else if ((e.SoftButtons & LcdSoftButtons.Ok) == LcdSoftButtons.Ok)
-      {
+      else if ((e.SoftButtons & LcdSoftButtons.Ok) == LcdSoftButtons.Ok) {
       }
     }
 
-    public override void positionChanged(int position)
-    {
+    public override void positionChanged(int position) {
       int textLine = searchLine(position);
 
-      if (lyrics_ != null && (textLine < lyrics_.Count) && (lyrics_.Count > -1))
-      {
+      if (lyrics_ != null && (textLine < lyrics_.Count) && (lyrics_.Count > -1)) {
         mainTextGdi_.Text = WordWrap(lyrics_[textLine].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
 
-        if (device_.DeviceType == LcdDeviceType.Qvga)
-        {
-          secondTextGdi_.Text = WordWrap(lyrics_[textLine + 1].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
-          thirdTextGdi_.Text = WordWrap(lyrics_[textLine + 2].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
+        if (device_.DeviceType == LcdDeviceType.Qvga) {
+          if (textLine + 1 < lyrics_.Count) {
+            secondTextGdi_.Text = WordWrap(lyrics_[textLine + 1].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
+          }
+
+          if (textLine + 2 < lyrics_.Count) {
+            thirdTextGdi_.Text = WordWrap(lyrics_[textLine + 2].text.Replace("\r\n", "\n").Replace("\r", "\n"), maximumTextSize_);
+          }
         }
       }
     }
 
-    public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position, string lyrics)
-    {
+    public override void songChanged(string artist, string album, string title, float rating, string artwork, int duration, int position, string lyrics) {
       lyrics_ = null;
       lyricsPosition_ = 0;
 
-      if (lyrics != null && lyrics.Length != 0)
-      {
+      if (lyrics != null && lyrics.Length != 0) {
         parseLyrics(lyrics);
-      }
-      else
-      {
-        mainTextGdi_.Text = "No lyrics found";
+      } else {
+        lyrics_ = new List<LyricsText>();
+        LyricsText textObject = new LyricsText();
+        textObject.text = "No lyrics found";
+        textObject.time = 0;
+        lyrics_.Add(textObject);
       }
     }
 
-    public static string WordWrap(string text, int width)
-    {
+    public static string WordWrap(string text, int width) {
       int pos, next;
       StringBuilder sb = new StringBuilder();
 
@@ -189,8 +165,7 @@ namespace MusicBeePlugin.Screens
         return text;
 
       // Parse each line of text
-      for (pos = 0; pos < text.Length; pos = next)
-      {
+      for (pos = 0; pos < text.Length; pos = next) {
         // Find end of line
         int eol = text.IndexOf(Environment.NewLine, pos);
         if (eol == -1)
@@ -199,10 +174,8 @@ namespace MusicBeePlugin.Screens
           next = eol + Environment.NewLine.Length;
 
         // Copy this line of text, breaking into smaller lines as needed
-        if (eol > pos)
-        {
-          do
-          {
+        if (eol > pos) {
+          do {
             int len = eol - pos;
             if (len > width)
               len = BreakLine(text, pos, width);
@@ -214,14 +187,12 @@ namespace MusicBeePlugin.Screens
             while (pos < eol && Char.IsWhiteSpace(text[pos]))
               pos++;
           } while (eol > pos);
-        }
-        else sb.Append(Environment.NewLine); // Empty line
+        } else sb.Append(Environment.NewLine); // Empty line
       }
       return sb.ToString();
     }
 
-    private static int BreakLine(string text, int pos, int max)
-    {
+    private static int BreakLine(string text, int pos, int max) {
       // Find last whitespace in line
       int i = max;
       while (i >= 0 && !Char.IsWhiteSpace(text[pos + i]))
@@ -239,25 +210,20 @@ namespace MusicBeePlugin.Screens
       return i + 1;
     }
 
-    private int searchLine(int position)
-    {
-      if (synchronized_)
-      {
-        for (int i = lyricsPosition_; i < lyrics_.Count - 1; i++)
-        {
-          if (lyrics_[i + 1].time >= (float)position)
-          {
+    private int searchLine(int position) {
+      if (synchronized_) {
+        for (int i = lyricsPosition_; i < lyrics_.Count - 1; i++) {
+          if (lyrics_[i + 1].time >= (float)position) {
             lyricsPosition_ = i;
             return i;
           }
         }
-      } 
+      }
 
       return lyricsPosition_;
     }
 
-    private void parseLyrics(string lyrics)
-    {
+    private void parseLyrics(string lyrics) {
       lyrics_ = new List<LyricsText>();
 
       lyrics = lyrics.Replace("\r\n", "\n").Replace("\r", "\n");
@@ -273,10 +239,10 @@ namespace MusicBeePlugin.Screens
 
         if (timepos != -1 && timepos2 != -1) {
           int timeInt = 0;
-          string time = temp.Substring(timepos+1, timepos2 - timepos - 1);
+          string time = temp.Substring(timepos + 1, timepos2 - timepos - 1);
 
-          int doublePointPos =  time.IndexOf(":");
-          timeInt += Convert.ToInt32(time.Substring(0, doublePointPos))* 60000;
+          int doublePointPos = time.IndexOf(":");
+          timeInt += Convert.ToInt32(time.Substring(0, doublePointPos)) * 60000;
           time = time.Remove(0, doublePointPos + 1);
 
           doublePointPos = time.IndexOf(".");
@@ -306,17 +272,13 @@ namespace MusicBeePlugin.Screens
       }
     }
 
-    private int timeToMs(string lrc_t)
-    {
+    private int timeToMs(string lrc_t) {
       float m, s, ms;
       string[] lrc_t_1 = lrc_t.Split(':');
 
-      try
-      {
+      try {
         m = float.Parse(lrc_t_1[0]);
-      }
-      catch
-      {
+      } catch {
         return 0;
       }
       float.TryParse(lrc_t_1[1].Replace(".", ","), out s);

@@ -311,7 +311,7 @@ namespace MusicBeePlugin
         {
           lcdScreenList_.Add(createdScreen);
 
-          if (settings_.startupScreen_ != null && screenString == settings_.startupScreen_.ToString())
+          if (screenString == settings_.startupScreen_.ToString())
           {
             device_.CurrentPage = createdScreen;
             currentPage_ = index;
