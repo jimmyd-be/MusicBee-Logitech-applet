@@ -99,6 +99,7 @@ namespace MusicBeePlugin.Screens
       titleScroll_.AutoScrollX = true;
       titleScroll_.AutoScrollY = false;
       titleScroll_.AutoScrollSpeedY = 0;
+      titleScroll_.AutoScrollSpeedX = 10;
       titleScroll_.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
       titleScroll_.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
@@ -106,6 +107,7 @@ namespace MusicBeePlugin.Screens
       artistScroll_.AutoScrollY = false;
       artistScroll_.AutoScrollX = true;
       artistScroll_.AutoScrollSpeedY = 0;
+      artistScroll_.AutoScrollSpeedX = 10;
       artistScroll_.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
       artistScroll_.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
@@ -156,6 +158,7 @@ namespace MusicBeePlugin.Screens
       titleScroll_.AutoScrollX = true;
       titleScroll_.AutoScrollY = false;
       titleScroll_.AutoScrollSpeedY = 0;
+      titleScroll_.AutoScrollSpeedX = 10;
       titleScroll_.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
       titleScroll_.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
@@ -163,6 +166,7 @@ namespace MusicBeePlugin.Screens
       artistScroll_.AutoScrollY = false;
       artistScroll_.AutoScrollX = true;
       artistScroll_.AutoScrollSpeedY = 0;
+      artistScroll_.AutoScrollSpeedX = 10;
       artistScroll_.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
       artistScroll_.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
@@ -170,6 +174,7 @@ namespace MusicBeePlugin.Screens
       albumScroll_.AutoScrollY = false;
       albumScroll_.AutoScrollX = true;
       albumScroll_.AutoScrollSpeedY = 0;
+      albumScroll_.AutoScrollSpeedX = 10;
       albumScroll_.HorizontalAlignment = LcdGdiHorizontalAlignment.Stretch;
       albumScroll_.VerticalAlignment = LcdGdiVerticalAlignment.Top;
 
@@ -182,10 +187,12 @@ namespace MusicBeePlugin.Screens
       this.Children.Add(titleGdi_);
       this.Children.Add(titleScroll_);
       this.Children.Add(artistGdi_);
+      this.Children.Add(artistScroll_);
       this.Children.Add(positionGdi_);
       this.Children.Add(durationGdi_);
       this.Children.Add(progressBarGdi_);
       this.Children.Add(albumGdi_);
+      this.Children.Add(albumScroll_);
       this.Children.Add(artworkGdi_);
 
       ratingColorGdi_ = new LcdGdiImage[5];
