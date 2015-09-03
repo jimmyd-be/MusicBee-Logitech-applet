@@ -242,11 +242,6 @@ namespace MusicBeePlugin
 
         #region Logitech methods
 
-        public static void connectDeviceTimer(Object state)
-        {
-            pluginObject_.connectDevice();
-        }
-
         public void connectDevice()
         {
             LcdAppletCapabilities appletCapabilities = LcdAppletCapabilities.Both;
@@ -254,20 +249,21 @@ namespace MusicBeePlugin
 
             try
             {
-                applet_.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
-                applet_.DeviceRemoval += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceRemoval);
+                if (!applet_.IsConnected)
+                {
+                    applet_.DeviceArrival += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceArrival);
+                    applet_.DeviceRemoval += new EventHandler<LcdDeviceTypeEventArgs>(applet_DeviceRemoval);
 
-                applet_.ConnectionDisrupted += new EventHandler(errorHappend);
+                    applet_.ConnectionDisrupted += new EventHandler(errorHappend);
 
-                applet_.Connect();
+                    applet_.Connect();
+                }
 
-
-                //timer_.Dispose();
             }
             catch (Exception)
             {
-                //TimerCallback tcb = connectDeviceTimer;
-                //timer_ = new System.Threading.Timer(tcb, autoEvent, 1000, 100);
+                Thread.Sleep(5000);
+                connectDevice();
             }
         }
 
@@ -285,6 +281,11 @@ namespace MusicBeePlugin
             device_.CurrentPage = startupScreen;
 
             device_.DoUpdateAndDraw();
+
+            if(mbApiInterface_.Player_GetPlayState() == PlayState.Playing)
+            {
+                openScreens();
+            }
         }
 
         public void errorHappend(object sender, System.EventArgs e)
