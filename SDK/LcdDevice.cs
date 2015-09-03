@@ -220,7 +220,13 @@ namespace GammaJul.LgLcd {
 		}
 
 		private void Applet_ConnectionDisrupted(object sender, EventArgs e) {
-			Dispose();
+            try {
+                Dispose();
+            }
+            catch(Exception exc)
+            {
+
+            }
 		}
 
 		private void Applet_DeviceRemoval(object sender, LcdDeviceTypeEventArgs e) {
