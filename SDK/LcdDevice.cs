@@ -223,7 +223,7 @@ namespace GammaJul.LgLcd {
             try {
                 Dispose();
             }
-            catch(Exception exc)
+            catch(Exception)
             {
 
             }

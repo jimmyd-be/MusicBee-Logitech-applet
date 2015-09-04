@@ -234,7 +234,7 @@ namespace MusicBeePlugin
             {
                     pluginObject_.device_.DoUpdateAndDraw();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //Noting to do
             }
