@@ -92,13 +92,13 @@ Always use the latest version of MusicBee, MusicBee Logitech applet and Logitech
 ## Screenshots
 
 ### G15
-[G15 Main Screen (https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15Mainscreen.png)
-[G15 Settings Screen (https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15SettingsScreen.png)
-[G15 Startup Screen (https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15StartupScreen.png)
-[G15 Vlume Screen (https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15VolumeScreen.png)
+[G15 Main Screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15Mainscreen.png)  
+[G15 Settings Screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15SettingsScreen.png)  
+[G15 Startup Screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15StartupScreen.png)  
+[G15 Volume Screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G15VolumeScreen.png)  
 
 ### G19
 
-[Startup screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G19StartupScreen.png)
-[Main screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G19Mainscreen.png)
-[Settings screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G19SettingsScreen.png)
+[Startup screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G19StartupScreen.png)  
+[Main screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G19Mainscreen.png)  
+[Settings screen](https://github.com/lonelobo0070/MusicBee-Logitech-applet/blob/master/Screenshots/G19SettingsScreen.png)  
