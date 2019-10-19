@@ -1,4 +1,6 @@
- 
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![stable](http://badges.github.io/stability-badges/dist/stable.svg)](http://github.com/badges/stability-badges)
+
 # MusicBee 
 
 MusicBee is a free digital media player and media library application for organizing and playing audio on Microsoft Windows operating systems using the BASS Audio Library.
