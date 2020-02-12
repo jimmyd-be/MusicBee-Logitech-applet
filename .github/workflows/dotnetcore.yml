@@ -13,7 +13,7 @@ jobs:
            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
            .\MSBuild.exe $Env:GITHUB_WORKSPACE
       - name: Copy file
-        run: copy /B "C:\Program Files (x86)\MusicBee\Plugins\mb_LogitechPlugin.dll" $Env:GITHUB_WORKSPACE\Dll\mb_LogitechPlugin.dll
+        run: copy /B "C:\Program Files (x86)\MusicBee\Plugins\mb_LogitechPlugin.dll" .\Dll\mb_LogitechPlugin.dll
       - uses: montudor/action-zip@v0.1.0
         with:
           args: zip -qq -r ./plugin.zip ./Dll
