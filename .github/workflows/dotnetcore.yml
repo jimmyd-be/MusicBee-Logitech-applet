@@ -15,7 +15,7 @@ jobs:
       - name: Copy file
         run: copy "C:\Program Files (x86)\MusicBee\Plugins\mb_LogitechPlugin.dll" ".\Dll\mb_LogitechPlugin.dll"
       - name: Creat zip
-        run: compress-archive -path '.\Dll' -destinationpath '.\plugin.zip'
+        run: compress-archive -path '.\Dll\*.dll' -destinationpath '.\plugin.zip'
       - name: Upload artifact
         uses: actions/upload-artifact@v1
         with:
