@@ -1,4 +1,4 @@
-name: .NET Core
+name: Build and release
 
 on: [push]
 
@@ -8,7 +8,17 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v1
-      - name: Build DotNET35
+      - name: Build Musicbee Logitech plugin with DotNET4
         run: |
            cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\"
            .\MSBuild.exe $Env:GITHUB_WORKSPACE
+      - name: Copy file
+        run: copy /B "C:\Program Files (x86)\MusicBee\Plugins\mb_LogitechPlugin.dll" $Env:GITHUB_WORKSPACE\Dll\mb_LogitechPlugin.dll
+      - uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -qq -r ./plugin.zip ./Dll
+      - name: Upload artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: Musicbee Logitech plugin
+          path: ./plugin.zip
